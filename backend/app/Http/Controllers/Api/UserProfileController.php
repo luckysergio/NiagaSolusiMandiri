@@ -7,7 +7,7 @@ use App\Services\UserProfileService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class UserProfileController extends Controller
 {
@@ -24,23 +24,31 @@ class UserProfileController extends Controller
                 'success' => true,
                 'data' => $user
             ]);
-        } catch (\Exception $e) {
-            Log::error('Profile me error: ' . $e->getMessage());
-
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
-            ], 500);
+                'errors' => $e->errors()
+            ], 422);
         }
     }
 
     public function update(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['sometimes', 'string', 'max:150'],
-            'email' => ['sometimes', 'email', 'max:150'],
-            'password' => ['nullable', 'string', 'min:6']
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'name' => ['sometimes', 'string', 'max:150'],
+                'email' => ['sometimes', 'email', 'max:150'],
+                'password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            ],
+            [
+                'name.max' => 'Nama maksimal 150 karakter',
+                'email.email' => 'Format email tidak valid',
+                'email.max' => 'Email maksimal 150 karakter',
+                'password.min' => 'Password minimal 6 karakter',
+                'password.confirmed' => 'Konfirmasi password tidak cocok',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([
@@ -50,31 +58,36 @@ class UserProfileController extends Controller
         }
 
         try {
-            $user = $this->service->updateProfile(
-                $validator->validated()
-            );
+            $user = $this->service->updateProfile($validator->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Profile berhasil diperbarui',
                 'data' => $user
             ]);
-        } catch (\Exception $e) {
-            Log::error('Profile update error: ' . $e->getMessage());
-
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'errors' => $e->errors()
             ], 422);
         }
     }
 
     public function changePassword(Request $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'current_password' => ['required', 'string'],
-            'new_password' => ['required', 'string', 'min:6']
-        ]);
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'current_password' => ['required', 'string'],
+                'new_password' => ['required', 'string', 'min:6', 'confirmed'],
+            ],
+            [
+                'current_password.required' => 'Password lama wajib diisi',
+                'new_password.required' => 'Password baru wajib diisi',
+                'new_password.min' => 'Password baru minimal 6 karakter',
+                'new_password.confirmed' => 'Konfirmasi password baru tidak cocok',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json([
@@ -84,20 +97,16 @@ class UserProfileController extends Controller
         }
 
         try {
-            $this->service->changePassword(
-                $validator->validated()
-            );
+            $this->service->changePassword($validator->validated());
 
             return response()->json([
                 'success' => true,
                 'message' => 'Password berhasil diubah'
             ]);
-        } catch (\Exception $e) {
-            Log::error('Change password error: ' . $e->getMessage());
-
+        } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'errors' => $e->errors()
             ], 422);
         }
     }
