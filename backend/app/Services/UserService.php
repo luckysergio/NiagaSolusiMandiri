@@ -26,8 +26,6 @@ class UserService
     private const SENSITIVE_FIELDS = [
         'password',
         'remember_token',
-        'locked_until',
-        'force_logout_at',
     ];
 
     public function paginate(
@@ -36,7 +34,6 @@ class UserService
     ): LengthAwarePaginator {
 
         $cacheKey = $this->buildCacheKey($filters, $perPage);
-
         $this->registerListCacheKey($cacheKey);
 
         return Cache::remember($cacheKey, self::CACHE_TTL_USERS, function () use ($filters, $perPage) {
@@ -51,6 +48,7 @@ class UserService
                     'locked_until',
                     'last_login_at',
                     'last_login_ip',
+                    'force_logout_at',
                     'created_at',
                     'updated_at',
                 ])
@@ -164,7 +162,6 @@ class UserService
 
         DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
-
             $this->preventSuperAdminDeletion($user);
 
             $oldData = $this->sanitizeForLog($user->toArray());
@@ -176,7 +173,6 @@ class UserService
             );
 
             $user->delete();
-
             $this->clearUserAndListCache($id);
         });
     }
@@ -188,7 +184,11 @@ class UserService
 
             $oldData = $this->sanitizeForLog($user->toArray());
 
-            $user->update(['is_active' => true]);
+            $user->update([
+                'is_active' => true,
+                'force_logout_at' => null,
+            ]);
+
             $user->load('role:id,name,display_name');
 
             $this->logActivity(
@@ -208,7 +208,6 @@ class UserService
     {
         return DB::transaction(function () use ($id) {
             $user = User::findOrFail($id);
-
             $this->preventSelfDeactivation($id);
 
             $oldData = $this->sanitizeForLog($user->toArray());
@@ -398,14 +397,12 @@ class UserService
         }
 
         Cache::forget(self::CACHE_KEY_LIST_REGISTRY);
-
         Cache::forget(self::CACHE_KEY_STATISTICS);
     }
 
     private function clearUserAndListCache(int $userId): void
     {
         Cache::forget(self::CACHE_KEY_USER_PREFIX . $userId);
-
         $this->clearAllListCache();
     }
 

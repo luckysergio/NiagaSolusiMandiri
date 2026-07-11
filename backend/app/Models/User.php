@@ -176,6 +176,24 @@ class User extends Authenticatable implements JWTSubject
         ]);
     }
 
+    public function resetForceLogout(): void
+    {
+        if ($this->force_logout_at !== null) {
+            $this->update([
+                'force_logout_at' => null,
+            ]);
+        }
+    }
+
+    public function isForceLoggedOutAfter(int $tokenIssuedAt): bool
+    {
+        if ($this->force_logout_at === null) {
+            return false;
+        }
+
+        return $this->force_logout_at->timestamp > $tokenIssuedAt;
+    }
+
     public function getJWTIdentifier(): mixed
     {
         return $this->getKey();
@@ -187,7 +205,7 @@ class User extends Authenticatable implements JWTSubject
             'role' => $this->role?->name,
         ];
     }
-    
+
     public static function findByEmailWithRole(string $email): ?self
     {
         return self::with('role')

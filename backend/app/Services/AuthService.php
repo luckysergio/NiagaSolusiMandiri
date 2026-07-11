@@ -46,7 +46,6 @@ class AuthService
             ]);
         }
 
-        // Rate limit per email
         $emailRateKey = "login:email:{$email}";
         if (RateLimiter::tooManyAttempts($emailRateKey, 5)) {
             throw ValidationException::withMessages([
@@ -115,6 +114,7 @@ class AuthService
                 'failed_login_attempts' => 0,
                 'last_login_at' => now(),
                 'last_login_ip' => $ip,
+                'force_logout_at' => null,
             ]);
 
             LoginLog::create([
@@ -172,6 +172,20 @@ class AuthService
 
         if ($user instanceof User) {
             $user->load('role');
+
+            if (!$user->is_active) {
+                JWTAuth::invalidate($token);
+                throw ValidationException::withMessages([
+                    'email' => ['Akun dinonaktifkan.']
+                ]);
+            }
+
+            if ($user->isLocked()) {
+                JWTAuth::invalidate($token);
+                throw ValidationException::withMessages([
+                    'email' => ['Akun sedang terkunci.']
+                ]);
+            }
 
             LoginLog::create([
                 'user_id' => $user->id,
