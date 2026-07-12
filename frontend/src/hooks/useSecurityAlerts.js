@@ -1,4 +1,3 @@
-// src/pages/dashboard/hooks/useSecurityAlerts.js
 import { useState, useEffect, useMemo } from 'react';
 import { useDashboard } from '../hooks/useDashboard';
 

@@ -35,6 +35,7 @@ export const useDashboard = () => {
       gcTime: 1000 * 60 * 5,
       refetchInterval: 1000 * 60,
       refetchOnWindowFocus: true,
+      refetchOnMount: 'always',
     });
   };
 
@@ -47,6 +48,7 @@ export const useDashboard = () => {
       },
       gcTime: 1000 * 60 * 5,
       refetchOnWindowFocus: true,
+      refetchOnMount: 'always',
     });
   };
 
@@ -70,6 +72,7 @@ export const useDashboard = () => {
       },
       gcTime: 1000 * 60 * 5,
       refetchOnWindowFocus: true,
+      refetchOnMount: 'always',
     });
   };
 
@@ -93,6 +96,7 @@ export const useDashboard = () => {
       },
       gcTime: 1000 * 60 * 5,
       refetchOnWindowFocus: true,
+      refetchOnMount: 'always',
     });
   };
 
@@ -116,6 +120,7 @@ export const useDashboard = () => {
       },
       gcTime: 1000 * 60 * 5,
       refetchOnWindowFocus: true,
+      refetchOnMount: 'always',
     });
   };
 

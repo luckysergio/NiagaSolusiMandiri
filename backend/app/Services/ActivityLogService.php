@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
-use App\Events\ActivityLogCreated;
 use Illuminate\Support\Facades\Auth;
 
 class ActivityLogService
@@ -15,10 +14,6 @@ class ActivityLogService
         'force_logout_at',
     ];
 
-    public function __construct(
-        protected DashboardService $dashboardService
-    ) {}
-
     public function create(
         string $module,
         string $action,
@@ -26,7 +21,7 @@ class ActivityLogService
         ?array $oldData = null,
         ?array $newData = null
     ): ActivityLog {
-        $activityLog = ActivityLog::create([
+        return ActivityLog::create([
             'user_id' => Auth::id(),
             'module' => $module,
             'action' => $action,
@@ -36,14 +31,6 @@ class ActivityLogService
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
-
-        $activityLog->load('user:id,name,email');
-
-        broadcast(new ActivityLogCreated($activityLog));
-
-        $this->dashboardService->broadcastStatsUpdate();
-
-        return $activityLog;
     }
 
     public function logUserAction(

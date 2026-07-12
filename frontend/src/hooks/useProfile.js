@@ -37,7 +37,6 @@ export const useProfile = () => {
     onSuccess: async (response) => {
       await invalidateProfile();
       
-      // Update auth context dengan data terbaru
       if (response.data && setUser) {
         setUser((prev) => ({
           ...prev,

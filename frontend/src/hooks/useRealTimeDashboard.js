@@ -9,22 +9,45 @@ export const useRealTimeDashboard = () => {
   const { showSuccess } = useModal();
   const channelRef = useRef(null);
 
+  const optimisticPrepend = (parentKey, newItem) => {
+    const queryCache = queryClient.getQueryCache();
+    const queries = queryCache.findAll({ queryKey: parentKey });
+
+    queries.forEach((query) => {
+      if (query.state.data) {
+        queryClient.setQueryData(query.queryKey, (oldData) => {
+          if (!oldData) return oldData;
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              data: [newItem, ...(oldData.data?.data || [])],
+              meta: {
+                ...oldData.data?.meta,
+                total: (oldData.data?.meta?.total || 0) + 1,
+              },
+            },
+          };
+        });
+      }
+    });
+  };
+
   useEffect(() => {
     const channel = echo.channel('dashboard');
     channelRef.current = channel;
 
     channel.listen('.stats.updated', (e) => {
-      console.log('📊 Stats updated:', e.stats);
-
       queryClient.setQueryData(dashboardKeys.stats(), e.stats);
     });
 
     channel.listen('.login-log.created', (e) => {
-      console.log('🔐 Login log created:', e.loginLog);
+      optimisticPrepend(dashboardKeys.loginLogs(), e.loginLog);
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.loginLogs(),
-        refetchType: 'all',
+        refetchType: 'active',
       });
 
       queryClient.invalidateQueries({
@@ -41,11 +64,11 @@ export const useRealTimeDashboard = () => {
     });
 
     channel.listen('.activity-log.created', (e) => {
-      console.log('📝 Activity log created:', e.activityLog);
+      optimisticPrepend(dashboardKeys.activityLogs(), e.activityLog);
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.activityLogs(),
-        refetchType: 'all',
+        refetchType: 'active',
       });
 
       queryClient.invalidateQueries({
@@ -60,11 +83,11 @@ export const useRealTimeDashboard = () => {
     });
 
     channel.listen('.blocked-ip.created', (e) => {
-      console.log('🚫 Blocked IP created:', e.blockedIp);
+      optimisticPrepend(dashboardKeys.blockedIps(), e.blockedIp);
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.blockedIps(),
-        refetchType: 'all',
+        refetchType: 'active',
       });
 
       queryClient.invalidateQueries({
@@ -79,11 +102,11 @@ export const useRealTimeDashboard = () => {
     });
 
     channel.listen('.security-alert.created', (e) => {
-      console.log('⚠️ Security alert created:', e.securityAlert);
+      optimisticPrepend(dashboardKeys.securityAlerts(), e.securityAlert);
 
       queryClient.invalidateQueries({
         queryKey: dashboardKeys.securityAlerts(),
-        refetchType: 'all',
+        refetchType: 'active',
       });
 
       queryClient.invalidateQueries({
@@ -102,18 +125,6 @@ export const useRealTimeDashboard = () => {
         `${severityEmoji[e.securityAlert.severity] || '⚠️'} Alert Keamanan`,
         `${e.securityAlert.type?.replace(/_/g, ' ')} - ${e.securityAlert.severity}`
       );
-    });
-
-    echo.connector.pusher.connection.bind('connected', () => {
-      console.log('✅ Pusher connected');
-    });
-
-    echo.connector.pusher.connection.bind('disconnected', () => {
-      console.log('❌ Pusher disconnected');
-    });
-
-    echo.connector.pusher.connection.bind('error', (err) => {
-      console.error('⚠️ Pusher error:', err);
     });
 
     return () => {

@@ -1,4 +1,3 @@
-// src/pages/dashboard/components/OverviewTab.jsx
 import React, { useMemo } from 'react';
 import {
   Users,
@@ -92,39 +91,6 @@ const OverviewTab = ({ stats, lastUpdate, onTabChange }) => {
           );
         })}
       </div>
-
-      {/* Quick Actions */}
-      <Card variant="glass" padding="md">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-white font-semibold">Aksi Cepat</h3>
-            <p className="text-slate-400 text-sm">Akses cepat ke fitur utama</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Lihat Login Logs', icon: LogIn, color: 'from-blue-500 to-indigo-600', tab: 'login-logs' },
-            { label: 'Lihat Aktivitas', icon: Activity, color: 'from-purple-500 to-pink-600', tab: 'activity-logs' },
-            { label: 'IP Diblokir', icon: ShieldAlert, color: 'from-orange-500 to-amber-600', tab: 'blocked-ips' },
-            { label: 'Alert Keamanan', icon: AlertTriangle, color: 'from-red-500 to-pink-600', tab: 'security-alerts' },
-          ].map((action) => {
-            const Icon = action.icon;
-            return (
-              <button
-                key={action.tab}
-                onClick={() => onTabChange(action.tab)}
-                className="group flex flex-col items-center gap-2 p-4 bg-slate-700/30 hover:bg-slate-700/50 border border-slate-600/50 hover:border-indigo-500/30 rounded-xl transition-all"
-              >
-                <div className={`p-3 rounded-xl bg-linear-to-br ${action.color} shadow-lg group-hover:scale-110 transition-transform`}>
-                  <Icon className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm text-slate-300 font-medium text-center">{action.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </Card>
 
       {/* System Info */}
       <Card variant="glass" padding="md">

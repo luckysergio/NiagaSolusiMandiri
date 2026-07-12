@@ -119,7 +119,6 @@ export const useRoleManagement = () => {
   });
 
   const handleDelete = (role) => {
-    // PERBAIKAN: Pre-check di frontend sebelum konfirmasi
     if (role.users_count > 0) {
       showError(
         'Tidak Dapat Dihapus',

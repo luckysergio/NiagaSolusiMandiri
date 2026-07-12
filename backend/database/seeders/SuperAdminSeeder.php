@@ -12,7 +12,7 @@ class SuperAdminSeeder extends Seeder
     {
         User::updateOrCreate(
             [
-                'email' => 'admin@example.com',
+                'email' => 'adminwebsitensm@gmail.com',
             ],
             [
                 'role_id' => Role::where(
@@ -23,7 +23,7 @@ class SuperAdminSeeder extends Seeder
                 'name' => 'Super Admin',
 
                 'password' => bcrypt(
-                    'Admin123!'
+                    'adminniagasolusimandiri!_@'
                 ),
 
                 'is_active' => true,
