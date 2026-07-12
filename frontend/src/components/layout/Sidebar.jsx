@@ -1,5 +1,5 @@
 // src/layouts/Sidebar.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -29,10 +29,22 @@ const Sidebar = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({
-    userManagement: true,
+    userManagement: false, // ✅ Default tertutup
   });
 
-  // Menu items
+  // ✅ Auto-open submenu jika user berada di halaman yang termasuk submenu
+  useEffect(() => {
+    const isUserPage = location.pathname === '/users';
+    const isRolePage = location.pathname === '/roles';
+
+    if (isUserPage || isRolePage) {
+      setOpenMenus(prev => ({
+        ...prev,
+        userManagement: true,
+      }));
+    }
+  }, [location.pathname]);
+
   const menuItems = [
     {
       id: 'dashboard',
@@ -43,7 +55,6 @@ const Sidebar = () => {
     },
   ];
 
-  // User Management Menu dengan Submenu
   const userManagementMenu = {
     id: 'userManagement',
     label: 'Manajemen User',
@@ -67,7 +78,6 @@ const Sidebar = () => {
     ],
   };
 
-  // Menu bawah (footer)
   const footerMenu = [
     {
       id: 'profile',
@@ -98,20 +108,19 @@ const Sidebar = () => {
         try {
           setIsLoggingOut(true);
           showLoading('Logging out...', 'Mohon tunggu sebentar');
-          
+
           await logout();
-          
+
           closeLoading();
           showSuccess('Logout Berhasil', 'Anda telah keluar dari aplikasi.');
-          
+
           setTimeout(() => {
             navigate('/login');
           }, 500);
-          
         } catch {
           closeLoading();
           showError('Logout Gagal', 'Terjadi kesalahan, namun Anda akan diarahkan ke halaman login.');
-          
+
           setTimeout(() => {
             navigate('/login');
           }, 1000);
@@ -155,29 +164,29 @@ const Sidebar = () => {
   const renderMenuItem = (item) => {
     const Icon = item.icon;
     const active = isActive(item.path);
+    const isIconOnly = isCollapsed && !isMobileOpen;
 
     return (
       <button
         key={item.id}
         onClick={() => handleNavigation(item.path)}
         className={`
-          w-full flex items-center rounded-xl transition-all duration-200 group
-          ${isCollapsed && !isMobileOpen ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'}
-          ${
-            active
-              ? 'bg-indigo-600 shadow-lg shadow-indigo-500/30'
-              : 'hover:bg-slate-700/50'
+          w-full flex items-center rounded-xl transition-colors duration-200 group
+          ${isIconOnly ? 'justify-center px-2 py-3' : 'gap-3 px-4 py-3'}
+          ${active
+            ? 'bg-indigo-600 shadow-lg shadow-indigo-500/30'
+            : 'hover:bg-slate-700/50'
           }
         `}
-        title={(isCollapsed && !isMobileOpen) ? item.label : ''}
+        title={isIconOnly ? item.label : ''}
       >
         <Icon
           className={`w-5 h-5 shrink-0 ${active ? 'text-white' : item.color} group-hover:text-white transition-colors duration-200`}
         />
-        {(!isCollapsed || isMobileOpen) && (
+        {!isIconOnly && (
           <>
             <span
-              className={`font-medium ${active ? 'text-white' : 'text-slate-300'} whitespace-nowrap transition-colors duration-200`}
+              className={`font-medium ${active ? 'text-white' : 'text-slate-300'} whitespace-nowrap`}
             >
               {item.label}
             </span>
@@ -199,12 +208,11 @@ const Sidebar = () => {
         key={item.id}
         onClick={() => handleNavigation(item.path)}
         className={`
-          w-full flex items-center rounded-xl transition-all duration-200 group
+          w-full flex items-center rounded-xl transition-colors duration-200 group
           gap-3 px-4 py-2 pl-11
-          ${
-            active
-              ? 'bg-indigo-600/50 shadow-lg shadow-indigo-500/20'
-              : 'hover:bg-slate-700/50'
+          ${active
+            ? 'bg-indigo-600/50 shadow-lg shadow-indigo-500/20'
+            : 'hover:bg-slate-700/50'
           }
         `}
       >
@@ -212,7 +220,7 @@ const Sidebar = () => {
           className={`w-4 h-4 shrink-0 ${active ? 'text-white' : item.color || 'text-slate-400'} group-hover:text-white transition-colors duration-200`}
         />
         <span
-          className={`text-sm ${active ? 'text-white' : 'text-slate-300'} whitespace-nowrap transition-colors duration-200`}
+          className={`text-sm ${active ? 'text-white' : 'text-slate-300'} whitespace-nowrap`}
         >
           {item.label}
         </span>
@@ -234,7 +242,7 @@ const Sidebar = () => {
         <button
           onClick={() => showFull && toggleSubmenu(menu.id)}
           className={`
-            w-full flex items-center rounded-xl transition-all duration-200 group
+            w-full flex items-center rounded-xl transition-colors duration-200 group
             ${showFull ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'}
             ${isParentActiveFlag ? 'bg-indigo-600/30' : 'hover:bg-slate-700/50'}
           `}
@@ -246,19 +254,17 @@ const Sidebar = () => {
           {showFull && (
             <>
               <span
-                className={`font-medium flex-1 text-left ${isParentActiveFlag ? 'text-indigo-400' : 'text-slate-300'} whitespace-nowrap transition-colors duration-200`}
+                className={`font-medium flex-1 text-left ${isParentActiveFlag ? 'text-indigo-400' : 'text-slate-300'} whitespace-nowrap`}
               >
                 {menu.label}
               </span>
               <ChevronDown
-                className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
-                  isOpen ? 'rotate-180' : ''
-                }`}
+                className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
               />
             </>
           )}
         </button>
-        
+
         {showFull && isOpen && (
           <div className="mt-1 ml-2 space-y-1 animate-fadeIn">
             {menu.subItems.map((subItem) => renderSubmenuItem(subItem))}
@@ -268,15 +274,14 @@ const Sidebar = () => {
     );
   };
 
-  const sidebarWidth = isCollapsed ? 'w-20' : 'w-72';
-  const sidebarTransform = isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0';
+  const isIconOnly = isCollapsed && !isMobileOpen;
 
   return (
     <>
       {/* Mobile Menu Button */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 lg:hidden bg-indigo-600 text-white p-2 rounded-lg shadow-lg hover:bg-indigo-700 transition-all duration-200"
+        className="fixed top-4 left-4 z-50 lg:hidden bg-indigo-600 text-white p-2 rounded-lg shadow-lg hover:bg-indigo-700 transition-colors duration-200"
       >
         {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
       </button>
@@ -284,7 +289,7 @@ const Sidebar = () => {
       {/* Overlay for mobile */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm animate-fadeIn"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden animate-fadeIn"
           onClick={closeMobileSidebar}
         />
       )}
@@ -292,16 +297,17 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static z-40 bg-linear-to-b from-slate-900 to-slate-800 text-white shadow-2xl 
-          flex flex-col transition-all duration-300 ease-in-out h-full border-r border-slate-700/50
-          ${sidebarWidth}
-          ${sidebarTransform}
+          sidebar-aside
+          fixed lg:static z-40 bg-linear-to-b from-slate-900 to-slate-800 text-white shadow-2xl
+          flex flex-col h-full border-r border-slate-700/50
+          ${isIconOnly ? 'w-20' : 'w-72'}
+          ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
           lg:z-auto
         `}
       >
         {/* Logo Section */}
-        <div className={`p-6 border-b border-slate-700/50 transition-all duration-300 ${isCollapsed && !isMobileOpen ? 'px-4' : ''}`}>
-          {(isCollapsed && !isMobileOpen) ? (
+        <div className={`p-6 border-b border-slate-700/50 ${isIconOnly ? 'px-4' : ''}`}>
+          {isIconOnly ? (
             <div className="flex justify-center">
               <Logo showText={false} size="sm" />
             </div>
@@ -314,7 +320,7 @@ const Sidebar = () => {
         {!isMobileOpen && (
           <button
             onClick={toggleSidebar}
-            className="absolute -right-3 top-20 bg-indigo-600 text-white p-1.5 rounded-full shadow-lg hover:bg-indigo-700 hover:scale-110 transition-all duration-200 hidden lg:block z-50"
+            className="absolute -right-3 top-20 bg-indigo-600 text-white p-1.5 rounded-full shadow-lg hover:bg-indigo-700 hover:scale-110 transition-all duration-200 hidden lg:flex items-center justify-center z-50"
           >
             {isCollapsed ? (
               <ChevronRight className="w-4 h-4" />
@@ -327,12 +333,12 @@ const Sidebar = () => {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-2 sidebar-scroll">
           {/* Menu Header */}
-          {(!isCollapsed || isMobileOpen) && (
+          {!isIconOnly && (
             <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 animate-fadeIn">
               Menu Utama
             </p>
           )}
-          
+
           {/* Dashboard Menu */}
           {menuItems.map(item => renderMenuItem(item))}
 
@@ -343,7 +349,7 @@ const Sidebar = () => {
           <div className="my-4 border-t border-slate-700/50"></div>
 
           {/* Footer Menu */}
-          {(!isCollapsed || isMobileOpen) && (
+          {!isIconOnly && (
             <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 animate-fadeIn">
               Pengaturan
             </p>
@@ -351,10 +357,10 @@ const Sidebar = () => {
           {footerMenu.map(item => renderMenuItem(item))}
 
           {/* Help */}
-          {(!isCollapsed || isMobileOpen) && (
-            <button 
+          {!isIconOnly && (
+            <button
               onClick={() => handleNavigation('/help')}
-              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-slate-700/50 transition-all duration-200 text-slate-400 hover:text-white"
+              className="w-full flex items-center gap-3 px-4 py-2 rounded-xl hover:bg-slate-700/50 transition-colors duration-200 text-slate-400 hover:text-white"
             >
               <HelpCircle className="w-5 h-5" />
               <span className="font-medium">Bantuan</span>
@@ -367,17 +373,17 @@ const Sidebar = () => {
               onClick={handleLogout}
               disabled={isLoggingOut}
               className={`
-                w-full flex items-center rounded-xl transition-all duration-200 group
-                ${(!isCollapsed || isMobileOpen) ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'}
+                w-full flex items-center rounded-xl transition-colors duration-200 group
+                ${!isIconOnly ? 'gap-3 px-4 py-3' : 'justify-center px-2 py-3'}
                 hover:bg-red-600/20 hover:text-red-400
                 disabled:opacity-50 disabled:cursor-not-allowed
               `}
-              title={(!isCollapsed && !isMobileOpen) ? '' : 'Logout'}
+              title={isIconOnly ? 'Logout' : ''}
             >
               {isLoggingOut ? (
                 <>
                   <Loader2 className="w-5 h-5 shrink-0 text-red-400 animate-spin" />
-                  {(!isCollapsed || isMobileOpen) && (
+                  {!isIconOnly && (
                     <span className="font-medium text-slate-300 whitespace-nowrap">
                       Logging out...
                     </span>
@@ -386,7 +392,7 @@ const Sidebar = () => {
               ) : (
                 <>
                   <LogOut className="w-5 h-5 shrink-0 text-red-400 group-hover:scale-110 transition-transform duration-200" />
-                  {(!isCollapsed || isMobileOpen) && (
+                  {!isIconOnly && (
                     <span className="font-medium text-slate-300 whitespace-nowrap">
                       Logout
                     </span>
