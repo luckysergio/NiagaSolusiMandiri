@@ -6,46 +6,70 @@ export const dashboardApi = {
     return response.data;
   },
 
-  getLoginLogs: async (page = 1, filters = {}) => {
-    const params = new URLSearchParams({ page, ...filters });
+  getLoginLogs: async ({ page = 1, perPage = 20, ...filters } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      ),
+    });
     const response = await axiosInstance.get(`/admin/login-logs?${params}`);
     return response.data;
   },
 
-  getLoginLogDetail: async (id) => {
+  getLoginLog: async (id) => {
     const response = await axiosInstance.get(`/admin/login-logs/${id}`);
     return response.data;
   },
 
-  getActivityLogs: async (page = 1, filters = {}) => {
-    const params = new URLSearchParams({ page, ...filters });
+  getActivityLogs: async ({ page = 1, perPage = 20, ...filters } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      ),
+    });
     const response = await axiosInstance.get(`/admin/activity-logs?${params}`);
     return response.data;
   },
 
-  getActivityLogDetail: async (id) => {
+  getActivityLog: async (id) => {
     const response = await axiosInstance.get(`/admin/activity-logs/${id}`);
     return response.data;
   },
 
-  getBlockedIps: async (page = 1, filters = {}) => {
-    const params = new URLSearchParams({ page, ...filters });
+  getBlockedIps: async ({ page = 1, perPage = 20, ...filters } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      ),
+    });
     const response = await axiosInstance.get(`/admin/blocked-ips?${params}`);
     return response.data;
   },
 
-  getBlockedIpDetail: async (id) => {
+  getBlockedIp: async (id) => {
     const response = await axiosInstance.get(`/admin/blocked-ips/${id}`);
     return response.data;
   },
 
-  getSecurityAlerts: async (page = 1, filters = {}) => {
-    const params = new URLSearchParams({ page, ...filters });
+  getSecurityAlerts: async ({ page = 1, perPage = 20, ...filters } = {}) => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: perPage.toString(),
+      ...Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
+      ),
+    });
     const response = await axiosInstance.get(`/admin/security-alerts?${params}`);
     return response.data;
   },
 
-  getSecurityAlertDetail: async (id) => {
+  getSecurityAlert: async (id) => {
     const response = await axiosInstance.get(`/admin/security-alerts/${id}`);
     return response.data;
   },

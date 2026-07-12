@@ -44,6 +44,11 @@ class SecurityAlert extends Model
         return $query->where('severity', $severity);
     }
 
+    public function scopeByIp(Builder $query, string $ip): Builder
+    {
+        return $query->where('ip_address', $ip);
+    }
+
     public function scopeUnresolved(Builder $query): Builder
     {
         return $query->where('resolved', false);
@@ -62,12 +67,6 @@ class SecurityAlert extends Model
     public function scopeHigh(Builder $query): Builder
     {
         return $query->where('severity', 'high');
-    }
-
-    public function scopeBySeverityAndStatus(Builder $query, string $severity, bool $resolved = false): Builder
-    {
-        return $query->where('severity', $severity)
-            ->where('resolved', $resolved);
     }
 
     public function scopeRecent(Builder $query, int $days = 7): Builder
@@ -98,40 +97,8 @@ class SecurityAlert extends Model
         return $this->severity === 'high';
     }
 
-    public static function getUnresolvedAlerts(int $limit = 50): \Illuminate\Support\Collection
+    public function isResolved(): bool
     {
-        return self::with('user:id,name,email')
-            ->unresolved()
-            ->orderByDesc('severity')
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->get();
-    }
-
-    public static function getUserAlerts(int $userId, int $limit = 50): \Illuminate\Support\Collection
-    {
-        return self::byUser($userId)
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->get();
-    }
-
-    public static function getCriticalAlerts(int $limit = 50): \Illuminate\Support\Collection
-    {
-        return self::with('user:id,name,email')
-            ->critical()
-            ->unresolved()
-            ->orderByDesc('created_at')
-            ->limit($limit)
-            ->get();
-    }
-
-    public static function countUnresolvedBySeverity(): array
-    {
-        return self::unresolved()
-            ->selectRaw('severity, COUNT(*) as count')
-            ->groupBy('severity')
-            ->pluck('count', 'severity')
-            ->toArray();
+        return $this->resolved === true;
     }
 }

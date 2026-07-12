@@ -17,7 +17,8 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthService
 {
     public function __construct(
-        protected RecaptchaService $recaptchaService
+        protected RecaptchaService $recaptchaService,
+        protected SecurityService $securityService
     ) {}
 
     public function login(
@@ -27,7 +28,7 @@ class AuthService
         ?string $deviceId = null
     ): array {
 
-        if (BlockedIp::isIpBlocked($ip)) {
+        if ($this->securityService->isIpBlocked($ip)) {
             throw ValidationException::withMessages([
                 'email' => ['IP anda sedang diblokir sementara.']
             ]);
@@ -39,7 +40,7 @@ class AuthService
 
         $ipRateKey = "login:ip:{$ip}";
         if (RateLimiter::tooManyAttempts($ipRateKey, 20)) {
-            $this->autoBlockIp($ip, 'Rate limit exceeded (IP)');
+            $this->securityService->autoBanIp($ip, 'Rate limit exceeded (IP)');
 
             throw ValidationException::withMessages([
                 'email' => ['Terlalu banyak percobaan login dari IP ini.']
@@ -68,7 +69,7 @@ class AuthService
                 'message' => 'Invalid credentials',
             ]);
 
-            $this->handleFailedLogin($ip, $credentials['email']);
+            $this->securityService->handleFailedLogin($ip, $credentials['email']);
 
             throw ValidationException::withMessages([
                 'email' => ['Email atau password salah.']
@@ -107,7 +108,7 @@ class AuthService
             ]);
         }
 
-        $this->performSecurityChecks($user, $ip, $deviceId);
+        $this->securityService->performSecurityChecks($user, $ip, $deviceId);
 
         DB::transaction(function () use ($user, $ip, $deviceId): void {
             $user->update([
@@ -127,6 +128,8 @@ class AuthService
                 'message' => 'Login success',
             ]);
         });
+
+        $this->securityService->resetFailedAttempts($ip);
 
         return $this->tokenResponse($token, $user);
     }
@@ -199,124 +202,6 @@ class AuthService
         }
 
         return $this->tokenResponse($token, $user);
-    }
-
-    private function performSecurityChecks(
-        User $user,
-        string $ip,
-        ?string $deviceId
-    ): void {
-        $alerts = [];
-
-        if (
-            !empty($user->registered_device_id) &&
-            !empty($deviceId) &&
-            $user->registered_device_id !== $deviceId
-        ) {
-            $alerts[] = [
-                'user_id' => $user->id,
-                'type' => 'unknown_device',
-                'severity' => 'medium',
-                'ip_address' => $ip,
-                'payload' => [
-                    'registered_device' => $user->registered_device_id,
-                    'current_device' => $deviceId,
-                ]
-            ];
-        }
-
-        if (
-            !empty($user->last_login_ip) &&
-            $user->last_login_ip !== $ip
-        ) {
-            $alerts[] = [
-                'user_id' => $user->id,
-                'type' => 'ip_changed',
-                'severity' => 'low',
-                'ip_address' => $ip,
-                'payload' => [
-                    'old_ip' => $user->last_login_ip,
-                    'new_ip' => $ip,
-                ]
-            ];
-        }
-
-        if (!empty($alerts)) {
-            foreach ($alerts as $alert) {
-                $exists = SecurityAlert::where('user_id', $alert['user_id'])
-                    ->where('type', $alert['type'])
-                    ->where('created_at', '>=', now()->subHour())
-                    ->exists();
-
-                if (!$exists) {
-                    SecurityAlert::create($alert);
-                }
-            }
-        }
-    }
-
-    private function handleFailedLogin(string $ip, string $email): void
-    {
-        $user = User::where('email', $email)->first();
-
-        if ($user instanceof User) {
-            $user->increment('failed_login_attempts');
-
-            if ($user->failed_login_attempts >= 5) {
-                $user->update([
-                    'locked_until' => now()->addMinutes(30)
-                ]);
-
-                SecurityAlert::create([
-                    'user_id' => $user->id,
-                    'type' => 'account_locked',
-                    'severity' => 'high',
-                    'ip_address' => $ip,
-                    'payload' => [
-                        'failed_attempts' => $user->failed_login_attempts,
-                        'locked_until' => $user->locked_until?->toIso8601String(),
-                    ]
-                ]);
-            }
-        }
-
-        $ipFailedKey = "failed_attempts:ip:{$ip}";
-        $failedCount = Cache::increment($ipFailedKey);
-
-        if ($failedCount === 1) {
-            Cache::put($ipFailedKey, 1, 3600);
-        }
-
-        if ($failedCount >= 10) {
-            $this->autoBlockIp($ip, '10 failed login attempts from IP');
-            Cache::forget($ipFailedKey);
-        }
-    }
-
-    private function autoBlockIp(string $ip, string $reason): void
-    {
-        BlockedIp::updateOrCreate(
-            ['ip_address' => $ip],
-            [
-                'attempts' => DB::raw('attempts + 1'),
-                'is_active' => true,
-                'last_attempt_at' => now(),
-                'blocked_until' => now()->addHours(24),
-                'block_type' => 'auto',
-                'reason' => $reason,
-            ]
-        );
-
-        SecurityAlert::create([
-            'user_id' => null,
-            'type' => 'ip_blocked',
-            'severity' => 'critical',
-            'ip_address' => $ip,
-            'payload' => [
-                'reason' => $reason,
-                'blocked_until' => now()->addHours(24)->toIso8601String(),
-            ]
-        ]);
     }
 
     private function tokenResponse(string $token, ?User $user): array

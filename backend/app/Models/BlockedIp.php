@@ -106,13 +106,11 @@ class BlockedIp extends Model
     public static function isIpBlocked(string $ipAddress): bool
     {
         $cacheKey = "blocked_ip:{$ipAddress}";
-        
-        return Cache::remember($cacheKey, 300, function () use ($ipAddress) {
-            $blockedIp = self::byIp($ipAddress)
-                ->currentlyBlocked()
-                ->first();
 
-            return $blockedIp !== null;
+        return Cache::remember($cacheKey, 300, function () use ($ipAddress) {
+            return self::byIp($ipAddress)
+                ->currentlyBlocked()
+                ->exists();
         });
     }
 
@@ -124,11 +122,6 @@ class BlockedIp extends Model
     public static function clearIpCache(string $ipAddress): void
     {
         Cache::forget("blocked_ip:{$ipAddress}");
-    }
-
-    public static function getExpiredBlocks(): Builder
-    {
-        return self::expired();
     }
 
     public static function cleanupExpiredBlocks(): int
