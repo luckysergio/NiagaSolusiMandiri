@@ -28,6 +28,8 @@ class DashboardController extends Controller
             'status',
             'ip',
             'user_id',
+            'date_from',
+            'date_to',
         ]);
 
         $perPage = (int) $request->input('per_page', 20);

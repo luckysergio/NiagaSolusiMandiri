@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }) => {
   const clearAuth = useCallback(() => {
     queryClientInstance.clear();
     localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     queryClientInstance.setQueryData(['auth', 'me'], null);
   }, [queryClientInstance]);
 
@@ -82,12 +81,9 @@ export const AuthProvider = ({ children }) => {
         const response = await authApi.login(credentials, recaptchaToken);
 
         if (response.success) {
-          const { access_token, refresh_token, user: userData } = response.data;
+          const { access_token, user: userData } = response.data;
 
           localStorage.setItem('access_token', access_token);
-          if (refresh_token) {
-            localStorage.setItem('refresh_token', refresh_token);
-          }
 
           queryClientInstance.setQueryData(['auth', 'me'], userData);
 
@@ -146,7 +142,6 @@ export const AuthProvider = ({ children }) => {
     } finally {
       queryClientInstance.clear();
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       queryClientInstance.setQueryData(['auth', 'me'], null);
       return { success: true };
     }
@@ -157,12 +152,9 @@ export const AuthProvider = ({ children }) => {
       const response = await authApi.refresh();
 
       if (response.success) {
-        const { access_token, refresh_token, user: userData } = response.data;
+        const { access_token, user: userData } = response.data;
 
         localStorage.setItem('access_token', access_token);
-        if (refresh_token) {
-          localStorage.setItem('refresh_token', refresh_token);
-        }
 
         if (userData) {
           queryClientInstance.setQueryData(['auth', 'me'], userData);

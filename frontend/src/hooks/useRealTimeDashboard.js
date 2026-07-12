@@ -18,11 +18,21 @@ export const useRealTimeDashboard = () => {
         queryClient.setQueryData(query.queryKey, (oldData) => {
           if (!oldData) return oldData;
 
+          const existingData = oldData.data?.data || [];
+          
+          const isDuplicate = existingData.some(
+            (item) => item.id === newItem.id
+          );
+
+          if (isDuplicate) {
+            return oldData;
+          }
+
           return {
             ...oldData,
             data: {
               ...oldData.data,
-              data: [newItem, ...(oldData.data?.data || [])],
+              data: [newItem, ...existingData],
               meta: {
                 ...oldData.data?.meta,
                 total: (oldData.data?.meta?.total || 0) + 1,

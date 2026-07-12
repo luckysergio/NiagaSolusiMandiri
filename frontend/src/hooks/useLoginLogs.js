@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useDashboard } from '../hooks/useDashboard';
+import { useDashboard } from './useDashboard';
 
 const useLoginLogs = () => {
   const { useLoginLogs } = useDashboard();
@@ -8,6 +8,8 @@ const useLoginLogs = () => {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,15 +21,22 @@ const useLoginLogs = () => {
 
   useEffect(() => {
     setPage(1);
-  }, [status]);
+  }, [status, dateFrom, dateTo]);
 
   const query = useLoginLogs(page, {
     email: debouncedSearch,
     status,
+    date_from: dateFrom,
+    date_to: dateTo,
   });
 
   const data = useMemo(() => query.data?.data?.data || [], [query.data]);
   const pagination = useMemo(() => query.data?.data?.meta || {}, [query.data]);
+
+  const resetDateFilter = () => {
+    setDateFrom('');
+    setDateTo('');
+  };
 
   return {
     ...query,
@@ -39,6 +48,11 @@ const useLoginLogs = () => {
     setSearch,
     status,
     setStatus,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+    resetDateFilter,
   };
 };
 

@@ -13,32 +13,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class DashboardService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Keys
-    |--------------------------------------------------------------------------
-    */
-
     private const CACHE_KEY_STATS = 'dashboard.stats';
     private const CACHE_KEY_PREFIX = 'dashboard.detail:';
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cache TTL
-    |--------------------------------------------------------------------------
-    | Stats: 60 detik (1 menit)
-    | Detail: 300 detik (5 menit)
-    | List: TIDAK DI-CACHE (real-time)
-    */
-
     private const CACHE_TTL_STATS = 60;
     private const CACHE_TTL_DETAIL = 300;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Statistics (CACHED - 1 menit)
-    |--------------------------------------------------------------------------
-    */
 
     public function stats(): array
     {
@@ -72,38 +51,20 @@ class DashboardService
         ];
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Broadcast Stats Update
-    |--------------------------------------------------------------------------
-    */
-
     public function broadcastStatsUpdate(): void
     {
-        // Clear cache stats
         Cache::forget(self::CACHE_KEY_STATS);
 
-        // Calculate fresh stats
         $stats = $this->calculateStats();
 
-        // BroadcastNow
         broadcast(new StatsUpdated($stats));
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Login Logs (NO CACHE - Real-time)
-    |--------------------------------------------------------------------------
-    | ✅ FIX: Hapus Cache::remember() untuk list data
-    | List data harus selalu fresh untuk real-time dashboard
-    */
 
     public function loginLogs(
         array $filters = [],
         int $perPage = 20
     ): LengthAwarePaginator {
 
-        // ✅ NO CACHE - langsung query database
         return LoginLog::query()
             ->select([
                 'id',
@@ -134,13 +95,20 @@ class DashboardService
                 !empty($filters['user_id']),
                 fn($q) => $q->where('user_id', $filters['user_id'])
             )
+            ->when(
+                !empty($filters['date_from']),
+                fn($q) => $q->whereDate('created_at', '>=', $filters['date_from'])
+            )
+            ->when(
+                !empty($filters['date_to']),
+                fn($q) => $q->whereDate('created_at', '<=', $filters['date_to'])
+            )
             ->latest()
             ->paginate(min($perPage, 100));
     }
 
     public function showLoginLog(int $id): LoginLog
     {
-        // ✅ Detail masih di-cache (5 menit)
         $cacheKey = self::CACHE_KEY_PREFIX . "login_log:{$id}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL_DETAIL, function () use ($id) {
@@ -149,18 +117,11 @@ class DashboardService
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Activity Logs (NO CACHE - Real-time)
-    |--------------------------------------------------------------------------
-    */
-
     public function activityLogs(
         array $filters = [],
         int $perPage = 20
     ): LengthAwarePaginator {
 
-        // ✅ NO CACHE - langsung query database
         return ActivityLog::query()
             ->select([
                 'id',
@@ -204,7 +165,6 @@ class DashboardService
 
     public function showActivityLog(int $id): ActivityLog
     {
-        // ✅ Detail masih di-cache (5 menit)
         $cacheKey = self::CACHE_KEY_PREFIX . "activity_log:{$id}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL_DETAIL, function () use ($id) {
@@ -213,18 +173,11 @@ class DashboardService
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Blocked IPs (NO CACHE - Real-time)
-    |--------------------------------------------------------------------------
-    */
-
     public function blockedIps(
         array $filters = [],
         int $perPage = 20
     ): LengthAwarePaginator {
 
-        // ✅ NO CACHE - langsung query database
         return BlockedIp::query()
             ->select([
                 'id',
@@ -260,7 +213,6 @@ class DashboardService
 
     public function showBlockedIp(int $id): BlockedIp
     {
-        // ✅ Detail masih di-cache (5 menit)
         $cacheKey = self::CACHE_KEY_PREFIX . "blocked_ip:{$id}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL_DETAIL, function () use ($id) {
@@ -268,18 +220,11 @@ class DashboardService
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Security Alerts (NO CACHE - Real-time)
-    |--------------------------------------------------------------------------
-    */
-
     public function securityAlerts(
         array $filters = [],
         int $perPage = 20
     ): LengthAwarePaginator {
 
-        // ✅ NO CACHE - langsung query database
         return SecurityAlert::query()
             ->select([
                 'id',
@@ -319,7 +264,6 @@ class DashboardService
 
     public function showSecurityAlert(int $id): SecurityAlert
     {
-        // ✅ Detail masih di-cache (5 menit)
         $cacheKey = self::CACHE_KEY_PREFIX . "security_alert:{$id}";
 
         return Cache::remember($cacheKey, self::CACHE_TTL_DETAIL, function () use ($id) {
@@ -327,12 +271,6 @@ class DashboardService
                 ->findOrFail($id);
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Clear Methods
-    |--------------------------------------------------------------------------
-    */
 
     public function clearStatsCache(): void
     {

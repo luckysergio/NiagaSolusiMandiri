@@ -21,23 +21,8 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
 const clearAuthAndRedirect = () => {
   localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
   window.location.href = '/login';
 };
 
@@ -59,50 +44,35 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (isRefreshing) {
-      return new Promise((resolve, reject) => {
-        failedQueue.push({
-          resolve: (token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(axiosInstance(originalRequest));
-          },
-          reject: (err) => reject(err),
-        });
-      });
-    }
-
     originalRequest._retry = true;
-    isRefreshing = true;
 
-    const refreshToken = localStorage.getItem('refresh_token');
+    const accessToken = localStorage.getItem('access_token');
 
-    if (!refreshToken) {
+    if (!accessToken) {
       clearAuthAndRedirect();
       return Promise.reject(error);
     }
 
     try {
-      const response = await axios.post(`${API_URL}/auth/refresh`, {
-        refresh_token: refreshToken,
-      });
+      const response = await axios.post(
+        `${API_URL}/auth/refresh`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
-      const { access_token, refresh_token } = response.data.data;
+      const { access_token } = response.data.data;
 
       localStorage.setItem('access_token', access_token);
-      if (refresh_token) {
-        localStorage.setItem('refresh_token', refresh_token);
-      }
-
-      processQueue(null, access_token);
 
       originalRequest.headers.Authorization = `Bearer ${access_token}`;
       return axiosInstance(originalRequest);
     } catch (refreshError) {
-      processQueue(refreshError, null);
       clearAuthAndRedirect();
       return Promise.reject(refreshError);
-    } finally {
-      isRefreshing = false;
     }
   }
 );
