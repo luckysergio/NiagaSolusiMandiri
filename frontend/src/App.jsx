@@ -7,7 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
 import Users from './pages/UserManajemen/User';
 import Roles from './pages/RoleManajemen/Roles';
 import Profile from './pages/Profile';
