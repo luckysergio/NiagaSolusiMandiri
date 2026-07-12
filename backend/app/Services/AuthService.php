@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\LoginLog;
 use App\Models\BlockedIp;
 use App\Models\SecurityAlert;
+use App\Events\LoginLogCreated;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,8 @@ class AuthService
 {
     public function __construct(
         protected RecaptchaService $recaptchaService,
-        protected SecurityService $securityService
+        protected SecurityService $securityService,
+        protected DashboardService $dashboardService
     ) {}
 
     public function login(
@@ -60,7 +62,7 @@ class AuthService
             RateLimiter::hit($ipRateKey, 600);
             RateLimiter::hit($emailRateKey, 600);
 
-            LoginLog::create([
+            $loginLog = LoginLog::create([
                 'email' => $credentials['email'],
                 'ip_address' => $ip,
                 'user_agent' => request()->userAgent(),
@@ -68,6 +70,9 @@ class AuthService
                 'status' => 'failed',
                 'message' => 'Invalid credentials',
             ]);
+
+            broadcast(new LoginLogCreated($loginLog));
+            $this->dashboardService->broadcastStatsUpdate();
 
             $this->securityService->handleFailedLogin($ip, $credentials['email']);
 
@@ -118,7 +123,7 @@ class AuthService
                 'force_logout_at' => null,
             ]);
 
-            LoginLog::create([
+            $loginLog = LoginLog::create([
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip_address' => $ip,
@@ -127,9 +132,13 @@ class AuthService
                 'status' => 'success',
                 'message' => 'Login success',
             ]);
+
+            broadcast(new LoginLogCreated($loginLog));
         });
 
         $this->securityService->resetFailedAttempts($ip);
+
+        $this->dashboardService->broadcastStatsUpdate();
 
         return $this->tokenResponse($token, $user);
     }
@@ -152,7 +161,7 @@ class AuthService
         $user = Auth::guard('api')->user();
 
         if ($user instanceof User) {
-            LoginLog::create([
+            $loginLog = LoginLog::create([
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip_address' => request()->ip(),
@@ -161,6 +170,9 @@ class AuthService
                 'status' => 'logout',
                 'message' => 'Logout success',
             ]);
+
+            broadcast(new LoginLogCreated($loginLog));
+            $this->dashboardService->broadcastStatsUpdate();
         }
 
         JWTAuth::invalidate(JWTAuth::getToken());
@@ -190,7 +202,7 @@ class AuthService
                 ]);
             }
 
-            LoginLog::create([
+            $loginLog = LoginLog::create([
                 'user_id' => $user->id,
                 'email' => $user->email,
                 'ip_address' => request()->ip(),
@@ -199,6 +211,8 @@ class AuthService
                 'status' => 'refresh',
                 'message' => 'Token refreshed',
             ]);
+
+            broadcast(new LoginLogCreated($loginLog));
         }
 
         return $this->tokenResponse($token, $user);

@@ -1,17 +1,18 @@
 // src/pages/dashboard/Dashboard.jsx
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  RefreshCw,
   LayoutDashboard,
   LogIn,
   Activity,
   ShieldAlert,
   AlertTriangle,
-  Package,
-  ShoppingCart,
+  Wifi,
+  WifiOff,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useDashboard } from '../../hooks/useDashboard';
+import { useRealTimeDashboard } from '../../hooks/useRealTimeDashboard';
+import { echo } from '../../lib/echo';
 import Card from '../../common/Card';
 
 import OverviewTab from './components/OverviewTab';
@@ -31,67 +32,70 @@ const Dashboard = () => {
     useSecurityAlerts,
   } = useDashboard();
 
+  useRealTimeDashboard();
+
   const [activeTab, setActiveTab] = useState('overview');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [isConnected, setIsConnected] = useState(false);
 
-  const lastUpdateRef = useRef(new Date());
-  const [lastUpdate, setLastUpdate] = useState(lastUpdateRef.current);
-
-  // Queries
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useStats();
+  const { data: stats } = useStats();
   const loginLogsQuery = useLoginLogs();
   const activityLogsQuery = useActivityLogs();
   const blockedIpsQuery = useBlockedIps();
   const securityAlertsQuery = useSecurityAlerts();
 
-  // Update lastUpdate saat data berubah
   useEffect(() => {
-    const now = new Date();
-    lastUpdateRef.current = now;
-    setLastUpdate(now);
+    if (!echo || !echo.connector || !echo.connector.pusher) return;
+
+    const pusher = echo.connector.pusher;
+
+    const updateConnectionStatus = () => {
+      setIsConnected(pusher.connection.state === 'connected');
+    };
+
+    pusher.connection.bind('connected', updateConnectionStatus);
+    pusher.connection.bind('disconnected', updateConnectionStatus);
+    pusher.connection.bind('unavailable', updateConnectionStatus);
+
+    updateConnectionStatus();
+
+    return () => {
+      pusher.connection.unbind('connected', updateConnectionStatus);
+      pusher.connection.unbind('disconnected', updateConnectionStatus);
+      pusher.connection.unbind('unavailable', updateConnectionStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    setLastUpdate(new Date());
   }, [
-    loginLogsQuery.data?.length,
-    activityLogsQuery.data?.length,
-    blockedIpsQuery.data?.length,
-    securityAlertsQuery.data?.length,
-    stats?.users_total,
+    stats,
+    loginLogsQuery.data,
+    activityLogsQuery.data,
+    blockedIpsQuery.data,
+    securityAlertsQuery.data,
   ]);
 
-  // Handlers
-  const handleRefreshAll = useCallback(async () => {
-    await Promise.all([
-      refetchStats(),
-      loginLogsQuery.refetch(),
-      activityLogsQuery.refetch(),
-      blockedIpsQuery.refetch(),
-      securityAlertsQuery.refetch(),
-    ]);
-  }, [refetchStats, loginLogsQuery, activityLogsQuery, blockedIpsQuery, securityAlertsQuery]);
-
-  const handleViewDetail = useCallback((type, data) => {
+  const handleViewDetail = (type, data) => {
     setSelectedLog({ ...data, type });
     setShowDetailModal(true);
-  }, []);
+  };
 
-  const handleCloseDetail = useCallback(() => {
+  const handleCloseDetail = () => {
     setShowDetailModal(false);
     setSelectedLog(null);
-  }, []);
+  };
 
-  // Tab configuration - MUDAH UNTUK DITAMBAH TAB BARU
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'login-logs', label: 'Log Login', icon: LogIn },
     { id: 'activity-logs', label: 'Log Aktivitas', icon: Activity },
     { id: 'blocked-ips', label: 'IP Diblokir', icon: ShieldAlert },
     { id: 'security-alerts', label: 'Alert Keamanan', icon: AlertTriangle },
-    // NANTI TAMBAHKAN:
-    // { id: 'products', label: 'Produk', icon: Package },
-    // { id: 'sales', label: 'Penjualan', icon: ShoppingCart },
   ];
 
-  // Render tab content
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -130,14 +134,22 @@ const Dashboard = () => {
             onViewDetail={handleViewDetail}
           />
         );
-      // NANTI TAMBAHKAN:
-      // case 'products':
-      //   return <ProductsTab />;
-      // case 'sales':
-      //   return <SalesTab />;
       default:
         return null;
     }
+  };
+
+  const formatLastUpdate = () => {
+    const now = new Date();
+    const diff = Math.floor((now - lastUpdate) / 1000);
+
+    if (diff < 10) return 'Baru saja';
+    if (diff < 60) return `${diff} detik lalu`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
+    return lastUpdate.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   return (
@@ -156,13 +168,34 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <button
-          onClick={handleRefreshAll}
-          className="bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2"
-        >
-          <RefreshCw className={`w-4 h-4 ${statsLoading ? 'animate-spin' : ''}`} />
-          Refresh Semua
-        </button>
+        <div className={`flex items-center gap-2 px-3 py-2 border rounded-xl transition-all ${
+          isConnected
+            ? 'bg-emerald-500/10 border-emerald-500/30'
+            : 'bg-red-500/10 border-red-500/30'
+        }`}>
+          {isConnected ? (
+            <>
+              <div className="relative">
+                <Wifi className="w-4 h-4 text-emerald-400" />
+                <div className="absolute inset-0 animate-ping">
+                  <Wifi className="w-4 h-4 text-emerald-400 opacity-75" />
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-emerald-400 font-medium">Real-time</span>
+                <span className="text-xs text-slate-400">{formatLastUpdate()}</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <WifiOff className="w-4 h-4 text-red-400" />
+              <div className="flex flex-col">
+                <span className="text-xs text-red-400 font-medium">Disconnected</span>
+                <span className="text-xs text-slate-400">Reconnecting...</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}

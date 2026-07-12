@@ -6,28 +6,22 @@ use App\Models\User;
 use App\Models\LoginLog;
 use App\Models\BlockedIp;
 use App\Models\SecurityAlert;
+use App\Events\BlockedIpCreated;
+use App\Events\SecurityAlertCreated;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Carbon;
 
 class SecurityService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Keys
-    |--------------------------------------------------------------------------
-    */
-
     private const CACHE_KEY_RISK_SCORE = 'security:risk_score:';
     private const CACHE_KEY_FAILED_ATTEMPTS = 'failed_attempts:ip:';
-    private const CACHE_TTL_RISK = 300; // 5 menit
-    private const CACHE_TTL_FAILED = 3600; // 1 jam
+    private const CACHE_TTL_RISK = 300;
+    private const CACHE_TTL_FAILED = 3600;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Failed Login Spike Detection
-    |--------------------------------------------------------------------------
-    */
+    public function __construct(
+        protected DashboardService $dashboardService
+    ) {}
 
     public function detectFailedLoginSpike(string $ip): void
     {
@@ -41,7 +35,6 @@ class SecurityService
             return;
         }
 
-        // Prevent duplicate alerts in 1 hour
         $exists = SecurityAlert::query()
             ->where('type', 'failed_login_spike')
             ->where('ip_address', $ip)
@@ -53,7 +46,7 @@ class SecurityService
         }
 
         DB::transaction(function () use ($ip, $count): void {
-            SecurityAlert::create([
+            $alert = SecurityAlert::create([
                 'type' => 'failed_login_spike',
                 'severity' => $count >= 30 ? 'critical' : 'high',
                 'ip_address' => $ip,
@@ -63,18 +56,14 @@ class SecurityService
                 ],
             ]);
 
-            // Auto-ban jika >= 20 attempts
+            broadcast(new SecurityAlertCreated($alert));
+            $this->dashboardService->broadcastStatsUpdate();
+
             if ($count >= 20) {
                 $this->autoBanIp($ip, 'Bruteforce attack detected');
             }
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Handle Failed Login (Dipanggil dari AuthService)
-    |--------------------------------------------------------------------------
-    */
 
     public function handleFailedLogin(string $ip, string $email): void
     {
@@ -88,7 +77,7 @@ class SecurityService
                     'locked_until' => now()->addMinutes(30)
                 ]);
 
-                SecurityAlert::create([
+                $alert = SecurityAlert::create([
                     'user_id' => $user->id,
                     'type' => 'account_locked',
                     'severity' => 'high',
@@ -98,43 +87,34 @@ class SecurityService
                         'locked_until' => $user->locked_until?->toIso8601String(),
                     ]
                 ]);
+
+                broadcast(new SecurityAlertCreated($alert));
+                $this->dashboardService->broadcastStatsUpdate();
             }
         }
 
-        // Track failed attempts per IP
         $this->registerFailedAttempt($ip);
 
-        // Detect failed login spike
         $this->detectFailedLoginSpike($ip);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Perform Security Checks (Dipanggil dari AuthService)
-    |--------------------------------------------------------------------------
-    */
 
     public function performSecurityChecks(
         User $user,
         string $ip,
         ?string $deviceId
     ): void {
-        // Detect unknown device
         if (!empty($deviceId)) {
             $this->detectUnknownDevice($user, $deviceId);
         }
 
-        // Detect IP changed
         $this->detectIpChanged($user, $ip);
 
-        // Detect anomalies
         $flags = $this->detectAnomalies([
             'ip' => $ip,
             'user_id' => $user->id,
             'device_id' => $deviceId,
         ]);
 
-        // Create anomaly alert if high risk
         if (!empty($flags)) {
             $riskScore = $this->calculateAnomalyRiskScore($flags);
 
@@ -145,7 +125,7 @@ class SecurityService
                     ->exists();
 
                 if (!$exists) {
-                    SecurityAlert::create([
+                    $alert = SecurityAlert::create([
                         'user_id' => $user->id,
                         'type' => 'anomaly_detected',
                         'severity' => 'high',
@@ -155,16 +135,13 @@ class SecurityService
                             'risk_score' => $riskScore,
                         ],
                     ]);
+
+                    broadcast(new SecurityAlertCreated($alert));
+                    $this->dashboardService->broadcastStatsUpdate();
                 }
             }
         }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Unknown Device Detection
-    |--------------------------------------------------------------------------
-    */
 
     public function detectUnknownDevice(User $user, string $deviceId): void
     {
@@ -172,7 +149,6 @@ class SecurityService
             return;
         }
 
-        // Prevent duplicate alerts in 1 hour
         $exists = SecurityAlert::query()
             ->where('user_id', $user->id)
             ->where('type', 'unknown_device')
@@ -183,7 +159,7 @@ class SecurityService
             return;
         }
 
-        SecurityAlert::create([
+        $alert = SecurityAlert::create([
             'user_id' => $user->id,
             'type' => 'unknown_device',
             'severity' => 'medium',
@@ -192,13 +168,10 @@ class SecurityService
                 'incoming_device' => $deviceId,
             ],
         ]);
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | IP Changed Detection
-    |--------------------------------------------------------------------------
-    */
+        broadcast(new SecurityAlertCreated($alert));
+        $this->dashboardService->broadcastStatsUpdate();
+    }
 
     public function detectIpChanged(User $user, string $newIp): void
     {
@@ -206,7 +179,6 @@ class SecurityService
             return;
         }
 
-        // Prevent duplicate alerts in 1 hour
         $exists = SecurityAlert::query()
             ->where('user_id', $user->id)
             ->where('type', 'ip_changed')
@@ -217,7 +189,7 @@ class SecurityService
             return;
         }
 
-        SecurityAlert::create([
+        $alert = SecurityAlert::create([
             'user_id' => $user->id,
             'type' => 'ip_changed',
             'severity' => 'low',
@@ -227,13 +199,9 @@ class SecurityService
                 'new_ip' => $newIp,
             ],
         ]);
-    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Anomaly Detection (Multi-factor)
-    |--------------------------------------------------------------------------
-    */
+        broadcast(new SecurityAlertCreated($alert));
+    }
 
     public function detectAnomalies(array $context): array
     {
@@ -242,13 +210,11 @@ class SecurityService
         $userId = $context['user_id'] ?? null;
         $deviceId = $context['device_id'] ?? null;
 
-        // Check unusual time (2 AM - 5 AM)
         $hour = Carbon::now()->hour;
         if ($hour >= 2 && $hour <= 5) {
             $flags[] = 'UNUSUAL_TIME_LOGIN';
         }
 
-        // Check high frequency (5+ logins in 1 minute from same IP)
         if ($ip) {
             $count = LoginLog::where('ip_address', $ip)
                 ->where('created_at', '>=', now()->subMinute())
@@ -259,7 +225,6 @@ class SecurityService
             }
         }
 
-        // Check device change
         if ($userId && $deviceId) {
             $oldDevice = LoginLog::where('user_id', $userId)
                 ->whereNotNull('device_id')
@@ -271,7 +236,6 @@ class SecurityService
             }
         }
 
-        // Check new IP
         if ($userId && $ip) {
             $oldIp = LoginLog::where('user_id', $userId)
                 ->where('status', 'success')
@@ -285,12 +249,6 @@ class SecurityService
 
         return $flags;
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Risk Score Calculation
-    |--------------------------------------------------------------------------
-    */
 
     public function calculateRiskScore(string $ip): int
     {
@@ -329,21 +287,14 @@ class SecurityService
         return $score >= 60;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Auto Ban IP
-    |--------------------------------------------------------------------------
-    */
-
     public function autoBanIp(string $ip, string $reason): void
     {
-        // Check if already blocked
         if (BlockedIp::isIpBlocked($ip)) {
             return;
         }
 
         DB::transaction(function () use ($ip, $reason): void {
-            BlockedIp::updateOrCreate(
+            $blockedIp = BlockedIp::updateOrCreate(
                 ['ip_address' => $ip],
                 [
                     'attempts' => 10,
@@ -355,7 +306,7 @@ class SecurityService
                 ]
             );
 
-            SecurityAlert::create([
+            $alert = SecurityAlert::create([
                 'type' => 'ip_auto_banned',
                 'severity' => 'critical',
                 'ip_address' => $ip,
@@ -364,48 +315,32 @@ class SecurityService
                     'blocked_until' => now()->addDay()->toIso8601String(),
                 ],
             ]);
+
+            broadcast(new BlockedIpCreated($blockedIp));
+            broadcast(new SecurityAlertCreated($alert));
+            $this->dashboardService->broadcastStatsUpdate();
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Register Failed Attempt (Auto-ban after threshold)
-    |--------------------------------------------------------------------------
-    */
 
     public function registerFailedAttempt(string $ip): void
     {
         $cacheKey = self::CACHE_KEY_FAILED_ATTEMPTS . $ip;
         $failedCount = Cache::increment($cacheKey);
 
-        // Set expiry if first increment
         if ($failedCount === 1) {
             Cache::put($cacheKey, 1, self::CACHE_TTL_FAILED);
         }
 
-        // Auto-ban after 10 attempts
         if ($failedCount >= 10) {
             $this->autoBanIp($ip, '10 failed login attempts from IP');
             Cache::forget($cacheKey);
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | IP Block Check
-    |--------------------------------------------------------------------------
-    */
-
     public function isIpBlocked(string $ip): bool
     {
         return BlockedIp::isIpBlocked($ip);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Reset Failed Attempts
-    |--------------------------------------------------------------------------
-    */
 
     public function resetFailedAttempts(string $ip): void
     {
@@ -421,12 +356,6 @@ class SecurityService
 
         BlockedIp::clearIpCache($ip);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Clear Risk Score Cache
-    |--------------------------------------------------------------------------
-    */
 
     public function clearRiskScoreCache(string $ip): void
     {

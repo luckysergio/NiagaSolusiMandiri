@@ -3,19 +3,27 @@ import { dashboardApi } from '../api/dashboard';
 
 export const dashboardKeys = {
   all: ['admin', 'dashboard'],
+
   stats: () => [...dashboardKeys.all, 'stats'],
-  loginLogs: (filters) => [...dashboardKeys.all, 'loginLogs', filters],
-  loginLog: (id) => [...dashboardKeys.all, 'loginLog', id],
-  activityLogs: (filters) => [...dashboardKeys.all, 'activityLogs', filters],
-  activityLog: (id) => [...dashboardKeys.all, 'activityLog', id],
-  blockedIps: (filters) => [...dashboardKeys.all, 'blockedIps', filters],
-  blockedIp: (id) => [...dashboardKeys.all, 'blockedIp', id],
-  securityAlerts: (filters) => [...dashboardKeys.all, 'securityAlerts', filters],
-  securityAlert: (id) => [...dashboardKeys.all, 'securityAlert', id],
+
+  loginLogs: () => [...dashboardKeys.all, 'loginLogs'],
+  loginLogList: (filters) => [...dashboardKeys.loginLogs(), 'list', filters],
+  loginLogDetail: (id) => [...dashboardKeys.loginLogs(), 'detail', id],
+
+  activityLogs: () => [...dashboardKeys.all, 'activityLogs'],
+  activityLogList: (filters) => [...dashboardKeys.activityLogs(), 'list', filters],
+  activityLogDetail: (id) => [...dashboardKeys.activityLogs(), 'detail', id],
+
+  blockedIps: () => [...dashboardKeys.all, 'blockedIps'],
+  blockedIpList: (filters) => [...dashboardKeys.blockedIps(), 'list', filters],
+  blockedIpDetail: (id) => [...dashboardKeys.blockedIps(), 'detail', id],
+
+  securityAlerts: () => [...dashboardKeys.all, 'securityAlerts'],
+  securityAlertList: (filters) => [...dashboardKeys.securityAlerts(), 'list', filters],
+  securityAlertDetail: (id) => [...dashboardKeys.securityAlerts(), 'detail', id],
 };
 
 export const useDashboard = () => {
-
   const useStats = () => {
     return useQuery({
       queryKey: dashboardKeys.stats(),
@@ -26,25 +34,25 @@ export const useDashboard = () => {
       staleTime: 1000 * 60,
       gcTime: 1000 * 60 * 5,
       refetchInterval: 1000 * 60,
+      refetchOnWindowFocus: true,
     });
   };
 
   const useLoginLogs = (page = 1, filters = {}) => {
     return useQuery({
-      queryKey: dashboardKeys.loginLogs({ page, ...filters }),
+      queryKey: dashboardKeys.loginLogList({ page, ...filters }),
       queryFn: async () => {
         const response = await dashboardApi.getLoginLogs({ page, ...filters });
         return response;
       },
-      keepPreviousData: true,
-      staleTime: 1000 * 30,
       gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
     });
   };
 
   const useLoginLog = (id) => {
     return useQuery({
-      queryKey: dashboardKeys.loginLog(id),
+      queryKey: dashboardKeys.loginLogDetail(id),
       queryFn: async () => {
         const response = await dashboardApi.getLoginLog(id);
         return response.data;
@@ -55,20 +63,19 @@ export const useDashboard = () => {
 
   const useActivityLogs = (page = 1, filters = {}) => {
     return useQuery({
-      queryKey: dashboardKeys.activityLogs({ page, ...filters }),
+      queryKey: dashboardKeys.activityLogList({ page, ...filters }),
       queryFn: async () => {
         const response = await dashboardApi.getActivityLogs({ page, ...filters });
         return response;
       },
-      keepPreviousData: true,
-      staleTime: 1000 * 30,
       gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
     });
   };
 
   const useActivityLog = (id) => {
     return useQuery({
-      queryKey: dashboardKeys.activityLog(id),
+      queryKey: dashboardKeys.activityLogDetail(id),
       queryFn: async () => {
         const response = await dashboardApi.getActivityLog(id);
         return response.data;
@@ -79,20 +86,19 @@ export const useDashboard = () => {
 
   const useBlockedIps = (page = 1, filters = {}) => {
     return useQuery({
-      queryKey: dashboardKeys.blockedIps({ page, ...filters }),
+      queryKey: dashboardKeys.blockedIpList({ page, ...filters }),
       queryFn: async () => {
         const response = await dashboardApi.getBlockedIps({ page, ...filters });
         return response;
       },
-      keepPreviousData: true,
-      staleTime: 1000 * 30,
       gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
     });
   };
 
   const useBlockedIp = (id) => {
     return useQuery({
-      queryKey: dashboardKeys.blockedIp(id),
+      queryKey: dashboardKeys.blockedIpDetail(id),
       queryFn: async () => {
         const response = await dashboardApi.getBlockedIp(id);
         return response.data;
@@ -103,20 +109,19 @@ export const useDashboard = () => {
 
   const useSecurityAlerts = (page = 1, filters = {}) => {
     return useQuery({
-      queryKey: dashboardKeys.securityAlerts({ page, ...filters }),
+      queryKey: dashboardKeys.securityAlertList({ page, ...filters }),
       queryFn: async () => {
         const response = await dashboardApi.getSecurityAlerts({ page, ...filters });
         return response;
       },
-      keepPreviousData: true,
-      staleTime: 1000 * 30,
       gcTime: 1000 * 60 * 5,
+      refetchOnWindowFocus: true,
     });
   };
 
   const useSecurityAlert = (id) => {
     return useQuery({
-      queryKey: dashboardKeys.securityAlert(id),
+      queryKey: dashboardKeys.securityAlertDetail(id),
       queryFn: async () => {
         const response = await dashboardApi.getSecurityAlert(id);
         return response.data;

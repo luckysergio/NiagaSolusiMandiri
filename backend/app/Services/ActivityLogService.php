@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\ActivityLog;
+use App\Events\ActivityLogCreated;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ActivityLogService
 {
@@ -15,6 +15,10 @@ class ActivityLogService
         'force_logout_at',
     ];
 
+    public function __construct(
+        protected DashboardService $dashboardService
+    ) {}
+
     public function create(
         string $module,
         string $action,
@@ -22,7 +26,7 @@ class ActivityLogService
         ?array $oldData = null,
         ?array $newData = null
     ): ActivityLog {
-        return ActivityLog::create([
+        $activityLog = ActivityLog::create([
             'user_id' => Auth::id(),
             'module' => $module,
             'action' => $action,
@@ -32,6 +36,14 @@ class ActivityLogService
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+
+        $activityLog->load('user:id,name,email');
+
+        broadcast(new ActivityLogCreated($activityLog));
+
+        $this->dashboardService->broadcastStatsUpdate();
+
+        return $activityLog;
     }
 
     public function logUserAction(
@@ -40,13 +52,7 @@ class ActivityLogService
         ?array $oldData = null,
         ?array $newData = null
     ): ActivityLog {
-        return $this->create(
-            module: 'users',
-            action: $action,
-            referenceId: $userId,
-            oldData: $oldData,
-            newData: $newData
-        );
+        return $this->create('users', $action, $userId, $oldData, $newData);
     }
 
     public function logRoleAction(
@@ -55,13 +61,7 @@ class ActivityLogService
         ?array $oldData = null,
         ?array $newData = null
     ): ActivityLog {
-        return $this->create(
-            module: 'roles',
-            action: $action,
-            referenceId: $roleId,
-            oldData: $oldData,
-            newData: $newData
-        );
+        return $this->create('roles', $action, $roleId, $oldData, $newData);
     }
 
     public function logProfileAction(
@@ -70,13 +70,7 @@ class ActivityLogService
         ?array $oldData = null,
         ?array $newData = null
     ): ActivityLog {
-        return $this->create(
-            module: 'profile',
-            action: $action,
-            referenceId: $userId,
-            oldData: $oldData,
-            newData: $newData
-        );
+        return $this->create('profile', $action, $userId, $oldData, $newData);
     }
 
     private function sanitize(array $data): array

@@ -7,6 +7,7 @@ use App\Models\LoginLog;
 use App\Models\ActivityLog;
 use App\Models\BlockedIp;
 use App\Models\SecurityAlert;
+use App\Events\StatsUpdated;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -18,39 +19,52 @@ class DashboardService
     private const CACHE_KEY_BLOCKED_IPS = 'dashboard.blocked_ips';
     private const CACHE_KEY_SECURITY_ALERTS = 'dashboard.security_alerts';
     private const CACHE_KEY_LIST_REGISTRY = 'dashboard.list.registry';
-
     private const CACHE_KEY_PREFIX = 'dashboard.detail:';
+    private const CACHE_TTL_STATS = 60;        // 1 menit
+    private const CACHE_TTL_LIST = 300;        // 5 menit
+    private const CACHE_TTL_DETAIL = 300;      // 5 menit
+    private const CACHE_TTL_REGISTRY = 86400;  // 24 jam
 
-    private const CACHE_TTL_STATS = 60;
-    private const CACHE_TTL_LIST = 300;
-    private const CACHE_TTL_DETAIL = 300;
-    private const CACHE_TTL_REGISTRY = 86400;
 
     public function stats(): array
     {
         return Cache::remember(self::CACHE_KEY_STATS, self::CACHE_TTL_STATS, function () {
-            return [
-                'users_total' => User::count(),
-                'users_active' => User::active()->count(),
-                'users_inactive' => User::inactive()->count(),
-                'users_locked' => User::locked()->count(),
-
-                'login_success_today' => LoginLog::where('status', 'success')
-                    ->whereDate('created_at', today())
-                    ->count(),
-                'login_failed_today' => LoginLog::where('status', 'failed')
-                    ->whereDate('created_at', today())
-                    ->count(),
-
-                'blocked_ips' => BlockedIp::currentlyBlocked()->count(),
-                'security_alerts_open' => SecurityAlert::unresolved()->count(),
-                'security_alerts_critical' => SecurityAlert::unresolved()
-                    ->critical()
-                    ->count(),
-
-                'activity_today' => ActivityLog::whereDate('created_at', today())->count(),
-            ];
+            return $this->calculateStats();
         });
+    }
+
+    private function calculateStats(): array
+    {
+        return [
+            'users_total' => User::count(),
+            'users_active' => User::active()->count(),
+            'users_inactive' => User::inactive()->count(),
+            'users_locked' => User::locked()->count(),
+            
+            'login_success_today' => LoginLog::where('status', 'success')
+                ->whereDate('created_at', today())
+                ->count(),
+            'login_failed_today' => LoginLog::where('status', 'failed')
+                ->whereDate('created_at', today())
+                ->count(),
+            
+            'blocked_ips' => BlockedIp::currentlyBlocked()->count(),
+            'security_alerts_open' => SecurityAlert::unresolved()->count(),
+            'security_alerts_critical' => SecurityAlert::unresolved()
+                ->critical()
+                ->count(),
+            
+            'activity_today' => ActivityLog::whereDate('created_at', today())->count(),
+        ];
+    }
+
+    public function broadcastStatsUpdate(): void
+    {
+        Cache::forget(self::CACHE_KEY_STATS);
+
+        $stats = $this->calculateStats();
+
+        broadcast(new StatsUpdated($stats));
     }
 
     public function loginLogs(
