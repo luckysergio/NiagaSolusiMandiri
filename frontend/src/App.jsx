@@ -23,6 +23,7 @@ import BlogDetail from './pages/BlogDetail';
 import CategoriesPage from './pages/categories/CategoriesPage';
 import ProductTypesPage from './pages/product-types/ProductTypesPage';
 import ProductsPage from './pages/products/ProductsPage';
+import SuppliersPage from './pages/suppliers/SuppliersPage';
 
 function App() {
   return (
@@ -99,6 +100,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <ProductsPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/suppliers"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <SuppliersPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }

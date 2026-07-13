@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\ProductTypeController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\RoleController;
+use App\Http\Controllers\Api\Admin\SupplierController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])
@@ -92,6 +93,17 @@ Route::prefix('admin')
 
             Route::patch('/{id}/toggle-active', [ProductController::class, 'toggleActive']);
             Route::patch('/{id}/toggle-featured', [ProductController::class, 'toggleFeatured']);
+        });
+
+        Route::prefix('suppliers')->group(function () {
+            Route::get('/dropdown', [SupplierController::class, 'dropdown']);
+            Route::get('/statistics', [SupplierController::class, 'statistics']);
+            Route::get('/', [SupplierController::class, 'index']);
+            Route::post('/', [SupplierController::class, 'store']);
+            Route::get('/{id}', [SupplierController::class, 'show']);
+            Route::put('/{id}', [SupplierController::class, 'update']);
+            Route::delete('/{id}', [SupplierController::class, 'destroy']);
+            Route::patch('/{id}/toggle-active', [SupplierController::class, 'toggleActive']);
         });
 
         Route::prefix('roles')->group(function () {

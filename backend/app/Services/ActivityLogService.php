@@ -87,6 +87,33 @@ class ActivityLogService
         return $this->create('products', $action, $productId, $oldData, $newData);
     }
 
+    public function logSupplierAction(
+        string $action,
+        int $supplierId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('suppliers', $action, $supplierId, $oldData, $newData);
+    }
+
+    public function logTransactionAction(
+        string $action,
+        int $transactionId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('transactions', $action, $transactionId, $oldData, $newData);
+    }
+
+    public function logTransactionDetailAction(
+        string $action,
+        int $detailId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('transaction_details', $action, $detailId, $oldData, $newData);
+    }
+
     private function sanitize(array $data): array
     {
         foreach (self::SENSITIVE_FIELDS as $field) {
