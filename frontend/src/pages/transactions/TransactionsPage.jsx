@@ -9,6 +9,10 @@ import {
   Receipt,
 } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
+import { useModal } from '../../contexts/ModalContext';
+import { transactionApi } from '../../api/transaction';
+// ✅ Ekstensi .jsx dipertahankan agar Vite tidak bingung mencari .js
+import { generateInvoicePDF } from '../../utils/generateInvoicePDF.jsx';
 import Card from '../../common/Card';
 import TransactionCard from './components/TransactionCard';
 import TransactionForm from './components/TransactionForm';
@@ -16,12 +20,14 @@ import TransactionForm from './components/TransactionForm';
 const TransactionsPage = () => {
   const {
     useTransactionsList,
-    useTransaction, // ✅ Hook untuk fetch data lengkap
+    useTransaction,
     handleDelete,
     handleChangeStatus,
     isMutating,
     invalidateTransactions,
   } = useTransactions();
+
+  const { showSuccess, showError, showLoading, closeLoading } = useModal();
 
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,9 +39,9 @@ const TransactionsPage = () => {
   });
   
   const [showForm, setShowForm] = useState(false);
-  const [editingTransactionId, setEditingTransactionId] = useState(null); // ✅ Simpan ID, bukan object
+  const [editingTransactionId, setEditingTransactionId] = useState(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
-  // ✅ Fetch data lengkap hanya saat ID ada
   const { data: fullEditingTransaction } = useTransaction(editingTransactionId);
 
   useEffect(() => {
@@ -78,7 +84,7 @@ const TransactionsPage = () => {
   };
 
   const openEditForm = (transaction) => {
-    setEditingTransactionId(transaction.id); // ✅ Set ID, biarkan hook yang fetch
+    setEditingTransactionId(transaction.id);
     setShowForm(true);
   };
 
@@ -99,6 +105,28 @@ const TransactionsPage = () => {
   const handleRefresh = async () => {
     await invalidateTransactions();
     await refetch();
+  };
+
+  // ✅ Handler Cetak Invoice (Review di tab baru)
+  const handlePrintInvoice = async (transaction) => {
+    try {
+      setIsPrinting(true);
+      showLoading('Mempersiapkan Invoice...', 'Mohon tunggu sebentar');
+      
+      const response = await transactionApi.getById(transaction.id);
+      const fullTransaction = response.data;
+      
+      await generateInvoicePDF(fullTransaction); // Akan membuka tab baru untuk review
+      
+      closeLoading();
+      showSuccess('Berhasil', 'Invoice berhasil dibuka untuk direview');
+    } catch (error) {
+      closeLoading();
+      showError('Gagal', 'Gagal mencetak invoice. Silakan coba lagi.');
+      console.error('Print invoice error:', error);
+    } finally {
+      setIsPrinting(false);
+    }
   };
 
   if (isLoading && !transactionsResponse) {
@@ -185,13 +213,6 @@ const TransactionsPage = () => {
                 <span>Refresh</span>
               </button>
             )}
-
-            <div className="ml-auto text-sm text-slate-400">
-              <span className="font-semibold text-indigo-400">
-                {pagination.total || 0}
-              </span>{' '}
-              transaksi ditemukan
-            </div>
           </div>
         </div>
       </Card>
@@ -226,7 +247,9 @@ const TransactionsPage = () => {
                 onChangeStatus={handleChangeStatus}
                 onEdit={openEditForm}
                 onDelete={handleDelete}
+                onPrintInvoice={handlePrintInvoice}
                 isMutating={isMutating}
+                isPrinting={isPrinting}
               />
             </div>
           ))}
@@ -295,10 +318,10 @@ const TransactionsPage = () => {
           isOpen={showForm}
           onClose={() => {
             setShowForm(false);
-            setEditingTransactionId(null); // ✅ Reset ID saat tutup
+            setEditingTransactionId(null);
           }}
           onSuccess={handleFormSuccess}
-          editingTransaction={fullEditingTransaction} // ✅ Kirim data lengkap dari hook
+          editingTransaction={fullEditingTransaction}
         />
       )}
     </div>
