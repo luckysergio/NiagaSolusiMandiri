@@ -110,13 +110,13 @@ const Sidebar = () => {
         path: '/product-types',
         color: 'text-cyan-400',
       },
-      // {
-      //   id: 'products',
-      //   label: 'Produk',
-      //   icon: Package,
-      //   path: '/products',
-      //   color: 'text-teal-400',
-      // },
+      {
+        id: 'products',
+        label: 'Produk',
+        icon: Package,
+        path: '/products',
+        color: 'text-teal-400',
+      },
     ],
   };
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Api\Admin\DashboardController;
 use App\Http\Controllers\Api\Admin\ProductCategoryController;
+use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\ProductTypeController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\RoleController;
@@ -75,6 +76,22 @@ Route::prefix('admin')
             Route::put('/{id}', [ProductTypeController::class, 'update']);
             Route::delete('/{id}', [ProductTypeController::class, 'destroy']);
             Route::patch('/{id}/toggle-active', [ProductTypeController::class, 'toggleActive']);
+        });
+
+        Route::prefix('products')->group(function () {
+            Route::get('/dropdown', [ProductController::class, 'dropdown']);
+            Route::get('/statistics', [ProductController::class, 'statistics']);
+            Route::get('/next-sort-order', [ProductController::class, 'nextSortOrder']);
+            Route::get('/generate-code', [ProductController::class, 'generateCode']);
+
+            Route::get('/', [ProductController::class, 'index']);
+            Route::post('/', [ProductController::class, 'store']);
+            Route::get('/{id}', [ProductController::class, 'show']);
+            Route::put('/{id}', [ProductController::class, 'update']);
+            Route::delete('/{id}', [ProductController::class, 'destroy']);
+
+            Route::patch('/{id}/toggle-active', [ProductController::class, 'toggleActive']);
+            Route::patch('/{id}/toggle-featured', [ProductController::class, 'toggleFeatured']);
         });
 
         Route::prefix('roles')->group(function () {

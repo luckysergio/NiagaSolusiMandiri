@@ -22,6 +22,7 @@ import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
 import CategoriesPage from './pages/categories/CategoriesPage';
 import ProductTypesPage from './pages/product-types/ProductTypesPage';
+import ProductsPage from './pages/products/ProductsPage';
 
 function App() {
   return (
@@ -42,7 +43,6 @@ function App() {
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogDetail />} />
 
-              {/* Protected Routes - Hanya untuk Super Admin */}
               <Route
                 path="/dashboard"
                 element={
@@ -94,6 +94,16 @@ function App() {
                 }
               />
               <Route
+                path="/products"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <ProductsPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/profile"
                 element={
                   <ProtectedRoute>
@@ -104,7 +114,6 @@ function App() {
                 }
               />
 
-              {/* Fallback - Redirect ke Landing */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
