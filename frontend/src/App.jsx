@@ -24,6 +24,7 @@ import CategoriesPage from './pages/categories/CategoriesPage';
 import ProductTypesPage from './pages/product-types/ProductTypesPage';
 import ProductsPage from './pages/products/ProductsPage';
 import SuppliersPage from './pages/suppliers/SuppliersPage';
+import TransactionsPage from './pages/transactions/TransactionsPage';
 
 function App() {
   return (
@@ -110,6 +111,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <SuppliersPage />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/transactions"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <TransactionsPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }

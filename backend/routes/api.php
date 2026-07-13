@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\Admin\ProductTypeController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\SupplierController;
+use App\Http\Controllers\Api\Admin\TransactionController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])
@@ -104,6 +105,17 @@ Route::prefix('admin')
             Route::put('/{id}', [SupplierController::class, 'update']);
             Route::delete('/{id}', [SupplierController::class, 'destroy']);
             Route::patch('/{id}/toggle-active', [SupplierController::class, 'toggleActive']);
+        });
+
+        Route::prefix('transactions')->group(function () {
+            Route::get('/dropdown', [TransactionController::class, 'dropdown']);
+            Route::get('/statistics', [TransactionController::class, 'statistics']);
+            Route::get('/', [TransactionController::class, 'index']);
+            Route::post('/', [TransactionController::class, 'store']);
+            Route::get('/{id}', [TransactionController::class, 'show']);
+            Route::put('/{id}', [TransactionController::class, 'update']);
+            Route::delete('/{id}', [TransactionController::class, 'destroy']);
+            Route::patch('/{id}/change-status', [TransactionController::class, 'changeStatus']);
         });
 
         Route::prefix('roles')->group(function () {

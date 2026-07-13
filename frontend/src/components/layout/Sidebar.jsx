@@ -137,14 +137,13 @@ const Sidebar = () => {
         path: '/suppliers',
         color: 'text-amber-400',
       },
-      // Nanti tambahkan:
-      // {
-      //   id: 'transactions',
-      //   label: 'Transaksi',
-      //   icon: Receipt,
-      //   path: '/transactions',
-      //   color: 'text-orange-400',
-      // },
+      {
+        id: 'transactions',
+        label: 'Transaksi',
+        icon: Receipt,
+        path: '/transactions',
+        color: 'text-orange-400',
+      },
     ],
   };
 
