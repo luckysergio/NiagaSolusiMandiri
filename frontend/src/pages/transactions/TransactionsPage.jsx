@@ -7,11 +7,11 @@ import {
   RefreshCw,
   X,
   Receipt,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useModal } from '../../contexts/ModalContext';
 import { transactionApi } from '../../api/transaction';
-// ✅ Ekstensi .jsx dipertahankan agar Vite tidak bingung mencari .js
 import { generateInvoicePDF } from '../../utils/generateInvoicePDF.jsx';
 import Card from '../../common/Card';
 import TransactionCard from './components/TransactionCard';
@@ -41,6 +41,7 @@ const TransactionsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingTransactionId, setEditingTransactionId] = useState(null);
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: fullEditingTransaction } = useTransaction(editingTransactionId);
 
@@ -107,7 +108,6 @@ const TransactionsPage = () => {
     await refetch();
   };
 
-  // ✅ Handler Cetak Invoice (Review di tab baru)
   const handlePrintInvoice = async (transaction) => {
     try {
       setIsPrinting(true);
@@ -116,7 +116,7 @@ const TransactionsPage = () => {
       const response = await transactionApi.getById(transaction.id);
       const fullTransaction = response.data;
       
-      await generateInvoicePDF(fullTransaction); // Akan membuka tab baru untuk review
+      await generateInvoicePDF(fullTransaction);
       
       closeLoading();
       showSuccess('Berhasil', 'Invoice berhasil dibuka untuk direview');
@@ -126,6 +126,48 @@ const TransactionsPage = () => {
       console.error('Print invoice error:', error);
     } finally {
       setIsPrinting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    try {
+      setIsExporting(true);
+      showLoading('Mempersiapkan Laporan...', 'Mohon tunggu sebentar');
+      
+      const params = {
+        search: debouncedSearch,
+        ...filters,
+      };
+
+      const response = await transactionApi.exportExcel(params);
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const disposition = response.headers['content-disposition'];
+      let filename = 'Laporan_Transaksi.xlsx';
+      if (disposition && disposition.indexOf('attachment') !== -1) {
+        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
+        if (matches != null && matches[1]) {
+          filename = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+        }
+      }
+      
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      closeLoading();
+      showSuccess('Berhasil', 'Laporan Excel berhasil diunduh');
+    } catch (error) {
+      closeLoading();
+      showError('Gagal', 'Gagal mengunduh laporan. Silakan coba lagi.');
+      console.error('Export excel error:', error);
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -213,11 +255,24 @@ const TransactionsPage = () => {
                 <span>Refresh</span>
               </button>
             )}
+
+            <button
+              onClick={handleExportExcel}
+              disabled={isExporting}
+              className="px-4 py-2.5 bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/30 rounded-xl transition-all flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Export ke Excel"
+            >
+              {isExporting ? (
+                <RefreshCw className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileSpreadsheet className="w-4 h-4" />
+              )}
+              <span>{isExporting ? 'Memproses...' : 'Export Excel'}</span>
+            </button>
           </div>
         </div>
       </Card>
 
-      {/* Transactions Grid */}
       {transactions.length === 0 ? (
         <Card variant="glass" padding="lg">
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -256,7 +311,6 @@ const TransactionsPage = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pagination.last_page > 1 && (
         <Card variant="glass" padding="sm">
           <div className="flex items-center justify-between">
@@ -303,7 +357,6 @@ const TransactionsPage = () => {
         </Card>
       )}
 
-      {/* FAB Button */}
       <button
         onClick={openCreateForm}
         className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
@@ -312,7 +365,6 @@ const TransactionsPage = () => {
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* Form Modal */}
       {showForm && (
         <TransactionForm
           isOpen={showForm}

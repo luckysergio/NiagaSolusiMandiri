@@ -110,6 +110,8 @@ Route::prefix('admin')
         Route::prefix('transactions')->group(function () {
             Route::get('/dropdown', [TransactionController::class, 'dropdown']);
             Route::get('/statistics', [TransactionController::class, 'statistics']);
+            Route::get('/export-excel', [TransactionController::class, 'exportExcel']);
+
             Route::get('/', [TransactionController::class, 'index']);
             Route::post('/', [TransactionController::class, 'store']);
             Route::get('/{id}', [TransactionController::class, 'show']);

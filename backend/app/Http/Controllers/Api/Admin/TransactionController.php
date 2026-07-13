@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Services\TransactionService;
 use App\Enums\TransactionStatus;
+use App\Exports\TransactionsReportExport;
+use Maatwebsite\Excel\Facades\Excel; 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
@@ -246,5 +248,22 @@ class TransactionController extends Controller
             'success' => true,
             'data' => $this->service->getStatistics($startDate, $endDate)
         ]);
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $filters = $request->only(['search', 'status', 'start_date', 'end_date']);
+        
+        $filename = 'Laporan_Transaksi';
+        
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $filename .= '_dari_' . $filters['start_date'] . '_sampai_' . $filters['end_date'];
+        } else {
+            $filename .= '_Semua_Periode';
+        }
+        
+        $filename .= '.xlsx';
+
+        return Excel::download(new TransactionsReportExport($filters), $filename);
     }
 }

@@ -44,4 +44,12 @@ export const transactionApi = {
     const response = await axiosInstance.get('/admin/transactions/statistics', { params });
     return response.data;
   },
+
+  exportExcel: async (params = {}) => {
+    const response = await axiosInstance.get('/admin/transactions/export-excel', {
+      params,
+      responseType: 'blob',
+    });
+    return response;
+  },
 };
