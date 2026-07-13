@@ -14,43 +14,18 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ProductCategoryService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Constructor
-    |--------------------------------------------------------------------------
-    */
-
     public function __construct(
         protected ActivityLogService $activityLogService
     ) {}
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Keys
-    |--------------------------------------------------------------------------
-    */
 
     private const CACHE_KEY_LIST = 'product_categories.list';
     private const CACHE_KEY_LIST_REGISTRY = 'product_categories.list.registry';
     private const CACHE_KEY_DROPDOWN = 'product_categories.dropdown';
     private const CACHE_KEY_STATISTICS = 'product_categories.statistics';
     private const CACHE_KEY_PREFIX = 'product_category:';
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache TTL
-    |--------------------------------------------------------------------------
-    */
-
     private const CACHE_TTL_LIST = 300;
     private const CACHE_TTL_REGISTRY = 86400;
     private const CACHE_TTL_STATIC = 3600;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Paginate
-    |--------------------------------------------------------------------------
-    */
 
     public function paginate(
         array $filters = [],
@@ -58,8 +33,6 @@ class ProductCategoryService
     ): LengthAwarePaginator {
 
         $cacheKey = $this->buildCacheKey($filters, $perPage);
-
-        // ✅ Register cache key ke registry
         $this->registerListCacheKey($cacheKey);
 
         return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage) {
@@ -85,12 +58,6 @@ class ProductCategoryService
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Find
-    |--------------------------------------------------------------------------
-    */
-
     public function find(int $id): ProductCategory
     {
         $cacheKey = self::CACHE_KEY_PREFIX . $id;
@@ -100,12 +67,6 @@ class ProductCategoryService
                 ->findOrFail($id);
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Dropdown
-    |--------------------------------------------------------------------------
-    */
 
     public function getCategoriesForDropdown(): array
     {
@@ -117,12 +78,6 @@ class ProductCategoryService
                 ->toArray();
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Statistics
-    |--------------------------------------------------------------------------
-    */
 
     public function getStatistics(): array
     {
@@ -137,22 +92,26 @@ class ProductCategoryService
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Create
-    |--------------------------------------------------------------------------
-    */
+    public function getNextSortOrder(): int
+    {
+        $maxSortOrder = ProductCategory::max('sort_order') ?? 0;
+        return $maxSortOrder + 1;
+    }
 
     public function create(array $data): ProductCategory
     {
         $this->validateNameUniqueness($data['name']);
 
         return DB::transaction(function () use ($data) {
+            $sortOrder = !empty($data['sort_order'])
+                ? (int) $data['sort_order']
+                : $this->getNextSortOrder();
+
             $category = ProductCategory::create([
                 'name' => $data['name'],
                 'slug' => $data['slug'] ?? Str::slug($data['name']),
                 'description' => $data['description'] ?? null,
-                'sort_order' => $data['sort_order'] ?? 0,
+                'sort_order' => $sortOrder,
                 'is_active' => $data['is_active'] ?? true,
             ]);
 
@@ -167,18 +126,11 @@ class ProductCategoryService
 
             broadcast(new ProductCategoryCreated($category));
 
-            // ✅ Clear semua cache list
             $this->clearAllListCache();
 
             return $category;
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Update
-    |--------------------------------------------------------------------------
-    */
 
     public function update(int $id, array $data): ProductCategory
     {
@@ -212,18 +164,11 @@ class ProductCategoryService
 
             broadcast(new ProductCategoryUpdated($category));
 
-            // ✅ Clear cache
             $this->clearCategoryCache($id);
 
             return $category;
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Delete
-    |--------------------------------------------------------------------------
-    */
 
     public function delete(int $id): void
     {
@@ -252,16 +197,9 @@ class ProductCategoryService
 
             $category->delete();
 
-            // ✅ Clear cache
             $this->clearCategoryCache($id);
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Toggle Active
-    |--------------------------------------------------------------------------
-    */
 
     public function toggleActive(int $id): ProductCategory
     {
@@ -287,18 +225,11 @@ class ProductCategoryService
 
             broadcast(new ProductCategoryUpdated($category));
 
-            // ✅ Clear cache
             $this->clearCategoryCache($id);
 
             return $category;
         });
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validation
-    |--------------------------------------------------------------------------
-    */
 
     private function validateNameUniqueness(string $name, ?int $excludeId = null): void
     {
@@ -314,14 +245,6 @@ class ProductCategoryService
             ]);
         }
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cache Registry System
-    |--------------------------------------------------------------------------
-    | ✅ FIX: Pakai registry pattern seperti UserService
-    | Semua cache key yang dibuat akan di-register, lalu di-clear semua
-    */
 
     private function buildCacheKey(array $filters, int $perPage): string
     {

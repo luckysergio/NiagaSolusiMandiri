@@ -1,6 +1,5 @@
-// src/pages/admin/RoleForm.jsx
 import React, { useState, useEffect } from 'react';
-import { X, Shield } from 'lucide-react';
+import { X, Shield, Loader2 } from 'lucide-react';
 import { useRoleManagement } from '../../hooks/useRoleManagement';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
@@ -118,7 +117,20 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
         }
       }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn">
+      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
+        {/* ✅ Loading Overlay */}
+        {isPending && (
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-10 h-10 text-purple-400 animate-spin" />
+              <p className="text-white font-medium">
+                {editingRole ? 'Memperbarui...' : 'Menyimpan...'}
+              </p>
+              <p className="text-slate-400 text-sm">Mohon tunggu sebentar</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
@@ -133,7 +145,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="p-2 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white disabled:opacity-50"
+            className="p-2 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -149,7 +161,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
             onChange={handleInputChange}
             placeholder="contoh: super_admin"
             error={errors.name}
-            disabled={isPending || !!editingRole}
+            disabled={isPending}
             required
             helperText={editingRole ? 'Nama role tidak dapat diubah' : 'Hanya huruf kecil dan underscore'}
           />
@@ -169,11 +181,25 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
 
           {/* Footer */}
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
-            <Button variant="secondary" onClick={onClose} type="button" disabled={isPending}>
+            <Button 
+              variant="secondary" 
+              onClick={onClose} 
+              type="button" 
+              disabled={isPending}
+            >
               Batal
             </Button>
-            <Button variant="primary" type="submit" icon={Shield} disabled={isPending}>
-              {isPending ? 'Menyimpan...' : editingRole ? 'Update' : 'Simpan'}
+            <Button 
+              variant="primary" 
+              type="submit" 
+              icon={isPending ? Loader2 : Shield}
+              iconClassName={isPending ? 'animate-spin' : ''}
+              disabled={isPending}
+            >
+              {isPending 
+                ? (editingRole ? 'Memperbarui...' : 'Menyimpan...') 
+                : (editingRole ? 'Update' : 'Simpan')
+              }
             </Button>
           </div>
         </form>

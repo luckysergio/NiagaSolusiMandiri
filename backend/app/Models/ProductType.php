@@ -55,9 +55,12 @@ class ProductType extends Model
         return $query->where('is_active', false);
     }
 
-    public function scopeByCategory(Builder $query, int $categoryId): Builder
+    public function scopeByCategory(Builder $query, ?int $categoryId): Builder
     {
-        return $query->where('category_id', $categoryId);
+        if ($categoryId) {
+            return $query->where('category_id', $categoryId);
+        }
+        return $query;
     }
 
     public function scopeOrdered(Builder $query): Builder
@@ -85,9 +88,7 @@ class ProductType extends Model
 
     public function toggleActive(): void
     {
-        $this->update([
-            'is_active' => !$this->is_active,
-        ]);
+        $this->update(['is_active' => !$this->is_active]);
     }
 
     public function activate(): void

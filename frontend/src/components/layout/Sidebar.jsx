@@ -16,6 +16,7 @@ import {
   X,
   Package,
   FolderOpen,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useModal } from '../../contexts/ModalContext';
@@ -34,7 +35,6 @@ const Sidebar = () => {
     productManagement: false,
   });
 
-  // ✅ Auto-open submenu jika user berada di halaman yang termasuk submenu
   useEffect(() => {
     const isUserPage = location.pathname === '/users';
     const isRolePage = location.pathname === '/roles';
@@ -103,14 +103,13 @@ const Sidebar = () => {
         path: '/categories',
         color: 'text-blue-400',
       },
-      // Nanti tambah:
-      // {
-      //   id: 'productTypes',
-      //   label: 'Jenis Produk',
-      //   icon: Layers,
-      //   path: '/product-types',
-      //   color: 'text-cyan-400',
-      // },
+      {
+        id: 'productTypes',
+        label: 'Jenis Produk',
+        icon: Layers,
+        path: '/product-types',
+        color: 'text-cyan-400',
+      },
       // {
       //   id: 'products',
       //   label: 'Produk',

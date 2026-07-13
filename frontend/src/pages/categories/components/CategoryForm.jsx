@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { X, FolderOpen } from 'lucide-react';
+import { X, FolderOpen, Info, Loader2 } from 'lucide-react';
 import { useCategories } from '../../../hooks/useCategories';
 import Input from '../../../common/Input';
 import Button from '../../../common/Button';
 
 const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
-  const { handleCreate, handleUpdate, createMutation, updateMutation } = useCategories();
+  const { 
+    handleCreate, 
+    handleUpdate, 
+    createMutation, 
+    updateMutation,
+    useNextSortOrder,
+  } = useCategories();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -17,6 +23,8 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
   const [errors, setErrors] = useState({});
 
   const isPending = createMutation.isPending || updateMutation.isPending;
+
+  const { data: suggestedSortOrder } = useNextSortOrder();
 
   useEffect(() => {
     if (isOpen) {
@@ -33,13 +41,36 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
           name: '',
           slug: '',
           description: '',
-          sort_order: 0,
+          sort_order: suggestedSortOrder || 1,
           is_active: true,
         });
       }
       setErrors({});
     }
-  }, [editingCategory, isOpen]);
+  }, [editingCategory, isOpen, suggestedSortOrder]);
+
+  // ✅ Lock body scroll saat modal terbuka
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // ✅ ESC key to close
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && isOpen && !isPending) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen, isPending, onClose]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -108,8 +139,28 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isPending) {
+          onClose();
+        }
+      }}
+    >
+      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
+        {/* ✅ Loading Overlay */}
+        {isPending && (
+          <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="w-10 h-10 text-indigo-400 animate-spin" />
+              <p className="text-white font-medium">
+                {editingCategory ? 'Memperbarui...' : 'Menyimpan...'}
+              </p>
+              <p className="text-slate-400 text-sm">Mohon tunggu sebentar</p>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
@@ -124,7 +175,7 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="p-2 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white disabled:opacity-50"
+            className="p-2 hover:bg-slate-700/50 rounded-xl transition-all text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-5 h-5" />
           </button>
@@ -166,7 +217,7 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
               onChange={handleInputChange}
               disabled={isPending}
               rows={3}
-              className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none disabled:opacity-50 ${
+              className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
                 errors.description ? 'border-red-500/50' : 'border-slate-600/50'
               }`}
               placeholder="Deskripsi singkat tentang kategori ini"
@@ -177,17 +228,31 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              label="Sort Order"
-              name="sort_order"
-              type="number"
-              value={formData.sort_order}
-              onChange={handleInputChange}
-              placeholder="0"
-              error={errors.sort_order}
-              disabled={isPending}
-              min={0}
-            />
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                Sort Order
+              </label>
+              <input
+                name="sort_order"
+                type="number"
+                value={formData.sort_order}
+                onChange={handleInputChange}
+                disabled={isPending}
+                min={0}
+                className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.sort_order ? 'border-red-500/50' : 'border-slate-600/50'
+                }`}
+                placeholder="0"
+              />
+              {errors.sort_order ? (
+                <p className="mt-1 text-xs text-red-400">{errors.sort_order}</p>
+              ) : !editingCategory && (
+                <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                  <Info className="w-3 h-3" />
+                  Auto-filled, bisa diubah manual
+                </p>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">
@@ -198,7 +263,7 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
                 value={formData.is_active}
                 onChange={handleInputChange}
                 disabled={isPending}
-                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50"
+                className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <option value={true}>Aktif</option>
                 <option value={false}>Nonaktif</option>
@@ -208,11 +273,25 @@ const CategoryForm = ({ isOpen, onClose, onSuccess, editingCategory }) => {
 
           {/* Footer */}
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
-            <Button variant="secondary" onClick={onClose} type="button" disabled={isPending}>
+            <Button 
+              variant="secondary" 
+              onClick={onClose} 
+              type="button" 
+              disabled={isPending}
+            >
               Batal
             </Button>
-            <Button variant="primary" type="submit" icon={FolderOpen} disabled={isPending}>
-              {isPending ? 'Menyimpan...' : editingCategory ? 'Update' : 'Simpan'}
+            <Button 
+              variant="primary" 
+              type="submit" 
+              icon={isPending ? Loader2 : FolderOpen}
+              iconClassName={isPending ? 'animate-spin' : ''}
+              disabled={isPending}
+            >
+              {isPending 
+                ? (editingCategory ? 'Memperbarui...' : 'Menyimpan...') 
+                : (editingCategory ? 'Update' : 'Simpan')
+              }
             </Button>
           </div>
         </form>

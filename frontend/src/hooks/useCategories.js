@@ -10,17 +10,12 @@ export const categoryKeys = {
   detail: (id) => [...categoryKeys.details(), id],
   dropdown: () => [...categoryKeys.all, 'dropdown'],
   statistics: () => [...categoryKeys.all, 'statistics'],
+  nextSortOrder: () => [...categoryKeys.all, 'next-sort-order'],
 };
 
 export const useCategories = () => {
   const queryClient = useQueryClient();
   const { showError, showSuccess, showWarning } = useModal();
-
-  /*
-  |--------------------------------------------------------------------------
-  | Queries
-  |--------------------------------------------------------------------------
-  */
 
   const useCategoriesList = (page = 1, filters = {}) => {
     return useQuery({
@@ -30,7 +25,7 @@ export const useCategories = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0, // ✅ Selalu fresh untuk real-time
+      staleTime: 0,
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -72,11 +67,17 @@ export const useCategories = () => {
     });
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | Invalidation
-  |--------------------------------------------------------------------------
-  */
+  const useNextSortOrder = () => {
+    return useQuery({
+      queryKey: categoryKeys.nextSortOrder(),
+      queryFn: async () => {
+        const response = await categoryApi.getNextSortOrder();
+        return response.data?.next_sort_order || 1;
+      },
+      staleTime: 1000 * 30,
+      gcTime: 1000 * 60 * 5,
+    });
+  };
 
   const invalidateCategories = async () => {
     await queryClient.invalidateQueries({
@@ -84,12 +85,6 @@ export const useCategories = () => {
       refetchType: 'all',
     });
   };
-
-  /*
-  |--------------------------------------------------------------------------
-  | Mutations
-  |--------------------------------------------------------------------------
-  */
 
   const createMutation = useMutation({
     mutationFn: (data) => categoryApi.create(data),
@@ -152,12 +147,6 @@ export const useCategories = () => {
     },
   });
 
-  /*
-  |--------------------------------------------------------------------------
-  | Handlers
-  |--------------------------------------------------------------------------
-  */
-
   const handleDelete = (category) => {
     showWarning(
       'Konfirmasi Hapus',
@@ -191,6 +180,7 @@ export const useCategories = () => {
     useCategory,
     useDropdown,
     useStatistics,
+    useNextSortOrder,
 
     handleDelete,
     handleToggleActive,

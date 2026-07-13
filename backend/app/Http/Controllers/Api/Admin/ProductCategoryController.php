@@ -197,4 +197,16 @@ class ProductCategoryController extends Controller
             'data' => $stats
         ]);
     }
+
+    public function nextSortOrder(): JsonResponse
+    {
+        $nextOrder = $this->service->getNextSortOrder();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'next_sort_order' => $nextOrder,
+            ]
+        ]);
+    }
 }

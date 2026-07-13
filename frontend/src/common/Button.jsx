@@ -5,6 +5,8 @@ const Button = ({
   variant = 'primary',
   size = 'md',
   icon: Icon,
+  iconClassName = '',
+  iconPosition = 'left',
   loading = false,
   fullWidth = false,
   className = '',
@@ -22,6 +24,17 @@ const Button = ({
     sm: 'px-3 py-2 text-sm',
     md: 'px-4 py-2.5 sm:py-3 text-sm sm:text-base',
     lg: 'px-6 py-3 sm:py-4 text-base sm:text-lg',
+  };
+
+  const renderIcon = () => {
+    if (!Icon) return null;
+    
+    const baseIconClass = 'w-5 h-5 group-hover:scale-110 transition-transform duration-200';
+    const combinedClass = iconClassName 
+      ? `${baseIconClass} ${iconClassName}` 
+      : baseIconClass;
+
+    return <Icon className={combinedClass} />;
   };
 
   return (
@@ -48,8 +61,9 @@ const Button = ({
         </>
       ) : (
         <>
-          {Icon && <Icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />}
+          {iconPosition === 'left' && renderIcon()}
           {children}
+          {iconPosition === 'right' && renderIcon()}
         </>
       )}
     </button>
