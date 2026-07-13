@@ -71,10 +71,9 @@ class ProductController extends Controller
                 'price' => ['nullable', 'numeric', 'min:0'],
                 'unit' => ['nullable', 'string', 'max:20'],
                 'minimum_order' => ['nullable', 'numeric', 'min:0'],
-                'specifications' => ['nullable', 'array'],
                 'sort_order' => ['nullable', 'integer', 'min:0'],
-                'featured' => ['nullable'],
-                'is_active' => ['nullable'],
+                'featured' => ['nullable', 'boolean'],
+                'is_active' => ['nullable', 'boolean'],
             ],
             [
                 'product_type_id.required' => 'Jenis produk wajib dipilih',
@@ -108,7 +107,6 @@ class ProductController extends Controller
                 'message' => 'Produk berhasil ditambahkan',
                 'data' => $product
             ], 201);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -134,10 +132,9 @@ class ProductController extends Controller
                 'price' => ['nullable', 'numeric', 'min:0'],
                 'unit' => ['nullable', 'string', 'max:20'],
                 'minimum_order' => ['nullable', 'numeric', 'min:0'],
-                'specifications' => ['nullable', 'array'],
                 'sort_order' => ['nullable', 'integer', 'min:0'],
-                'featured' => ['nullable'],
-                'is_active' => ['nullable'],
+                'featured' => ['nullable', 'boolean'],
+                'is_active' => ['nullable', 'boolean'],
             ],
             [
                 'product_type_id.required' => 'Jenis produk wajib dipilih',
@@ -171,7 +168,6 @@ class ProductController extends Controller
                 'message' => 'Produk berhasil diperbarui',
                 'data' => $product
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -189,7 +185,6 @@ class ProductController extends Controller
                 'success' => true,
                 'message' => 'Produk berhasil dihapus'
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -208,7 +203,6 @@ class ProductController extends Controller
                 'message' => $product->is_active ? 'Produk diaktifkan' : 'Produk dinonaktifkan',
                 'data' => $product
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -227,7 +221,6 @@ class ProductController extends Controller
                 'message' => $product->featured ? 'Produk ditandai sebagai unggulan' : 'Produk dihapus dari unggulan',
                 'data' => $product
             ]);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
@@ -238,13 +231,8 @@ class ProductController extends Controller
 
     public function dropdown(Request $request): JsonResponse
     {
-        $typeId = $request->input('product_type_id')
-            ? (int) $request->input('product_type_id')
-            : null;
-
-        $categoryId = $request->input('category_id')
-            ? (int) $request->input('category_id')
-            : null;
+        $typeId = $request->input('product_type_id') ? (int) $request->input('product_type_id') : null;
+        $categoryId = $request->input('category_id') ? (int) $request->input('category_id') : null;
 
         $products = $this->service->getProductsForDropdown($typeId, $categoryId);
 
@@ -256,13 +244,8 @@ class ProductController extends Controller
 
     public function statistics(Request $request): JsonResponse
     {
-        $categoryId = $request->input('category_id')
-            ? (int) $request->input('category_id')
-            : null;
-
-        $typeId = $request->input('product_type_id')
-            ? (int) $request->input('product_type_id')
-            : null;
+        $categoryId = $request->input('category_id') ? (int) $request->input('category_id') : null;
+        $typeId = $request->input('product_type_id') ? (int) $request->input('product_type_id') : null;
 
         $stats = $this->service->getStatistics($categoryId, $typeId);
 
@@ -274,24 +257,28 @@ class ProductController extends Controller
 
     public function nextSortOrder(Request $request): JsonResponse
     {
-        $typeId = $request->input('product_type_id')
-            ? (int) $request->input('product_type_id')
-            : null;
-
+        $typeId = $request->input('product_type_id') ? (int) $request->input('product_type_id') : null;
         $nextOrder = $this->service->getNextSortOrder($typeId);
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'next_sort_order' => $nextOrder,
-            ]
+            'data' => ['next_sort_order' => $nextOrder]
         ]);
     }
 
     public function generateCode(Request $request): JsonResponse
     {
-        $prefix = $request->input('prefix', 'PRD');
-        $code = $this->service->generateCode($prefix);
+        $productTypeId = $request->input('product_type_id');
+        $name = $request->input('name', '');
+
+        if (!$productTypeId || !$name) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jenis produk dan nama wajib diisi untuk generate kode.'
+            ], 422);
+        }
+
+        $code = $this->service->generateSmartCode((int) $productTypeId, $name);
 
         return response()->json([
             'success' => true,

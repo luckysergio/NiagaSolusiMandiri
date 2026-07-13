@@ -11,7 +11,7 @@ export const productKeys = {
   dropdown: (params) => [...productKeys.all, 'dropdown', params],
   statistics: (params) => [...productKeys.all, 'statistics', params],
   nextSortOrder: (typeId) => [...productKeys.all, 'next-sort-order', typeId],
-  generateCode: (prefix) => [...productKeys.all, 'generate-code', prefix],
+  generateCode: (typeId, name) => [...productKeys.all, 'generate-code', typeId, name],
 };
 
 export const useProducts = () => {
@@ -80,14 +80,15 @@ export const useProducts = () => {
     });
   };
 
-  const useGenerateCode = (prefix = 'PRD', enabled = false) => {
+  const useGenerateCode = (productTypeId = null, name = '', enabled = false) => {
     return useQuery({
-      queryKey: productKeys.generateCode(prefix),
+      queryKey: productKeys.generateCode(productTypeId, name),
       queryFn: async () => {
-        const response = await productApi.generateCode(prefix);
+        if (!productTypeId || !name) return '';
+        const response = await productApi.generateCode(productTypeId, name);
         return response.data?.code || '';
       },
-      enabled,
+      enabled: enabled && !!productTypeId && !!name,
       staleTime: 0,
       gcTime: 0,
       refetchOnWindowFocus: false,

@@ -52,9 +52,9 @@ export const productApi = {
     return response.data;
   },
 
-  generateCode: async (prefix = 'PRD') => {
+  generateCode: async (productTypeId, name) => {
     const response = await axiosInstance.get('/admin/products/generate-code', {
-      params: { prefix },
+      params: { product_type_id: productTypeId, name },
     });
     return response.data;
   },

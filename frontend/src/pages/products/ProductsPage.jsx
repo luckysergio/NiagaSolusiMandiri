@@ -40,39 +40,32 @@ const ProductsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
-  // Get categories dropdown
   const { data: categories = [] } = useCategoriesDropdown();
 
-  // Get product types dropdown (dependent on category)
   const { data: productTypes = [] } = useProductTypesDropdown(
     filters.category_id ? parseInt(filters.category_id) : null
   );
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
       setPage(1);
     }, 500);
-
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Reset page & type saat category berubah
   useEffect(() => {
     setPage(1);
     setFilters(prev => ({
       ...prev,
-      product_type_id: '', // Reset type saat category berubah
+      product_type_id: '',
     }));
   }, [filters.category_id]);
 
-  // Reset page saat filter lain berubah
   useEffect(() => {
     setPage(1);
   }, [filters.product_type_id, filters.is_active, filters.featured]);
 
-  // Queries
   const {
     data: productsResponse,
     isLoading,
@@ -96,7 +89,6 @@ const ProductsPage = () => {
     );
   }, [searchTerm, filters]);
 
-  // Handlers
   const openCreateForm = () => {
     setEditingProduct(null);
     setShowForm(true);
@@ -131,7 +123,6 @@ const ProductsPage = () => {
     await refetch();
   };
 
-  // Loading state
   if (isLoading && !productsResponse) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -150,7 +141,6 @@ const ProductsPage = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-24">
-      {/* Filters - Seragam dengan CategoriesPage */}
       <Card variant="glass" padding="md">
         <div className="space-y-4">
           <div className="relative">
@@ -173,22 +163,19 @@ const ProductsPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Filter Kategori */}
             <select
               value={filters.category_id}
               onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
               className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70"
             >
               <option value="">Semua Kategori</option>
-              {Array.isArray(categories) &&
-                categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
+              {Array.isArray(categories) && categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
             </select>
 
-            {/* Filter Jenis Produk */}
             <select
               value={filters.product_type_id}
               onChange={(e) => setFilters({ ...filters, product_type_id: e.target.value })}
@@ -196,15 +183,13 @@ const ProductsPage = () => {
               className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">Semua Jenis</option>
-              {Array.isArray(productTypes) &&
-                productTypes.map((type) => (
-                  <option key={type.id} value={type.id}>
-                    {type.name}
-                  </option>
-                ))}
+              {Array.isArray(productTypes) && productTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
+                </option>
+              ))}
             </select>
 
-            {/* Filter Featured */}
             <select
               value={filters.featured}
               onChange={(e) => setFilters({ ...filters, featured: e.target.value })}
@@ -215,7 +200,6 @@ const ProductsPage = () => {
               <option value="0">Non-Featured</option>
             </select>
 
-            {/* Filter Status */}
             <select
               value={filters.is_active}
               onChange={(e) => setFilters({ ...filters, is_active: e.target.value })}
@@ -257,7 +241,6 @@ const ProductsPage = () => {
         </div>
       </Card>
 
-      {/* Products Grid */}
       {products.length === 0 ? (
         <Card variant="glass" padding="lg">
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -295,7 +278,6 @@ const ProductsPage = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pagination.last_page > 1 && (
         <Card variant="glass" padding="sm">
           <div className="flex items-center justify-between">
@@ -331,9 +313,7 @@ const ProductsPage = () => {
                 </span>
               </div>
               <button
-                onClick={() =>
-                  setPage((p) => Math.min(pagination.last_page, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
                 disabled={pagination.current_page === pagination.last_page}
                 className="p-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -344,7 +324,6 @@ const ProductsPage = () => {
         </Card>
       )}
 
-      {/* FAB Button */}
       <button
         onClick={openCreateForm}
         className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
@@ -353,7 +332,6 @@ const ProductsPage = () => {
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* Form Modal */}
       {showForm && (
         <ProductForm
           isOpen={showForm}

@@ -18,11 +18,13 @@ class ProductService
     public function __construct(
         protected ActivityLogService $activityLogService
     ) {}
+
     private const CACHE_KEY_LIST = 'products.list';
     private const CACHE_KEY_LIST_REGISTRY = 'products.list.registry';
     private const CACHE_KEY_DROPDOWN = 'products.dropdown';
     private const CACHE_KEY_STATISTICS = 'products.statistics';
     private const CACHE_KEY_PREFIX = 'product:';
+    
     private const CACHE_TTL_LIST = 300;
     private const CACHE_TTL_REGISTRY = 86400;
     private const CACHE_TTL_STATIC = 3600;
@@ -46,7 +48,6 @@ class ProductService
                     'price',
                     'unit',
                     'minimum_order',
-                    'specifications',
                     'sort_order',
                     'featured',
                     'is_active',
@@ -157,25 +158,72 @@ class ProductService
         return $maxSortOrder + 1;
     }
 
-    public function generateCode(string $prefix = 'PRD'): string
+    public function generateSmartCode(int $productTypeId, string $name): string
     {
-        return Product::generateCode($prefix);
+        $type = ProductType::find($productTypeId);
+        if (!$type) {
+            return 'PRD-' . strtoupper(Str::random(6));
+        }
+
+        $slug = $type->slug;
+        $nameUpper = strtoupper($name);
+
+        if (in_array($slug, ['minimix', 'standar'])) {
+            $suffix = $slug === 'minimix' ? 'MIN' : 'STD';
+            if (preg_match('/(K-\d+)/i', $name, $matches)) {
+                $mutu = strtoupper($matches[1]);
+                return "BRT-{$mutu}-{$suffix}";
+            }
+            return "BRT-XXX-{$suffix}";
+        }
+
+        if (in_array($slug, ['standar-mini', 'longboom', 'super-longboom'])) {
+            $suffixMap = [
+                'standar-mini' => 'SM',
+                'longboom' => 'LB',
+                'super-longboom' => 'SLB',
+            ];
+            $suffix = $suffixMap[$slug];
+            if (preg_match('/(\d+)\s*(?:m³|m3).*?(\d+)\s*(?:m³|m3)/i', $name, $matches)) {
+                $vol = "{$matches[1]}-{$matches[2]}";
+                return "PMP-{$vol}-{$suffix}";
+            }
+            return "PMP-XX-{$suffix}";
+        }
+
+        if (in_array($slug, ['natural-lokal', 'warna-lokal', 'sika-natural', 'sika-warna'])) {
+            $suffixMap = [
+                'natural-lokal' => 'NL',
+                'warna-lokal' => 'WL',
+                'sika-natural' => 'SN',
+                'sika-warna' => 'SW',
+            ];
+            $suffix = $suffixMap[$slug];
+            if (preg_match('/(\d+)\s*kg\/m/i', $name, $matches)) {
+                $dosis = "{$matches[1]}KG";
+                return "FIN-{$dosis}-{$suffix}";
+            }
+            return "FIN-XX-{$suffix}";
+        }
+
+        return 'PRD-' . strtoupper(Str::random(6));
     }
 
     public function create(array $data): Product
     {
         $this->validateProductTypeExists($data['product_type_id']);
-        $this->validateCodeUniqueness($data['code'] ?? null);
+        
+        $code = !empty($data['code']) 
+            ? $data['code'] 
+            : $this->generateSmartCode($data['product_type_id'], $data['name']);
+            
+        $this->validateCodeUniqueness($code);
         $this->validateNameUniqueness($data['name'], $data['product_type_id']);
 
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $code) {
             $sortOrder = !empty($data['sort_order'])
                 ? (int) $data['sort_order']
                 : $this->getNextSortOrder($data['product_type_id']);
-
-            $code = !empty($data['code'])
-                ? $data['code']
-                : $this->generateCode();
 
             $isActive = isset($data['is_active'])
                 ? filter_var($data['is_active'], FILTER_VALIDATE_BOOLEAN)
@@ -193,7 +241,6 @@ class ProductService
                 'price' => $data['price'] ?? 0,
                 'unit' => $data['unit'] ?? 'unit',
                 'minimum_order' => $data['minimum_order'] ?? 1,
-                'specifications' => $data['specifications'] ?? null,
                 'sort_order' => $sortOrder,
                 'featured' => $isFeatured,
                 'is_active' => $isActive,
@@ -228,8 +275,15 @@ class ProductService
                 $this->validateProductTypeExists($data['product_type_id']);
             }
 
-            if (isset($data['code']) && $data['code'] !== $product->code) {
-                $this->validateCodeUniqueness($data['code'], $id);
+            $code = $data['code'] ?? $product->code;
+            if (empty($code) || (isset($data['name']) && $data['name'] !== $product->name)) {
+                $targetName = $data['name'] ?? $product->name;
+                $targetTypeId = $data['product_type_id'] ?? $product->product_type_id;
+                $code = $this->generateSmartCode($targetTypeId, $targetName);
+            }
+
+            if ($code !== $product->code) {
+                $this->validateCodeUniqueness($code, $id);
             }
 
             $typeId = $data['product_type_id'] ?? $product->product_type_id;
@@ -241,13 +295,12 @@ class ProductService
 
             $updateData = [
                 'product_type_id' => $data['product_type_id'] ?? $product->product_type_id,
-                'code' => $data['code'] ?? $product->code,
+                'code' => $code,
                 'name' => $data['name'] ?? $product->name,
                 'description' => $data['description'] ?? $product->description,
                 'price' => $data['price'] ?? $product->price,
                 'unit' => $data['unit'] ?? $product->unit,
                 'minimum_order' => $data['minimum_order'] ?? $product->minimum_order,
-                'specifications' => $data['specifications'] ?? $product->specifications,
                 'sort_order' => $data['sort_order'] ?? $product->sort_order,
             ];
 
@@ -313,18 +366,12 @@ class ProductService
     {
         return DB::transaction(function () use ($id) {
             $product = Product::findOrFail($id);
-
             $oldData = $product->toArray();
 
-            $product->update([
-                'is_active' => !$product->is_active,
-            ]);
+            $product->update(['is_active' => !$product->is_active]);
 
             $product = $product->fresh();
-            $product->load([
-                'productType:id,name,category_id',
-                'productType.category:id,name',
-            ]);
+            $product->load(['productType:id,name,category_id', 'productType.category:id,name']);
 
             $this->activityLogService->create(
                 module: 'products',
@@ -335,7 +382,6 @@ class ProductService
             );
 
             broadcast(new ProductUpdated($product));
-
             $this->clearProductCache($id);
 
             return $product;
@@ -346,18 +392,12 @@ class ProductService
     {
         return DB::transaction(function () use ($id) {
             $product = Product::findOrFail($id);
-
             $oldData = $product->toArray();
 
-            $product->update([
-                'featured' => !$product->featured,
-            ]);
+            $product->update(['featured' => !$product->featured]);
 
             $product = $product->fresh();
-            $product->load([
-                'productType:id,name,category_id',
-                'productType.category:id,name',
-            ]);
+            $product->load(['productType:id,name,category_id', 'productType.category:id,name']);
 
             $this->activityLogService->create(
                 module: 'products',
@@ -368,7 +408,6 @@ class ProductService
             );
 
             broadcast(new ProductUpdated($product));
-
             $this->clearProductCache($id);
 
             return $product;
@@ -377,9 +416,7 @@ class ProductService
 
     private function validateProductTypeExists(int $typeId): void
     {
-        $exists = ProductType::where('id', $typeId)->exists();
-
-        if (!$exists) {
+        if (!ProductType::where('id', $typeId)->exists()) {
             throw ValidationException::withMessages([
                 'product_type_id' => ['Jenis produk tidak ditemukan.']
             ]);
@@ -388,15 +425,10 @@ class ProductService
 
     private function validateCodeUniqueness(?string $code, ?int $excludeId = null): void
     {
-        if (empty($code)) {
-            return;
-        }
+        if (empty($code)) return;
 
         $query = Product::where('code', $code);
-
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        if ($excludeId) $query->where('id', '!=', $excludeId);
 
         if ($query->exists()) {
             throw ValidationException::withMessages([
@@ -407,12 +439,8 @@ class ProductService
 
     private function validateNameUniqueness(string $name, int $typeId, ?int $excludeId = null): void
     {
-        $query = Product::where('name', $name)
-            ->where('product_type_id', $typeId);
-
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
+        $query = Product::where('name', $name)->where('product_type_id', $typeId);
+        if ($excludeId) $query->where('id', '!=', $excludeId);
 
         if ($query->exists()) {
             throw ValidationException::withMessages([
@@ -430,14 +458,9 @@ class ProductService
     private function registerListCacheKey(string $cacheKey): void
     {
         $registry = $this->getListCacheRegistry();
-
         if (!in_array($cacheKey, $registry, true)) {
             $registry[] = $cacheKey;
-            Cache::put(
-                self::CACHE_KEY_LIST_REGISTRY,
-                $registry,
-                self::CACHE_TTL_REGISTRY
-            );
+            Cache::put(self::CACHE_KEY_LIST_REGISTRY, $registry, self::CACHE_TTL_REGISTRY);
         }
     }
 
@@ -452,7 +475,6 @@ class ProductService
         foreach ($registry as $cacheKey) {
             Cache::forget($cacheKey);
         }
-
         Cache::forget(self::CACHE_KEY_LIST_REGISTRY);
         Cache::forget(self::CACHE_KEY_DROPDOWN);
         Cache::forget(self::CACHE_KEY_STATISTICS);

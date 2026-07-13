@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Package, Info, Loader2, RefreshCw, Star } from 'lucide-react';
+import { X, Package, Info, Loader2, RefreshCw } from 'lucide-react';
 import { useProducts } from '../../../hooks/useProducts';
 import { useProductTypes } from '../../../hooks/useProductTypes';
 import Input from '../../../common/Input';
 import RupiahInput from '../../../common/RupiahInput';
 import Button from '../../../common/Button';
-import { parseRupiah } from '../../../utils/currency';
-import { formatRupiahInput } from '../../../utils/currency';
+import { parseRupiah, formatRupiahInput } from '../../../utils/currency';
 
 const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = [] }) => {
   const { 
@@ -25,14 +24,14 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     code: '',
     name: '',
     description: '',
-    price: '', // ✅ String untuk format
+    price: '',
     unit: 'unit',
     minimum_order: 1,
-    specifications: '',
     sort_order: 0,
     featured: false,
     is_active: true,
   });
+  
   const [errors, setErrors] = useState({});
   const [codeGenerated, setCodeGenerated] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
@@ -53,9 +52,12 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     data: generatedCode, 
     isLoading: isGeneratingCode,
     refetch: refetchCode 
-  } = useGenerateCode('PRD', shouldGenerateCode);
+  } = useGenerateCode(
+    formData.product_type_id ? parseInt(formData.product_type_id) : null,
+    formData.name,
+    shouldGenerateCode
+  );
 
-  // Initialize form
   useEffect(() => {
     if (!isOpen) {
       isInitializedRef.current = false;
@@ -65,20 +67,18 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     if (isInitializedRef.current) return;
 
     if (editingProduct) {
-      let specsString = '';
-      if (editingProduct.specifications && typeof editingProduct.specifications === 'object') {
-        specsString = JSON.stringify(editingProduct.specifications, null, 2);
-      }
-
+      // ✅ FIX: Konversi ke Number dulu, bulatkan, baru format. Mencegah "10000.00" jadi "1.000.000"
+      const rawPrice = Number(editingProduct.price) || 0;
+      const cleanPrice = Math.round(rawPrice);
+      
       setFormData({
         product_type_id: editingProduct.product_type_id?.toString() || '',
         code: editingProduct.code || '',
         name: editingProduct.name || '',
         description: editingProduct.description || '',
-        price: formatRupiahInput(editingProduct.price?.toString() || '0'), // ✅ Format saat load
+        price: formatRupiahInput(cleanPrice.toString()), // Format yang aman
         unit: editingProduct.unit || 'unit',
         minimum_order: editingProduct.minimum_order || 1,
-        specifications: specsString,
         sort_order: editingProduct.sort_order || 0,
         featured: editingProduct.featured ?? false,
         is_active: editingProduct.is_active ?? true,
@@ -96,7 +96,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
         price: '',
         unit: 'unit',
         minimum_order: 1,
-        specifications: '',
         sort_order: 0,
         featured: false,
         is_active: true,
@@ -158,10 +157,22 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
       ...prev,
       product_type_id: '',
       sort_order: 0,
+      code: '',
     }));
+    setCodeGenerated(false);
   };
 
   const handleGenerateCode = async () => {
+    if (!formData.product_type_id) {
+      setErrors(prev => ({ ...prev, product_type_id: 'Pilih jenis produk terlebih dahulu' }));
+      return;
+    }
+    if (!formData.name.trim()) {
+      setErrors(prev => ({ ...prev, name: 'Nama produk wajib diisi untuk generate kode' }));
+      return;
+    }
+    
+    setErrors(prev => ({ ...prev, product_type_id: null, name: null }));
     setShouldGenerateCode(true);
     await refetchCode();
   };
@@ -183,7 +194,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
       newErrors.code = 'Kode produk maksimal 30 karakter';
     }
 
-    // ✅ Validasi harga
     const priceValue = parseRupiah(formData.price);
     if (priceValue < 0) {
       newErrors.price = 'Harga minimal 0';
@@ -197,14 +207,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
       newErrors.sort_order = 'Sort order minimal 0';
     }
 
-    if (formData.specifications) {
-      try {
-        JSON.parse(formData.specifications);
-      } catch (e) {
-        newErrors.specifications = 'Format spesifikasi tidak valid (harus JSON)';
-      }
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -215,25 +217,14 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     if (!validate()) return;
 
     try {
-      let specifications = null;
-      if (formData.specifications) {
-        try {
-          specifications = JSON.parse(formData.specifications);
-        } catch (e) {
-          setErrors({ specifications: 'Format spesifikasi tidak valid' });
-          return;
-        }
-      }
-
       const payload = {
         product_type_id: formData.product_type_id,
         code: formData.code || undefined,
         name: formData.name,
         description: formData.description || undefined,
-        price: parseRupiah(formData.price) || 0, // ✅ Parse ke number
+        price: parseRupiah(formData.price) || 0,
         unit: formData.unit || 'unit',
         minimum_order: parseFloat(formData.minimum_order) || 1,
-        specifications,
         sort_order: parseInt(formData.sort_order) || 0,
         featured: formData.featured ? '1' : '0',
         is_active: formData.is_active ? '1' : '0',
@@ -358,7 +349,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
           </div>
 
-          {/* Code dengan Generate Button */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
               Kode Produk
@@ -374,7 +364,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                   className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 font-mono transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                     errors.code ? 'border-red-500/50' : 'border-slate-600/50'
                   }`}
-                  placeholder="PRD-XXXXXX (kosongkan untuk auto-generate)"
+                  placeholder="Auto-generated (cth: BRT-K-300-STD)"
                 />
                 {codeGenerated && !errors.code && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-emerald-400">
@@ -388,6 +378,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 onClick={handleGenerateCode}
                 disabled={isPending || isGeneratingCode}
                 className="px-4 py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-xl text-indigo-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium whitespace-nowrap"
+                title="Generate Kode Berdasarkan Jenis & Nama"
               >
                 {isGeneratingCode ? (
                   <>
@@ -407,7 +398,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             ) : (
               <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
                 <Info className="w-3 h-3" />
-                Kosongkan untuk auto-generate, atau klik Generate untuk preview
+                Isi Jenis & Nama terlebih dahulu, lalu klik Generate
               </p>
             )}
           </div>
@@ -418,7 +409,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             type="text"
             value={formData.name}
             onChange={handleInputChange}
-            placeholder="Contoh: Pompa Beton Standar 30m"
+            placeholder="Contoh: Beton Readymix Minimix K-300"
             error={errors.name}
             disabled={isPending}
             required
@@ -444,7 +435,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             )}
           </div>
 
-          {/* ✅ Price dengan RupiahInput */}
           <div className="grid grid-cols-3 gap-4">
             <RupiahInput
               label="Harga"
@@ -491,7 +481,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
           </div>
 
-          {/* Sort Order, Featured, Status */}
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1.5">
