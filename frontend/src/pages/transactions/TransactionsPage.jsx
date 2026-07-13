@@ -139,29 +139,28 @@ const TransactionsPage = () => {
         ...filters,
       };
 
+      let filename = 'Laporan_Transaksi';
+      if (filters.start_date && filters.end_date) {
+        filename += `_dari_${filters.start_date}_sampai_${filters.end_date}`;
+      } else {
+        filename += '_Semua_Periode';
+      }
+      filename += '.xlsx';
+
       const response = await transactionApi.exportExcel(params);
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      
-      const disposition = response.headers['content-disposition'];
-      let filename = 'Laporan_Transaksi.xlsx';
-      if (disposition && disposition.indexOf('attachment') !== -1) {
-        const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(disposition);
-        if (matches != null && matches[1]) {
-          filename = decodeURIComponent(matches[1].replace(/['"]/g, ''));
-        }
-      }
-      
       link.setAttribute('download', filename);
+      
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
 
       closeLoading();
-      showSuccess('Berhasil', 'Laporan Excel berhasil diunduh');
+      showSuccess('Berhasil', `File ${filename} berhasil diunduh`);
     } catch (error) {
       closeLoading();
       showError('Gagal', 'Gagal mengunduh laporan. Silakan coba lagi.');
