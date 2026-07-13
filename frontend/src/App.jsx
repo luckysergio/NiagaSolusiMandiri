@@ -20,6 +20,7 @@ import JasaFinishing from './pages/JasaFinishing';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import BlogDetail from './pages/BlogDetail';
+import CategoriesPage from './pages/categories/CategoriesPage';
 
 function App() {
   return (
@@ -67,6 +68,16 @@ function App() {
                   <ProtectedRoute>
                     <MainLayout>
                       <Roles />
+                    </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/categories"
+                element={
+                  <ProtectedRoute>
+                    <MainLayout>
+                      <CategoriesPage />
                     </MainLayout>
                   </ProtectedRoute>
                 }

@@ -1,6 +1,3 @@
-# robots.txt for betoncortangerang.com
-# https://betoncortangerang.com/robots.txt
-
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -11,70 +8,10 @@ Disallow: /register/
 Disallow: /auth/
 Disallow: /profile/
 Disallow: /settings/
-Disallow: /cart/
 Disallow: /checkout/
 Disallow: /payment/
-Disallow: /order/
-Disallow: /tracking/
-Disallow: /invoice/
-Disallow: /download/
-Disallow: /temp/
-Disallow: /cache/
-Disallow: /logs/
-Disallow: /backup/
-Disallow: /config/
-Disallow: /vendor/
-Disallow: /node_modules/
-Disallow: /storage/
-Disallow: /tests/
-Disallow: /docs/
-Disallow: /_next/
-Disallow: /static/
 
-# Sitemap
+Allow: /static/
+Allow: /assets/
+
 Sitemap: https://betoncortangerang.com/sitemap.xml
-
-# Crawl delay untuk menghindari overload server
-Crawl-delay: 1
-
-# Host
-Host: https://betoncortangerang.com
-
-User-agent: Googlebot
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /_next/
-Crawl-delay: 0.5
-
-# User-agent untuk Bingbot
-User-agent: Bingbot
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Crawl-delay: 0.5
-
-# User-agent untuk Yahoo
-User-agent: Yahoo
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-
-# User-agent untuk Yandex
-User-agent: Yandex
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Crawl-delay: 0.5
-
-# User-agent untuk Baidu
-User-agent: Baiduspider
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Crawl-delay: 0.5

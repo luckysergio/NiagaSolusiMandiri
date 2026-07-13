@@ -1,4 +1,3 @@
-// src/layouts/Sidebar.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -15,6 +14,8 @@ import {
   Shield,
   ChevronDown,
   X,
+  Package,
+  FolderOpen,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useModal } from '../../contexts/ModalContext';
@@ -29,18 +30,29 @@ const Sidebar = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({
-    userManagement: false, // ✅ Default tertutup
+    userManagement: false,
+    productManagement: false,
   });
 
   // ✅ Auto-open submenu jika user berada di halaman yang termasuk submenu
   useEffect(() => {
     const isUserPage = location.pathname === '/users';
     const isRolePage = location.pathname === '/roles';
+    const isCategoryPage = location.pathname === '/categories';
+    const isProductTypePage = location.pathname === '/product-types';
+    const isProductPage = location.pathname === '/products';
 
     if (isUserPage || isRolePage) {
       setOpenMenus(prev => ({
         ...prev,
         userManagement: true,
+      }));
+    }
+
+    if (isCategoryPage || isProductTypePage || isProductPage) {
+      setOpenMenus(prev => ({
+        ...prev,
+        productManagement: true,
       }));
     }
   }, [location.pathname]);
@@ -75,6 +87,37 @@ const Sidebar = () => {
         path: '/roles',
         color: 'text-purple-400',
       },
+    ],
+  };
+
+  const productManagementMenu = {
+    id: 'productManagement',
+    label: 'Manajemen Produk',
+    icon: Package,
+    color: 'text-blue-400',
+    subItems: [
+      {
+        id: 'categories',
+        label: 'Kategori',
+        icon: FolderOpen,
+        path: '/categories',
+        color: 'text-blue-400',
+      },
+      // Nanti tambah:
+      // {
+      //   id: 'productTypes',
+      //   label: 'Jenis Produk',
+      //   icon: Layers,
+      //   path: '/product-types',
+      //   color: 'text-cyan-400',
+      // },
+      // {
+      //   id: 'products',
+      //   label: 'Produk',
+      //   icon: Package,
+      //   path: '/products',
+      //   color: 'text-teal-400',
+      // },
     ],
   };
 
@@ -298,7 +341,7 @@ const Sidebar = () => {
       <aside
         className={`
           sidebar-aside
-          fixed lg:static z-40 bg-linear-to-b from-slate-900 to-slate-800 text-white shadow-2xl
+          fixed lg:static z-40 bg-linear-to-brom-slate-900 to-slate-800 text-white shadow-2xl
           flex flex-col h-full border-r border-slate-700/50
           ${isIconOnly ? 'w-20' : 'w-72'}
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -342,8 +385,14 @@ const Sidebar = () => {
           {/* Dashboard Menu */}
           {menuItems.map(item => renderMenuItem(item))}
 
-          {/* User Management Menu dengan Submenu */}
+          {/* Separator */}
+          <div className="my-4 border-t border-slate-700/50"></div>
+
+          {/* User Management Menu */}
           {renderMenuWithSubmenu(userManagementMenu)}
+
+          {/* Product Management Menu */}
+          {renderMenuWithSubmenu(productManagementMenu)}
 
           {/* Separator */}
           <div className="my-4 border-t border-slate-700/50"></div>

@@ -60,6 +60,33 @@ class ActivityLogService
         return $this->create('profile', $action, $userId, $oldData, $newData);
     }
 
+    public function logProductCategoryAction(
+        string $action,
+        int $categoryId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('product_categories', $action, $categoryId, $oldData, $newData);
+    }
+
+    public function logProductTypeAction(
+        string $action,
+        int $typeId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('product_types', $action, $typeId, $oldData, $newData);
+    }
+
+    public function logProductAction(
+        string $action,
+        int $productId,
+        ?array $oldData = null,
+        ?array $newData = null
+    ): ActivityLog {
+        return $this->create('products', $action, $productId, $oldData, $newData);
+    }
+
     private function sanitize(array $data): array
     {
         foreach (self::SENSITIVE_FIELDS as $field) {

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Api\Admin\DashboardController;
+use App\Http\Controllers\Api\Admin\ProductCategoryController;
 use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\RoleController;
 
@@ -118,6 +119,19 @@ Route::prefix('admin')
         Route::prefix('security-alerts')->group(function () {
             Route::get('/', [DashboardController::class, 'securityAlerts']);
             Route::get('/{id}', [DashboardController::class, 'showSecurityAlert']);
+        });
+
+        Route::prefix('product-categories')->group(function () {
+            Route::get('/dropdown', [ProductCategoryController::class, 'dropdown']);
+            Route::get('/statistics', [ProductCategoryController::class, 'statistics']);
+
+            Route::get('/', [ProductCategoryController::class, 'index']);
+            Route::post('/', [ProductCategoryController::class, 'store']);
+            Route::get('/{id}', [ProductCategoryController::class, 'show']);
+            Route::put('/{id}', [ProductCategoryController::class, 'update']);
+            Route::delete('/{id}', [ProductCategoryController::class, 'destroy']);
+
+            Route::patch('/{id}/toggle-active', [ProductCategoryController::class, 'toggleActive']);
         });
 
         /*
