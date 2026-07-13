@@ -67,7 +67,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     if (isInitializedRef.current) return;
 
     if (editingProduct) {
-      // ✅ FIX: Konversi ke Number dulu, bulatkan, baru format. Mencegah "10000.00" jadi "1.000.000"
+      // ✅ FIX 1: Konversi harga ke Number, bulatkan, baru format
       const rawPrice = Number(editingProduct.price) || 0;
       const cleanPrice = Math.round(rawPrice);
       
@@ -76,10 +76,15 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
         code: editingProduct.code || '',
         name: editingProduct.name || '',
         description: editingProduct.description || '',
-        price: formatRupiahInput(cleanPrice.toString()), // Format yang aman
+        price: formatRupiahInput(cleanPrice.toString()), 
         unit: editingProduct.unit || 'unit',
-        minimum_order: editingProduct.minimum_order || 1,
-        sort_order: editingProduct.sort_order || 0,
+        
+        // ✅ FIX 2: Gunakan parseFloat agar "1.00" menjadi 1 (hilangkan desimal)
+        minimum_order: parseFloat(editingProduct.minimum_order) || 1, 
+        
+        // ✅ FIX 3: Pastikan sort_order adalah integer
+        sort_order: parseInt(editingProduct.sort_order) || 0, 
+        
         featured: editingProduct.featured ?? false,
         is_active: editingProduct.is_active ?? true,
       });
@@ -469,7 +474,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 onChange={handleInputChange}
                 disabled={isPending}
                 min={0}
-                step="0.01"
+                step="1" 
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   errors.minimum_order ? 'border-red-500/50' : 'border-slate-600/50'
                 }`}
@@ -493,6 +498,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 onChange={handleInputChange}
                 disabled={isPending}
                 min={0}
+                step="1"
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                   errors.sort_order ? 'border-red-500/50' : 'border-slate-600/50'
                 }`}

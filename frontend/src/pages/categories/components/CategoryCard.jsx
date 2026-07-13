@@ -18,74 +18,48 @@ const CategoryCard = ({
   onDelete,
   isMutating 
 }) => {
-  const getInitials = (name) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
     <Card variant="elevated" className="group relative overflow-hidden h-full flex flex-col">
-      {/* Gradient Background Effect */}
+      {/* ✅ FIX: bg-gradient-to-br (standar Tailwind) */}
       <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative flex-1 flex flex-col space-y-3 p-4">
-        {/* Header */}
-        <div className="flex items-start gap-3">
-          {/* Icon */}
-          <div className="relative shrink-0">
-            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-lg ${
-              category.is_active 
-                ? 'bg-linear-to-br from-indigo-500 to-purple-500' 
-                : 'bg-linear-to-br from-slate-600 to-slate-700'
-            }`}>
-              {getInitials(category.name)}
-            </div>
-            {/* Status Indicator */}
-            <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-slate-800 ${
-              category.is_active ? 'bg-emerald-500' : 'bg-slate-500'
-            }`} />
-          </div>
-
-          {/* Category Info */}
-          <div className="flex-1 min-w-0">
-            <h3 className="text-white font-semibold text-sm sm:text-base truncate group-hover:text-indigo-300 transition-colors">
-              {category.name}
-            </h3>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
-              <p className="text-slate-400 text-xs sm:text-sm truncate font-mono">
+        
+        {/* ✅ FIX 1 & 2: Nama wrap text, slug & status di bawahnya */}
+        <div className="space-y-2">
+          <h3 className="text-white text-center font-semibold text-sm sm:text-base wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors">
+            {category.name}
+          </h3>
+          
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <p className="text-slate-400 text-xs font-mono">
                 {category.slug}
               </p>
             </div>
-          </div>
-
-          {/* Status Badge */}
-          <div className={`shrink-0 px-2 sm:px-3 py-1 text-xs font-medium rounded-full border ${
-            category.is_active 
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-              : 'bg-red-500/10 text-red-400 border-red-500/20'
-          }`}>
-            {category.is_active ? 'Aktif' : 'Nonaktif'}
+            
+            <div className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded-full border ${
+              category.is_active 
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                : 'bg-red-500/10 text-red-400 border-red-500/20'
+            }`}>
+              {category.is_active ? 'Aktif' : 'Nonaktif'}
+            </div>
           </div>
         </div>
 
         {/* Details */}
-        <div className="space-y-2 pt-1">
+        <div className="space-y-3 pt-1">
           {/* Description */}
-          <div className="flex items-start gap-2">
-            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0 mt-0.5" />
-            <span className="text-xs sm:text-sm text-slate-300 line-clamp-2">
+          <div className="flex justify-center">
+            <span className="text-xs sm:text-sm text-slate-300 text-center line-clamp-6 w-full px-2">
               {category.description || 'Tidak ada deskripsi'}
             </span>
           </div>
 
           {/* Product Types Count */}
-          <div className="flex items-center gap-2">
-            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
+          <div className="flex items-center justify-center gap-2">
             <span className="text-xs sm:text-sm text-slate-400">
               <span className="font-semibold text-indigo-400">
                 {category.product_types_count || 0}

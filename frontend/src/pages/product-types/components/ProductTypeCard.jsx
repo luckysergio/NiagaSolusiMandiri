@@ -87,16 +87,14 @@ const ProductTypeCard = ({
         {/* Details */}
         <div className="space-y-2 pt-1">
           {/* Description */}
-          <div className="flex items-start gap-2">
-            <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0 mt-0.5" />
-            <span className="text-xs sm:text-sm text-slate-300 line-clamp-2">
+          <div className="flex justify-center">
+            <span className="text-xs sm:text-sm text-slate-300 text-center line-clamp-6 w-full px-2">
               {productType.description || 'Tidak ada deskripsi'}
             </span>
           </div>
 
           {/* Products Count */}
-          <div className="flex items-center gap-2">
-            <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-400 shrink-0" />
+          <div className="flex justify-center gap-2">
             <span className="text-xs sm:text-sm text-slate-400">
               <span className="font-semibold text-cyan-400">
                 {productType.products_count || 0}

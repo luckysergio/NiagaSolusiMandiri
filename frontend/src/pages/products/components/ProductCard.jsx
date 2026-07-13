@@ -25,8 +25,12 @@ const ProductCard = ({
     return 'Rp ' + numPrice.toLocaleString('id-ID');
   };
 
+  // ✅ FIX 3: Hilangkan desimal pada min order (misal: 1.00 menjadi 1)
+  const minOrder = Math.round(parseFloat(product.minimum_order) || 0);
+
   return (
     <Card variant="elevated" className="group relative overflow-hidden h-full flex flex-col">
+      {/* Gradient Background Effect */}
       <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       {product.featured && (
@@ -37,29 +41,32 @@ const ProductCard = ({
       )}
 
       <div className="relative flex-1 flex flex-col space-y-3 p-4">
-        <div className="flex items-start gap-3">
-
-          <div className="flex-1 min-w-0">
-            <h3 className="text-white font-semibold text-sm sm:text-base truncate group-hover:text-indigo-300 transition-colors">
-              {product.name}
-            </h3>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0" />
-              <p className="text-slate-400 text-xs sm:text-sm truncate font-mono">
+        
+        {/* ✅ FIX 1 & 2: Nama wrap text, kode & status di bawahnya */}
+        <div className="space-y-2">
+          <h3 className="text-white text-center font-semibold text-sm sm:text-base wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors">
+            {product.name}
+          </h3>
+          
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <p className="text-slate-400 text-xs font-mono">
                 {product.code}
               </p>
             </div>
-          </div>
-
-          <div className={`shrink-0 px-2 sm:px-3 py-1 text-xs font-medium rounded-full border ${
-            product.is_active 
-              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-              : 'bg-red-500/10 text-red-400 border-red-500/20'
-          }`}>
-            {product.is_active ? 'Aktif' : 'Nonaktif'}
+            
+            <div className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded-full border ${
+              product.is_active 
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                : 'bg-red-500/10 text-red-400 border-red-500/20'
+            }`}>
+              {product.is_active ? 'Aktif' : 'Nonaktif'}
+            </div>
           </div>
         </div>
 
+        {/* Details */}
         <div className="space-y-2 pt-1">
           <div className="flex items-center gap-2">
             <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
@@ -88,16 +95,18 @@ const ProductCard = ({
             </span>
           </div>
 
-          {product.minimum_order > 1 && (
+          {/* ✅ FIX 3: Tampilkan min order tanpa desimal */}
+          {minOrder > 1 && (
             <div className="flex items-center justify-between text-xs text-slate-400">
               <span>Min. Order:</span>
               <span className="font-semibold text-white">
-                {product.minimum_order} {product.unit || 'unit'}
+                {minOrder} {product.unit || 'unit'}
               </span>
             </div>
           )}
         </div>
 
+        {/* Actions */}
         <div className="pt-2 mt-auto border-t border-slate-700/50">
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <button
