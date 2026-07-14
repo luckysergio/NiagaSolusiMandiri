@@ -1,4 +1,3 @@
-// src/pages/dashboard/Dashboard.jsx
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
@@ -6,13 +5,10 @@ import {
   Activity,
   ShieldAlert,
   AlertTriangle,
-  Wifi,
-  WifiOff,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useDashboard } from '../../hooks/useDashboard';
 import { useRealTimeDashboard } from '../../hooks/useRealTimeDashboard';
-import { echo } from '../../lib/echo';
 import Card from '../../common/Card';
 
 import OverviewTab from './components/OverviewTab';
@@ -32,13 +28,13 @@ const Dashboard = () => {
     useSecurityAlerts,
   } = useDashboard();
 
+  // ✅ Hook real-time menangani update cache otomatis tanpa polling
   useRealTimeDashboard();
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedLog, setSelectedLog] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  const [isConnected, setIsConnected] = useState(false);
 
   const { data: stats } = useStats();
   const loginLogsQuery = useLoginLogs();
@@ -47,36 +43,8 @@ const Dashboard = () => {
   const securityAlertsQuery = useSecurityAlerts();
 
   useEffect(() => {
-    if (!echo || !echo.connector || !echo.connector.pusher) return;
-
-    const pusher = echo.connector.pusher;
-
-    const updateConnectionStatus = () => {
-      setIsConnected(pusher.connection.state === 'connected');
-    };
-
-    pusher.connection.bind('connected', updateConnectionStatus);
-    pusher.connection.bind('disconnected', updateConnectionStatus);
-    pusher.connection.bind('unavailable', updateConnectionStatus);
-
-    updateConnectionStatus();
-
-    return () => {
-      pusher.connection.unbind('connected', updateConnectionStatus);
-      pusher.connection.unbind('disconnected', updateConnectionStatus);
-      pusher.connection.unbind('unavailable', updateConnectionStatus);
-    };
-  }, []);
-
-  useEffect(() => {
     setLastUpdate(new Date());
-  }, [
-    stats,
-    loginLogsQuery.data,
-    activityLogsQuery.data,
-    blockedIpsQuery.data,
-    securityAlertsQuery.data,
-  ]);
+  }, [stats, loginLogsQuery.data, activityLogsQuery.data, blockedIpsQuery.data, securityAlertsQuery.data]);
 
   const handleViewDetail = (type, data) => {
     setSelectedLog({ ...data, type });
@@ -103,59 +71,26 @@ const Dashboard = () => {
           <OverviewTab
             stats={stats}
             lastUpdate={lastUpdate}
+            user={user} // ✅ Diteruskan ke OverviewTab
             onTabChange={setActiveTab}
           />
         );
       case 'login-logs':
-        return (
-          <LoginLogsTab
-            query={loginLogsQuery}
-            onViewDetail={handleViewDetail}
-          />
-        );
+        return <LoginLogsTab query={loginLogsQuery} onViewDetail={handleViewDetail} />;
       case 'activity-logs':
-        return (
-          <ActivityLogsTab
-            query={activityLogsQuery}
-            onViewDetail={handleViewDetail}
-          />
-        );
+        return <ActivityLogsTab query={activityLogsQuery} onViewDetail={handleViewDetail} />;
       case 'blocked-ips':
-        return (
-          <BlockedIpsTab
-            query={blockedIpsQuery}
-            onViewDetail={handleViewDetail}
-          />
-        );
+        return <BlockedIpsTab query={blockedIpsQuery} onViewDetail={handleViewDetail} />;
       case 'security-alerts':
-        return (
-          <SecurityAlertsTab
-            query={securityAlertsQuery}
-            onViewDetail={handleViewDetail}
-          />
-        );
+        return <SecurityAlertsTab query={securityAlertsQuery} onViewDetail={handleViewDetail} />;
       default:
         return null;
     }
   };
 
-  const formatLastUpdate = () => {
-    const now = new Date();
-    const diff = Math.floor((now - lastUpdate) / 1000);
-
-    if (diff < 10) return 'Baru saja';
-    if (diff < 60) return `${diff} detik lalu`;
-    if (diff < 3600) return `${Math.floor(diff / 60)} menit lalu`;
-    return lastUpdate.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   return (
     <div className="space-y-6 animate-fadeIn">
-
-      {/* Tabs */}
+      {/* Tabs Navigation */}
       <Card variant="glass" padding="none">
         <div className="flex flex-wrap gap-2 p-4 border-b border-slate-700/50">
           {tabs.map((tab) => {

@@ -17,7 +17,8 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class TransactionService
 {
     public function __construct(
-        protected ActivityLogService $activityLogService
+        protected ActivityLogService $activityLogService,
+        protected DashboardService $dashboardService
     ) {}
 
     private const CACHE_KEY_LIST = 'transactions.list';
@@ -49,9 +50,7 @@ class TransactionService
                     'created_at',
                     'updated_at',
                 ])
-                ->with([
-                    'user:id,name,email',
-                ])
+                ->with(['user:id,name,email'])
                 ->withCount('details')
                 ->search($filters['search'] ?? null)
                 ->when(
@@ -166,7 +165,9 @@ class TransactionService
             );
 
             broadcast(new TransactionCreated($transaction));
+            
             $this->clearAllListCache();
+            $this->dashboardService->broadcastStatsUpdate();
 
             return $transaction;
         });
@@ -219,7 +220,9 @@ class TransactionService
             );
 
             broadcast(new TransactionUpdated($transaction));
+            
             $this->clearTransactionCache($id);
+            $this->dashboardService->broadcastStatsUpdate();
 
             return $transaction;
         });
@@ -245,6 +248,7 @@ class TransactionService
             $transaction->delete();
 
             $this->clearTransactionCache($id);
+            $this->dashboardService->broadcastStatsUpdate();
         });
     }
 
@@ -288,7 +292,9 @@ class TransactionService
             );
 
             broadcast(new TransactionUpdated($transaction));
+            
             $this->clearTransactionCache($id);
+            $this->dashboardService->broadcastStatsUpdate();
 
             return $transaction;
         });

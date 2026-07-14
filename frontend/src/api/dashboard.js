@@ -6,6 +6,21 @@ export const dashboardApi = {
     return response.data;
   },
 
+  getTransactionChart: async (period = 'monthly') => {
+    const response = await axiosInstance.get(`/admin/dashboard/transaction-chart?period=${period}`);
+    return response.data;
+  },
+
+  getTopProducts: async (limit = 5) => {
+    const response = await axiosInstance.get(`/admin/dashboard/top-products?limit=${limit}`);
+    return response.data;
+  },
+
+  getRecentTransactions: async (limit = 5) => {
+    const response = await axiosInstance.get(`/admin/dashboard/recent-transactions?limit=${limit}`);
+    return response.data;
+  },
+
   getLoginLogs: async ({ page = 1, perPage = 20, ...filters } = {}) => {
     const params = new URLSearchParams({
       page: page.toString(),

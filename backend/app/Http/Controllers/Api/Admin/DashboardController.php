@@ -21,23 +21,49 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function transactionChart(Request $request): JsonResponse
+    {
+        $period = $request->input('period', 'monthly');
+
+        if (!in_array($period, ['monthly', 'weekly'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Period harus "monthly" atau "weekly"',
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->service->transactionChart($period),
+        ]);
+    }
+
+    public function topProducts(Request $request): JsonResponse
+    {
+        $limit = (int) $request->input('limit', 5);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->service->topProducts(min($limit, 10)),
+        ]);
+    }
+
+    public function recentTransactions(Request $request): JsonResponse
+    {
+        $limit = (int) $request->input('limit', 5);
+
+        return response()->json([
+            'success' => true,
+            'data' => $this->service->recentTransactions(min($limit, 10)),
+        ]);
+    }
+
     public function loginLogs(Request $request): JsonResponse
     {
-        $filters = $request->only([
-            'email',
-            'status',
-            'ip',
-            'user_id',
-            'date_from',
-            'date_to',
-        ]);
-
+        $filters = $request->only(['email', 'status', 'ip', 'user_id', 'date_from', 'date_to']);
         $perPage = (int) $request->input('per_page', 20);
 
-        $logs = $this->service->loginLogs(
-            filters: $filters,
-            perPage: $perPage
-        );
+        $logs = $this->service->loginLogs(filters: $filters, perPage: $perPage);
 
         return response()->json([
             'success' => true,
@@ -55,31 +81,18 @@ class DashboardController extends Controller
 
     public function showLoginLog(int $id): JsonResponse
     {
-        $log = $this->service->showLoginLog($id);
-
         return response()->json([
             'success' => true,
-            'data' => $log
+            'data' => $this->service->showLoginLog($id)
         ]);
     }
 
     public function activityLogs(Request $request): JsonResponse
     {
-        $filters = $request->only([
-            'module',
-            'action',
-            'user_id',
-            'reference_id',
-            'date_from',
-            'date_to',
-        ]);
-
+        $filters = $request->only(['module', 'action', 'user_id', 'reference_id', 'date_from', 'date_to']);
         $perPage = (int) $request->input('per_page', 20);
 
-        $logs = $this->service->activityLogs(
-            filters: $filters,
-            perPage: $perPage
-        );
+        $logs = $this->service->activityLogs(filters: $filters, perPage: $perPage);
 
         return response()->json([
             'success' => true,
@@ -97,29 +110,18 @@ class DashboardController extends Controller
 
     public function showActivityLog(int $id): JsonResponse
     {
-        $log = $this->service->showActivityLog($id);
-
         return response()->json([
             'success' => true,
-            'data' => $log
+            'data' => $this->service->showActivityLog($id)
         ]);
     }
 
     public function blockedIps(Request $request): JsonResponse
     {
-        $filters = $request->only([
-            'active_only',
-            'ip',
-            'block_type',
-            'is_active',
-        ]);
-
+        $filters = $request->only(['active_only', 'ip', 'block_type', 'is_active']);
         $perPage = (int) $request->input('per_page', 20);
 
-        $ips = $this->service->blockedIps(
-            filters: $filters,
-            perPage: $perPage
-        );
+        $ips = $this->service->blockedIps(filters: $filters, perPage: $perPage);
 
         return response()->json([
             'success' => true,
@@ -137,30 +139,18 @@ class DashboardController extends Controller
 
     public function showBlockedIp(int $id): JsonResponse
     {
-        $ip = $this->service->showBlockedIp($id);
-
         return response()->json([
             'success' => true,
-            'data' => $ip
+            'data' => $this->service->showBlockedIp($id)
         ]);
     }
 
     public function securityAlerts(Request $request): JsonResponse
     {
-        $filters = $request->only([
-            'unresolved_only',
-            'severity',
-            'type',
-            'user_id',
-            'resolved',
-        ]);
-
+        $filters = $request->only(['unresolved_only', 'severity', 'type', 'user_id', 'resolved']);
         $perPage = (int) $request->input('per_page', 20);
 
-        $alerts = $this->service->securityAlerts(
-            filters: $filters,
-            perPage: $perPage
-        );
+        $alerts = $this->service->securityAlerts(filters: $filters, perPage: $perPage);
 
         return response()->json([
             'success' => true,
@@ -178,11 +168,9 @@ class DashboardController extends Controller
 
     public function showSecurityAlert(int $id): JsonResponse
     {
-        $alert = $this->service->showSecurityAlert($id);
-
         return response()->json([
             'success' => true,
-            'data' => $alert
+            'data' => $this->service->showSecurityAlert($id)
         ]);
     }
 }

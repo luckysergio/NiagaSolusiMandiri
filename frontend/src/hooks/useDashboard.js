@@ -6,6 +6,10 @@ export const dashboardKeys = {
 
   stats: () => [...dashboardKeys.all, 'stats'],
 
+  transactionChart: (period) => [...dashboardKeys.all, 'transactionChart', period],
+  topProducts: (limit) => [...dashboardKeys.all, 'topProducts', limit],
+  recentTransactions: (limit) => [...dashboardKeys.all, 'recentTransactions', limit],
+
   loginLogs: () => [...dashboardKeys.all, 'loginLogs'],
   loginLogList: (filters) => [...dashboardKeys.loginLogs(), 'list', filters],
   loginLogDetail: (id) => [...dashboardKeys.loginLogs(), 'detail', id],
@@ -33,9 +37,41 @@ export const useDashboard = () => {
       },
       staleTime: 1000 * 60,
       gcTime: 1000 * 60 * 5,
-      refetchInterval: 1000 * 60,
       refetchOnWindowFocus: true,
       refetchOnMount: 'always',
+    });
+  };
+
+  const useTransactionChart = (period = 'monthly') => {
+    return useQuery({
+      queryKey: dashboardKeys.transactionChart(period),
+      queryFn: async () => {
+        const response = await dashboardApi.getTransactionChart(period);
+        return response.data;
+      },
+      staleTime: 1000 * 60,
+    });
+  };
+
+  const useTopProducts = (limit = 5) => {
+    return useQuery({
+      queryKey: dashboardKeys.topProducts(limit),
+      queryFn: async () => {
+        const response = await dashboardApi.getTopProducts(limit);
+        return response.data;
+      },
+      staleTime: 1000 * 60,
+    });
+  };
+
+  const useRecentTransactions = (limit = 5) => {
+    return useQuery({
+      queryKey: dashboardKeys.recentTransactions(limit),
+      queryFn: async () => {
+        const response = await dashboardApi.getRecentTransactions(limit);
+        return response.data;
+      },
+      staleTime: 1000 * 60,
     });
   };
 
@@ -137,6 +173,9 @@ export const useDashboard = () => {
 
   return {
     useStats,
+    useTransactionChart,
+    useTopProducts,
+    useRecentTransactions,
     useLoginLogs,
     useLoginLog,
     useActivityLogs,

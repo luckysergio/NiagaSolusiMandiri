@@ -55,6 +55,11 @@ Route::prefix('admin')
             Route::get('/', [DashboardController::class, 'securityAlerts']);
             Route::get('/{id}', [DashboardController::class, 'showSecurityAlert']);
         });
+        Route::prefix('dashboard')->group(function () {
+            Route::get('/transaction-chart', [DashboardController::class, 'transactionChart']);
+            Route::get('/top-products', [DashboardController::class, 'topProducts']);
+            Route::get('/recent-transactions', [DashboardController::class, 'recentTransactions']);
+        });
 
         Route::prefix('product-categories')->group(function () {
             Route::get('/dropdown', [ProductCategoryController::class, 'dropdown']);

@@ -19,14 +19,9 @@ export const useRealTimeDashboard = () => {
           if (!oldData) return oldData;
 
           const existingData = oldData.data?.data || [];
-          
-          const isDuplicate = existingData.some(
-            (item) => item.id === newItem.id
-          );
+          const isDuplicate = existingData.some((item) => item.id === newItem.id);
 
-          if (isDuplicate) {
-            return oldData;
-          }
+          if (isDuplicate) return oldData;
 
           return {
             ...oldData,
@@ -50,20 +45,26 @@ export const useRealTimeDashboard = () => {
 
     channel.listen('.stats.updated', (e) => {
       queryClient.setQueryData(dashboardKeys.stats(), e.stats);
+
+      const keysToRefetch = [
+        dashboardKeys.transactionChart('monthly'),
+        dashboardKeys.transactionChart('weekly'),
+        dashboardKeys.topProducts(5),
+        dashboardKeys.recentTransactions(5),
+      ];
+
+      keysToRefetch.forEach((key) => {
+        queryClient.cancelQueries({ queryKey: key });
+        queryClient.invalidateQueries({ queryKey: key, refetchType: 'all' });
+      });
     });
 
     channel.listen('.login-log.created', (e) => {
       optimisticPrepend(dashboardKeys.loginLogs(), e.loginLog);
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.loginLogs(),
-        refetchType: 'active',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.stats(),
-        refetchType: 'all',
-      });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.loginLogs() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.loginLogs(), refetchType: 'all' });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
       if (e.loginLog.status === 'success') {
         showSuccess(
@@ -75,35 +76,23 @@ export const useRealTimeDashboard = () => {
 
     channel.listen('.activity-log.created', (e) => {
       optimisticPrepend(dashboardKeys.activityLogs(), e.activityLog);
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.activityLogs(),
-        refetchType: 'active',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.stats(),
-        refetchType: 'all',
-      });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.activityLogs() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.activityLogs(), refetchType: 'all' });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
       showSuccess(
-        '📝 Aktivitas Baru',
+        ' Aktivitas Baru',
         `${e.activityLog.user?.name || 'System'} - ${e.activityLog.action}`
       );
     });
 
     channel.listen('.blocked-ip.created', (e) => {
       optimisticPrepend(dashboardKeys.blockedIps(), e.blockedIp);
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.blockedIps(),
-        refetchType: 'active',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.stats(),
-        refetchType: 'all',
-      });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.blockedIps() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.blockedIps(), refetchType: 'all' });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
       showSuccess(
         '⚠️ IP Diblokir',
@@ -113,21 +102,15 @@ export const useRealTimeDashboard = () => {
 
     channel.listen('.security-alert.created', (e) => {
       optimisticPrepend(dashboardKeys.securityAlerts(), e.securityAlert);
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.securityAlerts(),
-        refetchType: 'active',
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: dashboardKeys.stats(),
-        refetchType: 'all',
-      });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.securityAlerts() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.securityAlerts(), refetchType: 'all' });
+      queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
       const severityEmoji = {
         critical: '🚨',
         high: '⚠️',
-        medium: '⚡',
+        medium: '',
         low: 'ℹ️',
       };
 
