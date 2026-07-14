@@ -1,19 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
 import {
-  Plus,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-  X,
-  Users,
+  Plus, Search, ChevronLeft, ChevronRight, RefreshCw, X, Users,
 } from "lucide-react";
 import { useUserManagement } from "../../hooks/useUserManagement";
+import { useRealTimeUsers } from "../../hooks/useRealTimeUsers";
 import Card from "../../common/Card";
 import UserCard from "./UserCard";
 import UserForm from './UserForm';
 
 const UserManagement = () => {
+  useRealTimeUsers();
+
   const {
     useUsers,
     useRoles,
@@ -28,10 +25,7 @@ const UserManagement = () => {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [filters, setFilters] = useState({
-    role_id: "",
-    is_active: "",
-  });
+  const [filters, setFilters] = useState({ role_id: "", is_active: "" });
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
@@ -40,7 +34,6 @@ const UserManagement = () => {
       setDebouncedSearch(searchTerm);
       setPage(1);
     }, 500);
-
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
@@ -53,10 +46,7 @@ const UserManagement = () => {
     isLoading,
     refetch,
     isFetching,
-  } = useUsers(page, {
-    search: debouncedSearch,
-    ...filters,
-  });
+  } = useUsers(page, { search: debouncedSearch, ...filters });
 
   const { data: roles = [], isLoading: rolesLoading } = useRoles();
 
@@ -64,9 +54,7 @@ const UserManagement = () => {
   const pagination = usersResponse?.data?.meta || usersResponse?.data || {};
 
   const hasActiveFilters = useMemo(() => {
-    return (
-      searchTerm !== "" || filters.role_id !== "" || filters.is_active !== ""
-    );
+    return searchTerm !== "" || filters.role_id !== "" || filters.is_active !== "";
   }, [searchTerm, filters]);
 
   const openCreateForm = () => {
@@ -140,26 +128,20 @@ const UserManagement = () => {
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={filters.role_id}
-              onChange={(e) =>
-                setFilters({ ...filters, role_id: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, role_id: e.target.value })}
               disabled={rolesLoading}
               className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 cursor-pointer hover:bg-slate-700/70"
             >
               <option value="">Semua Role</option>
               {Array.isArray(roles) &&
                 roles.map((role) => (
-                  <option key={role.id} value={role.id}>
-                    {role.display_name}
-                  </option>
+                  <option key={role.id} value={role.id}>{role.display_name}</option>
                 ))}
             </select>
 
             <select
               value={filters.is_active}
-              onChange={(e) =>
-                setFilters({ ...filters, is_active: e.target.value })
-              }
+              onChange={(e) => setFilters({ ...filters, is_active: e.target.value })}
               className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70"
             >
               <option value="">Semua Status</option>
@@ -183,18 +165,13 @@ const UserManagement = () => {
                 className="px-4 py-2.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl transition-all flex items-center gap-2 text-sm text-slate-300 hover:text-white disabled:opacity-50"
                 title="Refresh Data"
               >
-                <RefreshCw
-                  className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`}
-                />
+                <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
                 <span>Refresh</span>
               </button>
             )}
 
-            {/* Stats */}
             <div className="ml-auto text-sm text-slate-400">
-              <span className="font-semibold text-indigo-400">
-                {pagination.total || 0}
-              </span>{" "}
+              <span className="font-semibold text-indigo-400">{pagination.total || 0}</span>{" "}
               user ditemukan
             </div>
           </div>
@@ -207,24 +184,16 @@ const UserManagement = () => {
             <div className="w-20 h-20 rounded-full bg-slate-700/50 flex items-center justify-center mb-4">
               <Users className="w-10 h-10 text-slate-500" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Tidak ada user
-            </h3>
+            <h3 className="text-lg font-semibold text-white mb-2">Tidak ada user</h3>
             <p className="text-slate-400 text-sm">
-              {hasActiveFilters
-                ? "Tidak ada user yang cocok dengan filter Anda"
-                : "Belum ada user yang terdaftar"}
+              {hasActiveFilters ? "Tidak ada user yang cocok dengan filter Anda" : "Belum ada user yang terdaftar"}
             </p>
           </div>
         </Card>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 animate-fadeIn">
           {users.map((user, index) => (
-            <div
-              key={user.id}
-              className="animate-slideUp"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
+            <div key={user.id} className="animate-slideUp" style={{ animationDelay: `${index * 50}ms` }}>
               <UserCard
                 user={user}
                 onToggleActive={handleToggleActive}
@@ -243,18 +212,9 @@ const UserManagement = () => {
         <Card variant="glass" padding="sm">
           <div className="flex items-center justify-between">
             <p className="text-sm text-slate-400">
-              Menampilkan{" "}
-              <span className="font-semibold text-white">
-                {pagination.from || 0}
-              </span>{" "}
-              -{" "}
-              <span className="font-semibold text-white">
-                {pagination.to || 0}
-              </span>{" "}
-              dari{" "}
-              <span className="font-semibold text-indigo-400">
-                {pagination.total || 0}
-              </span>
+              Menampilkan <span className="font-semibold text-white">{pagination.from || 0}</span>{" "}
+              - <span className="font-semibold text-white">{pagination.to || 0}</span>{" "}
+              dari <span className="font-semibold text-indigo-400">{pagination.total || 0}</span>
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -265,18 +225,12 @@ const UserManagement = () => {
                 <ChevronLeft className="w-5 h-5 text-slate-400" />
               </button>
               <div className="flex items-center gap-1 px-3 py-1.5 bg-slate-700/50 border border-slate-600/50 rounded-lg">
-                <span className="text-sm font-semibold text-white">
-                  {pagination.current_page}
-                </span>
+                <span className="text-sm font-semibold text-white">{pagination.current_page}</span>
                 <span className="text-sm text-slate-400">/</span>
-                <span className="text-sm text-slate-400">
-                  {pagination.last_page}
-                </span>
+                <span className="text-sm text-slate-400">{pagination.last_page}</span>
               </div>
               <button
-                onClick={() =>
-                  setPage((p) => Math.min(pagination.last_page, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
                 disabled={pagination.current_page === pagination.last_page}
                 className="p-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >

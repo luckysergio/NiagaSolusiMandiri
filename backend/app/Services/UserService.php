@@ -5,6 +5,10 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\ActivityLog;
+use App\Events\UserCreated;
+use App\Events\UserUpdated;
+use App\Events\UserDeleted;
+use App\Events\UserStatusChanged;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -28,11 +32,8 @@ class UserService
         'remember_token',
     ];
 
-    public function paginate(
-        array $filters = [],
-        int $perPage = 20
-    ): LengthAwarePaginator {
-
+    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    {
         $cacheKey = $this->buildCacheKey($filters, $perPage);
         $this->registerListCacheKey($cacheKey);
 
@@ -96,7 +97,10 @@ class UserService
     {
         $this->validateEmailUniqueness($data['email']);
 
-        return DB::transaction(function () use ($data) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($data, &$userForBroadcast) {
             $user = User::create([
                 'role_id' => $data['role_id'],
                 'name' => $data['name'],
@@ -115,13 +119,26 @@ class UserService
 
             $this->clearAllListCache();
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserCreated($userForBroadcast));
+            }
+        });
+
+        return $user;
     }
 
     public function update(int $id, array $data): User
     {
-        return DB::transaction(function () use ($id, $data) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($id, $data, &$userForBroadcast) {
             $user = User::findOrFail($id);
 
             if (isset($data['email']) && $data['email'] !== $user->email) {
@@ -152,18 +169,32 @@ class UserService
 
             $this->clearUserAndListCache($id);
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserUpdated($userForBroadcast));
+            }
+        });
+
+        return $user;
     }
 
     public function delete(int $id): void
     {
         $this->preventSelfDeletion($id);
 
-        DB::transaction(function () use ($id) {
+        $userId = $id;
+        $userName = '';
+
+        DB::transaction(function () use ($id, &$userName) {
             $user = User::findOrFail($id);
             $this->preventSuperAdminDeletion($user);
 
+            $userName = $user->name;
             $oldData = $this->sanitizeForLog($user->toArray());
 
             $this->logActivity(
@@ -175,11 +206,18 @@ class UserService
             $user->delete();
             $this->clearUserAndListCache($id);
         });
+
+        DB::afterCommit(function () use ($userId, $userName) {
+            broadcast(new UserDeleted($userId, $userName));
+        });
     }
 
     public function activate(int $id): User
     {
-        return DB::transaction(function () use ($id) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($id, &$userForBroadcast) {
             $user = User::findOrFail($id);
 
             $oldData = $this->sanitizeForLog($user->toArray());
@@ -200,13 +238,26 @@ class UserService
 
             $this->clearUserAndListCache($id);
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserStatusChanged($userForBroadcast, 'activate'));
+            }
+        });
+
+        return $user;
     }
 
     public function deactivate(int $id): User
     {
-        return DB::transaction(function () use ($id) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($id, &$userForBroadcast) {
             $user = User::findOrFail($id);
             $this->preventSelfDeactivation($id);
 
@@ -224,13 +275,26 @@ class UserService
 
             $this->clearUserAndListCache($id);
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserStatusChanged($userForBroadcast, 'deactivate'));
+            }
+        });
+
+        return $user;
     }
 
     public function forceLogout(int $id): User
     {
-        return DB::transaction(function () use ($id) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($id, &$userForBroadcast) {
             $user = User::findOrFail($id);
 
             $oldData = $this->sanitizeForLog($user->toArray());
@@ -247,13 +311,26 @@ class UserService
 
             $this->clearUserAndListCache($id);
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserStatusChanged($userForBroadcast, 'force_logout'));
+            }
+        });
+
+        return $user;
     }
 
     public function resetLock(int $id): User
     {
-        return DB::transaction(function () use ($id) {
+        /** @var User|null $userForBroadcast */
+        $userForBroadcast = null;
+
+        $user = DB::transaction(function () use ($id, &$userForBroadcast) {
             $user = User::findOrFail($id);
 
             $oldData = $this->sanitizeForLog($user->toArray());
@@ -270,8 +347,18 @@ class UserService
 
             $this->clearUserAndListCache($id);
 
+            $userForBroadcast = $user;
+
             return $user;
         });
+
+        DB::afterCommit(function () use ($userForBroadcast) {
+            if ($userForBroadcast) {
+                broadcast(new UserStatusChanged($userForBroadcast, 'reset_lock'));
+            }
+        });
+
+        return $user;
     }
 
     public function getRolesForDropdown(): array

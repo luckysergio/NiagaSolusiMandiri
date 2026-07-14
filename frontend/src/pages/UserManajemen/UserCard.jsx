@@ -1,4 +1,3 @@
-// src/pages/admin/UserCard.jsx
 import React from 'react';
 import {
   Mail,
@@ -44,13 +43,10 @@ const UserCard = ({
 
   return (
     <Card variant="elevated" className="group relative overflow-hidden h-full flex flex-col">
-      {/* Gradient Background Effect */}
       <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative flex-1 flex flex-col space-y-3 p-4">
-        {/* Header */}
         <div className="flex items-start gap-3">
-          {/* Avatar */}
           <div className="relative shrink-0">
             <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-lg ${
               user.is_active 
@@ -59,13 +55,11 @@ const UserCard = ({
             }`}>
               {getInitials(user.name)}
             </div>
-            {/* Status Indicator */}
             <div className={`absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border-2 border-slate-800 ${
               user.is_active ? 'bg-emerald-500' : 'bg-slate-500'
             }`} />
           </div>
 
-          {/* User Info */}
           <div className="flex-1 min-w-0">
             <h3 className="text-white font-semibold text-sm sm:text-base truncate group-hover:text-indigo-300 transition-colors">
               {user.name}
@@ -76,7 +70,6 @@ const UserCard = ({
             </div>
           </div>
 
-          {/* Status Badge */}
           <div className={`shrink-0 px-2 sm:px-3 py-1 text-xs font-medium rounded-full border ${
             user.is_active 
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
@@ -86,9 +79,7 @@ const UserCard = ({
           </div>
         </div>
 
-        {/* Details */}
         <div className="space-y-2 pt-1">
-          {/* Role */}
           <div className="flex items-center gap-2">
             <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
             <span className="text-xs sm:text-sm text-slate-300 truncate">
@@ -96,7 +87,6 @@ const UserCard = ({
             </span>
           </div>
 
-          {/* Last Login */}
           <div className="flex items-center gap-2">
             <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
             <span className="text-xs sm:text-sm text-slate-400 truncate">
@@ -105,9 +95,7 @@ const UserCard = ({
           </div>
         </div>
 
-        {/* Actions - Responsive Layout */}
         <div className="pt-2 mt-auto border-t border-slate-700/50">
-          {/* Main Actions - Stack on mobile, row on larger screens */}
           <div className="flex flex-col sm:flex-row gap-2 mb-2">
             <button
               onClick={() => onToggleActive(user)}
@@ -134,7 +122,6 @@ const UserCard = ({
             </button>
           </div>
 
-          {/* Secondary Actions - Icon buttons only */}
           <div className="flex items-center justify-center gap-1.5">
             <button
               onClick={() => onForceLogout(user)}

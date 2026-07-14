@@ -24,7 +24,7 @@ export const useUserManagement = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 1000 * 10,
+      staleTime: 1000 * 60,
       gcTime: 1000 * 60 * 5,
       refetchOnMount: true,
       refetchOnWindowFocus: false,
