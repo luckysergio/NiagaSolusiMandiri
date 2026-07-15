@@ -16,6 +16,7 @@ const Card = ({
     glass: 'bg-slate-800/30 backdrop-blur-xl border-slate-700/30',
     gradient: 'bg-gradient-to-br from-slate-800/80 to-slate-900/80 border-slate-700/50',
     elevated: 'bg-slate-800/80 border-slate-700/50 shadow-xl shadow-slate-900/50',
+    outline: 'bg-transparent border-2 border-slate-600/50',
   };
 
   const paddings = {
@@ -29,7 +30,13 @@ const Card = ({
     ? 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-500/30 cursor-pointer' 
     : '';
 
-  const classes = `${baseClasses} ${variants[variant]} ${paddings[padding]} ${hoverClasses} ${className}`;
+  const classes = `
+    ${baseClasses} 
+    ${variants[variant]} 
+    ${paddings[padding]} 
+    ${hoverClasses} 
+    ${className}
+  `.trim();
 
   if (onClick) {
     return (

@@ -11,6 +11,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Card from '../../../common/Card';
+import StatusBadge from '../../../common/StatusBadge';
 
 const ProductCard = ({ 
   product, 
@@ -22,143 +23,139 @@ const ProductCard = ({
 }) => {
   const formatPrice = (price) => {
     const numPrice = parseFloat(price) || 0;
-    return 'Rp ' + numPrice.toLocaleString('id-ID');
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(numPrice);
   };
 
-  // ✅ FIX 3: Hilangkan desimal pada min order (misal: 1.00 menjadi 1)
   const minOrder = Math.round(parseFloat(product.minimum_order) || 0);
+  const unit = product.unit || 'unit';
 
   return (
-    <Card variant="elevated" className="group relative overflow-hidden h-full flex flex-col">
-      {/* Gradient Background Effect */}
-      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <Card className="group relative overflow-hidden h-full flex flex-col border border-slate-700/50 bg-slate-800/40 hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300">
+      {/* ✅ FIX: bg-gradient-to-br */}
+      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      {product.featured && (
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 px-2 py-1 bg-amber-500/90 text-white text-xs font-semibold rounded-full shadow-lg">
-          <Star className="w-3 h-3 fill-white" />
-          <span>Featured</span>
-        </div>
-      )}
+      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
+        {product.featured && <StatusBadge status="featured" size="xs" />}
+        <StatusBadge status={product.is_active ? 'active' : 'inactive'} size="xs" />
+      </div>
 
-      <div className="relative flex-1 flex flex-col space-y-3 p-4">
-        
-        {/* ✅ FIX 1 & 2: Nama wrap text, kode & status di bawahnya */}
-        <div className="space-y-2">
-          <h3 className="text-white text-center font-semibold text-sm sm:text-base wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors">
+      <div className="relative flex-1 flex flex-col p-4 sm:p-5">
+        <div className="space-y-2 mb-3 pr-20">
+          <h3 className="text-white font-bold text-base sm:text-lg wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
             {product.name}
           </h3>
-          
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <p className="text-slate-400 text-xs font-mono">
-                {product.code}
-              </p>
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-900/60 rounded-md border border-slate-700/50">
+            <Hash className="w-3 h-3 text-slate-400" />
+            <span className="text-slate-300 text-xs font-mono tracking-wide">
+              {product.code}
+            </span>
+          </div>
+        </div>
+
+        <div className="w-full h-px bg-linear-to-r from-transparent via-slate-700/50 to-transparent mb-4" />
+
+        <div className="space-y-3 flex-1">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-blue-500/10 rounded-lg">
+                <Layers className="w-3.5 h-3.5 text-blue-400" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Jenis</span>
+                <span className="text-sm text-slate-200 font-medium truncate">
+                  {product.product_type?.name || '-'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5">
+              <div className="p-1.5 bg-indigo-500/10 rounded-lg">
+                <FolderOpen className="w-3.5 h-3.5 text-indigo-400" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Kategori</span>
+                <span className="text-sm text-slate-200 font-medium truncate">
+                  {product.product_type?.category?.name || '-'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-slate-900/40 border border-slate-700/40 rounded-xl space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs text-slate-400 font-medium">Harga Satuan</span>
+              </div>
+              <span className="text-base font-bold text-emerald-400 tracking-tight">
+                {formatPrice(product.price)}
+              </span>
             </div>
             
-            <div className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded-full border ${
-              product.is_active 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                : 'bg-red-500/10 text-red-400 border-red-500/20'
-            }`}>
-              {product.is_active ? 'Aktif' : 'Nonaktif'}
-            </div>
+            {minOrder > 1 && (
+              <div className="flex items-center justify-between pt-2 border-t border-slate-700/30">
+                <span className="text-xs text-slate-500">Min. Pemesanan</span>
+                <span className="text-xs font-semibold text-slate-300 bg-slate-800 px-2 py-0.5 rounded-md">
+                  {minOrder} {unit}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Details */}
-        <div className="space-y-2 pt-1">
-          <div className="flex items-center gap-2">
-            <Layers className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-blue-400 shrink-0" />
-            <span className="text-xs sm:text-sm text-slate-300 truncate">
-              {product.product_type?.name || '-'}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FolderOpen className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-indigo-400 shrink-0" />
-            <span className="text-xs sm:text-sm text-slate-300 truncate">
-              {product.product_type?.category?.name || '-'}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
-            <div className="flex items-center gap-2">
-              <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
-              <span className="text-xs sm:text-sm text-slate-300">Harga:</span>
-            </div>
-            <span className="text-sm sm:text-base font-bold text-emerald-400">
-              {formatPrice(product.price)}
-              <span className="text-xs text-slate-400 font-normal ml-1">
-                / {product.unit || 'unit'}
-              </span>
-            </span>
-          </div>
-
-          {/* ✅ FIX 3: Tampilkan min order tanpa desimal */}
-          {minOrder > 1 && (
-            <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>Min. Order:</span>
-              <span className="font-semibold text-white">
-                {minOrder} {product.unit || 'unit'}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="pt-2 mt-auto border-t border-slate-700/50">
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
+        <div className="mt-5 pt-4 border-t border-slate-700/40">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => onToggleActive(product)}
               disabled={isMutating}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
                 product.is_active
-                  ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20'
-                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
+                  ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40'
+                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40'
               }`}
               title={product.is_active ? 'Nonaktifkan' : 'Aktifkan'}
             >
-              {product.is_active ? <XCircle className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
+              {product.is_active ? <XCircle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
               <span>{product.is_active ? 'Nonaktif' : 'Aktif'}</span>
             </button>
 
             <button
               onClick={() => onEdit(product)}
               disabled={isMutating}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Edit"
             >
-              <Edit className="w-3.5 h-3.5" />
+              <Edit className="w-4 h-4" />
               <span>Edit</span>
             </button>
-          </div>
 
-          <div className="flex items-center justify-center gap-1.5">
             <button
               onClick={() => onToggleFeatured(product)}
               disabled={isMutating}
-              className={`flex-1 p-2 rounded-lg border transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 ${
+              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
                 product.featured
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30'
-                  : 'bg-slate-700/30 text-slate-400 border-slate-600/30 hover:bg-slate-700/50 hover:text-amber-400'
+                  ? 'bg-amber-500/15 text-amber-400 border-amber-500/30 hover:bg-amber-500/25'
+                  : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50 hover:text-amber-400 hover:border-amber-500/30'
               }`}
               title={product.featured ? 'Hapus Featured' : 'Tandai Featured'}
             >
-              <Star className={`w-3.5 h-3.5 ${product.featured ? 'fill-amber-400' : ''}`} />
-              <span className="text-xs">
-                {product.featured ? 'Featured' : 'Jadikan Featured'}
-              </span>
+              <Star className={`w-4 h-4 ${product.featured ? 'fill-amber-400' : ''}`} />
+              <span className="truncate">{product.featured ? 'Unfeature' : 'Feature'}</span>
             </button>
 
             <button
               onClick={() => onDelete(product)}
               disabled={isMutating}
-              className="flex-1 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Hapus"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span className="text-xs">Hapus</span>
+              <Trash2 className="w-4 h-4" />
+              <span>Hapus</span>
             </button>
           </div>
         </div>

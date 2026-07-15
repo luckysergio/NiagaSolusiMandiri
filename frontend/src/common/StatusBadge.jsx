@@ -1,4 +1,3 @@
-// src/pages/dashboard/components/common/StatusBadge.jsx
 import React from 'react';
 
 const statusMap = {
@@ -20,24 +19,31 @@ const statusMap = {
   critical: { label: 'Kritis', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
   resolved: { label: 'Terselesaikan', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
   unresolved: { label: 'Belum Selesai', color: 'bg-orange-500/10 text-orange-400 border-orange-500/20' },
-  // NANTI TAMBAHKAN:
-  // in_stock: { label: 'Tersedia', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  // out_of_stock: { label: 'Habis', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
-  // pending: { label: 'Pending', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-  // completed: { label: 'Selesai', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-  // cancelled: { label: 'Dibatalkan', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+  featured: { label: 'Featured', color: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
+  pending: { label: 'Pending', color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
+  completed: { label: 'Selesai', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+  cancelled: { label: 'Dibatalkan', color: 'bg-red-500/10 text-red-400 border-red-500/20' },
 };
 
-const StatusBadge = React.memo(({ status, size = 'sm' }) => {
+const StatusBadge = React.memo(({ status, size = 'sm', className = '' }) => {
   const info = statusMap[status] || {
     label: status || '-',
     color: 'bg-slate-500/10 text-slate-400 border-slate-500/20'
   };
 
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm';
+  const sizeClasses = {
+    xs: 'px-1.5 py-0.5 text-[10px]',
+    sm: 'px-2 py-0.5 text-xs',
+    md: 'px-3 py-1 text-sm',
+  };
 
   return (
-    <span className={`inline-flex items-center font-medium rounded-full border ${sizeClasses} ${info.color}`}>
+    <span className={`
+      inline-flex items-center font-semibold rounded-full border backdrop-blur-sm
+      ${sizeClasses[size]} 
+      ${info.color}
+      ${className}
+    `}>
       {info.label}
     </span>
   );

@@ -5,6 +5,7 @@ import { useProductTypes } from '../../../hooks/useProductTypes';
 import Input from '../../../common/Input';
 import RupiahInput from '../../../common/RupiahInput';
 import Button from '../../../common/Button';
+import Card from '../../../common/Card';
 import { parseRupiah, formatRupiahInput } from '../../../utils/currency';
 
 const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = [] }) => {
@@ -67,7 +68,6 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
     if (isInitializedRef.current) return;
 
     if (editingProduct) {
-      // ✅ FIX 1: Konversi harga ke Number, bulatkan, baru format
       const rawPrice = Number(editingProduct.price) || 0;
       const cleanPrice = Math.round(rawPrice);
       
@@ -78,13 +78,8 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
         description: editingProduct.description || '',
         price: formatRupiahInput(cleanPrice.toString()), 
         unit: editingProduct.unit || 'unit',
-        
-        // ✅ FIX 2: Gunakan parseFloat agar "1.00" menjadi 1 (hilangkan desimal)
         minimum_order: parseFloat(editingProduct.minimum_order) || 1, 
-        
-        // ✅ FIX 3: Pastikan sort_order adalah integer
         sort_order: parseInt(editingProduct.sort_order) || 0, 
-        
         featured: editingProduct.featured ?? false,
         is_active: editingProduct.is_active ?? true,
       });
@@ -275,7 +270,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
         if (e.target === e.currentTarget && !isPending) onClose();
       }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
+      <Card variant="elevated" className="max-w-2xl w-full max-h-[90vh] flex flex-col animate-scaleIn relative overflow-hidden">
         {isPending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
@@ -288,14 +283,19 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
           </div>
         )}
 
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-500/20 rounded-xl">
-              <Package className="w-5 h-5 text-indigo-400" />
+            <div className="p-2.5 bg-indigo-500/20 rounded-xl">
+              <Package className="w-6 h-6 text-indigo-400" />
             </div>
-            <h3 className="text-lg font-bold text-white">
-              {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {editingProduct ? 'Perbarui detail produk di bawah ini' : 'Isi formulir untuk menambahkan produk baru'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -307,10 +307,10 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto flex-1">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Kategori <span className="text-red-400">*</span>
               </label>
               <select
@@ -329,7 +329,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Jenis Produk <span className="text-red-400">*</span>
               </label>
               <select
@@ -338,7 +338,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 onChange={handleInputChange}
                 disabled={isPending || !selectedCategoryId}
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.product_type_id ? 'border-red-500/50' : 'border-slate-600/50'
+                  errors.product_type_id ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                 }`}
               >
                 <option value="">Pilih Jenis</option>
@@ -349,13 +349,16 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 ))}
               </select>
               {errors.product_type_id && (
-                <p className="mt-1 text-xs text-red-400">{errors.product_type_id}</p>
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.product_type_id}
+                </p>
               )}
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
               Kode Produk
             </label>
             <div className="flex gap-2">
@@ -367,41 +370,36 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                   onChange={handleInputChange}
                   disabled={isPending}
                   className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 font-mono transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                    errors.code ? 'border-red-500/50' : 'border-slate-600/50'
+                    errors.code ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                   }`}
                   placeholder="Auto-generated (cth: BRT-K-300-STD)"
                 />
                 {codeGenerated && !errors.code && (
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-emerald-400">
-                    <Info className="w-3 h-3" />
-                    <span className="text-xs">Generated</span>
+                    <Info className="w-4 h-4" />
+                    <span className="text-xs font-medium">Generated</span>
                   </div>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="md"
+                icon={isGeneratingCode ? Loader2 : RefreshCw}
+                iconClassName={isGeneratingCode ? 'animate-spin' : ''}
                 onClick={handleGenerateCode}
                 disabled={isPending || isGeneratingCode}
-                className="px-4 py-2.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-xl text-indigo-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium whitespace-nowrap"
-                title="Generate Kode Berdasarkan Jenis & Nama"
               >
-                {isGeneratingCode ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Generating...</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4" />
-                    <span>Generate</span>
-                  </>
-                )}
-              </button>
+                {isGeneratingCode ? 'Generating...' : 'Generate'}
+              </Button>
             </div>
             {errors.code ? (
-              <p className="mt-1 text-xs text-red-400">{errors.code}</p>
+              <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                {errors.code}
+              </p>
             ) : (
-              <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+              <p className="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
                 <Info className="w-3 h-3" />
                 Isi Jenis & Nama terlebih dahulu, lalu klik Generate
               </p>
@@ -421,7 +419,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
           />
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
               Deskripsi
             </label>
             <textarea
@@ -429,18 +427,21 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
               value={formData.description}
               onChange={handleInputChange}
               disabled={isPending}
-              rows={2}
+              rows={3}
               className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.description ? 'border-red-500/50' : 'border-slate-600/50'
+                errors.description ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
               }`}
               placeholder="Deskripsi singkat tentang produk ini"
             />
             {errors.description && (
-              <p className="mt-1 text-xs text-red-400">{errors.description}</p>
+              <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                {errors.description}
+              </p>
             )}
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <RupiahInput
               label="Harga"
               name="price"
@@ -464,7 +465,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             />
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Min. Order
               </label>
               <input
@@ -476,19 +477,22 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 min={0}
                 step="1" 
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.minimum_order ? 'border-red-500/50' : 'border-slate-600/50'
+                  errors.minimum_order ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                 }`}
                 placeholder="1"
               />
               {errors.minimum_order && (
-                <p className="mt-1 text-xs text-red-400">{errors.minimum_order}</p>
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.minimum_order}
+                </p>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Sort Order
               </label>
               <input
@@ -500,14 +504,17 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
                 min={0}
                 step="1"
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.sort_order ? 'border-red-500/50' : 'border-slate-600/50'
+                  errors.sort_order ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                 }`}
                 placeholder="0"
               />
               {errors.sort_order ? (
-                <p className="mt-1 text-xs text-red-400">{errors.sort_order}</p>
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.sort_order}
+                </p>
               ) : !editingProduct && (
-                <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                <p className="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
                   <Info className="w-3 h-3" />
                   Auto-filled
                 </p>
@@ -515,7 +522,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Featured
               </label>
               <select
@@ -531,7 +538,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Status
               </label>
               <select
@@ -547,7 +554,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0 mt-6">
             <Button 
               variant="secondary" 
               onClick={onClose} 
@@ -570,7 +577,7 @@ const ProductForm = ({ isOpen, onClose, onSuccess, editingProduct, categories = 
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

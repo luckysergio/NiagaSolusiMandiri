@@ -1,4 +1,5 @@
 import React from 'react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 const StatCard = ({
   title,
@@ -14,24 +15,28 @@ const StatCard = ({
       bg: 'from-indigo-500/20 to-purple-500/20',
       border: 'border-indigo-500/30',
       icon: 'text-indigo-400',
+      iconBg: 'bg-indigo-500/20',
       trend: trendUp ? 'text-emerald-400' : 'text-red-400',
     },
     emerald: {
       bg: 'from-emerald-500/20 to-teal-500/20',
       border: 'border-emerald-500/30',
       icon: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/20',
       trend: trendUp ? 'text-emerald-400' : 'text-red-400',
     },
     amber: {
       bg: 'from-amber-500/20 to-orange-500/20',
       border: 'border-amber-500/30',
       icon: 'text-amber-400',
+      iconBg: 'bg-amber-500/20',
       trend: trendUp ? 'text-emerald-400' : 'text-red-400',
     },
     red: {
       bg: 'from-red-500/20 to-pink-500/20',
       border: 'border-red-500/30',
       icon: 'text-red-400',
+      iconBg: 'bg-red-500/20',
       trend: trendUp ? 'text-emerald-400' : 'text-red-400',
     },
   };
@@ -44,25 +49,21 @@ const StatCard = ({
         bg-linear-to-br ${colorScheme.bg}
         border ${colorScheme.border}
         rounded-2xl p-6 backdrop-blur-sm
-        hover:shadow-2xl hover:shadow-indigo-500/10
+        hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-500/40
         transition-all duration-300 animate-fadeIn
         ${className}
       `}
     >
       <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 bg-slate-800/50 rounded-xl border ${colorScheme.border}`}>
+        <div className={`p-3 rounded-xl border ${colorScheme.border} ${colorScheme.iconBg}`}>
           <Icon className={`w-6 h-6 ${colorScheme.icon}`} />
         </div>
         {trend && (
-          <div className={`flex items-center gap-1 text-sm font-medium ${colorScheme.trend}`}>
+          <div className={`flex items-center gap-1.5 text-sm font-semibold ${colorScheme.trend} bg-slate-900/40 px-2.5 py-1 rounded-full border ${colorScheme.border}`}>
             {trendUp ? (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11l5-5m0 0l5 5m-5-5v12" />
-              </svg>
+              <TrendingUp className="w-4 h-4" />
             ) : (
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-              </svg>
+              <TrendingDown className="w-4 h-4" />
             )}
             <span>{trend}</span>
           </div>
@@ -70,8 +71,8 @@ const StatCard = ({
       </div>
       
       <div>
-        <p className="text-slate-400 text-sm font-medium mb-1">{title}</p>
-        <p className="text-3xl font-bold text-white">{value}</p>
+        <p className="text-slate-400 text-sm font-semibold mb-1.5">{title}</p>
+        <p className="text-3xl font-bold text-white tracking-tight">{value}</p>
       </div>
     </div>
   );
