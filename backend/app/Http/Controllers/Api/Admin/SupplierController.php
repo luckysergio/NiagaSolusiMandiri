@@ -19,13 +19,18 @@ class SupplierController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only(['search', 'is_active']);
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
-        $suppliers = $this->service->paginate(filters: $filters, perPage: $perPage);
+        $suppliers = $this->service->paginate(
+            filters: $filters, 
+            perPage: $perPage,
+            page: $page
+        );
 
         return response()->json([
             'success' => true,
-            'data' => $suppliers,
+            'data' => $suppliers->items(),
             'meta' => [
                 'current_page' => $suppliers->currentPage(),
                 'per_page' => $suppliers->perPage(),

@@ -24,7 +24,7 @@ export const useSuppliers = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0,
+      staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -76,7 +76,6 @@ export const useSuppliers = () => {
   const createMutation = useMutation({
     mutationFn: (data) => supplierApi.create(data),
     onSuccess: async () => {
-      await invalidateSuppliers();
       showSuccess('Berhasil', 'Supplier berhasil ditambahkan');
     },
     onError: (error) => {
@@ -89,12 +88,7 @@ export const useSuppliers = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => supplierApi.update(id, data),
-    onSuccess: async (_, variables) => {
-      await invalidateSuppliers();
-      await queryClient.invalidateQueries({
-        queryKey: supplierKeys.detail(variables.id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Supplier berhasil diperbarui');
     },
     onError: (error) => {
@@ -108,7 +102,6 @@ export const useSuppliers = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => supplierApi.delete(id),
     onSuccess: async () => {
-      await invalidateSuppliers();
       showSuccess('Berhasil', 'Supplier berhasil dihapus');
     },
     onError: (error) => {
@@ -121,12 +114,7 @@ export const useSuppliers = () => {
 
   const toggleActiveMutation = useMutation({
     mutationFn: (id) => supplierApi.toggleActive(id),
-    onSuccess: async (_, id) => {
-      await invalidateSuppliers();
-      await queryClient.invalidateQueries({
-        queryKey: supplierKeys.detail(id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Status supplier berhasil diubah');
     },
     onError: (error) => {
