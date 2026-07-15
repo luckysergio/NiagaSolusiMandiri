@@ -2,7 +2,6 @@ import React from 'react';
 import {
   FolderOpen,
   Hash,
-  FileText,
   Package,
   Check,
   XCircle,
@@ -10,6 +9,7 @@ import {
   Trash2,
 } from 'lucide-react';
 import Card from '../../../common/Card';
+import StatusBadge from '../../../common/StatusBadge';
 
 const CategoryCard = ({ 
   category, 
@@ -19,95 +19,71 @@ const CategoryCard = ({
   isMutating 
 }) => {
   return (
-    <Card variant="elevated" className="group relative overflow-hidden h-full flex flex-col">
-      {/* ✅ FIX: bg-gradient-to-br (standar Tailwind) */}
-      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <Card className="group relative overflow-hidden h-full flex flex-col border border-slate-700/50 bg-slate-800/40 hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300">
+      <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="relative flex-1 flex flex-col space-y-3 p-4">
-        
-        {/* ✅ FIX 1 & 2: Nama wrap text, slug & status di bawahnya */}
-        <div className="space-y-2">
-          <h3 className="text-white text-center font-semibold text-sm sm:text-base wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors">
+      <div className="relative flex-1 flex flex-col p-4 sm:p-5">
+
+        <div className="space-y-3 mb-4">
+          <h3 className="text-white font-bold text-base sm:text-lg text-center wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
             {category.name}
           </h3>
           
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <p className="text-slate-400 text-xs font-mono">
-                {category.slug}
-              </p>
-            </div>
-            
-            <div className={`px-2 py-0.5 text-[10px] sm:text-xs font-medium rounded-full border ${
-              category.is_active 
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                : 'bg-red-500/10 text-red-400 border-red-500/20'
-            }`}>
-              {category.is_active ? 'Aktif' : 'Nonaktif'}
-            </div>
-          </div>
-        </div>
-
-        {/* Details */}
-        <div className="space-y-3 pt-1">
-          {/* Description */}
           <div className="flex justify-center">
-            <span className="text-xs sm:text-sm text-slate-300 text-center line-clamp-6 w-full px-2">
-              {category.description || 'Tidak ada deskripsi'}
-            </span>
-          </div>
-
-          {/* Product Types Count */}
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-xs sm:text-sm text-slate-400">
-              <span className="font-semibold text-indigo-400">
-                {category.product_types_count || 0}
-              </span>{' '}
-              jenis produk
-            </span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/60 rounded-md border border-slate-700/50">
+              <span className="text-slate-300 text-xs font-mono tracking-wide">
+                {category.slug}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="pt-2 mt-auto border-t border-slate-700/50">
-          {/* Main Actions */}
-          <div className="flex flex-col sm:flex-row gap-2 mb-2">
-            <button
-              onClick={() => onToggleActive(category)}
-              disabled={isMutating}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                category.is_active
-                  ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20'
-                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20'
-              }`}
-              title={category.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-            >
-              {category.is_active ? <XCircle className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
-              <span>{category.is_active ? 'Nonaktif' : 'Aktif'}</span>
-            </button>
+        <div className="w-full h-px bg-linear-to-r from-transparent via-slate-700/50 to-transparent mb-4" />
+
+        <div className="space-y-3 flex-1">
+          <div className="flex items-center gap-2.5">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-center text-slate-500 uppercase tracking-wider font-semibold">Deskripsi</span>
+              <span className="text-sm text-center text-slate-200 font-medium line-clamp-8">
+                {category.description || 'Tidak ada deskripsi'}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-slate-900/40 border border-slate-700/40 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Package className="w-4 h-4 text-indigo-400" />
+                <span className="text-xs text-slate-400 font-medium">Jenis Produk</span>
+              </div>
+              <span className="text-base font-bold text-indigo-400 tracking-tight">
+                {category.product_types_count || 0}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-slate-700/40">
+          <div className="grid grid-cols-2 gap-2">
 
             <button
               onClick={() => onEdit(category)}
               disabled={isMutating}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Edit"
             >
-              <Edit className="w-3.5 h-3.5" />
-              <span>Edit</span>
+              <Edit className="w-4 h-4" />
+              <span className="text-[10px] sm:text-xs">Edit</span>
             </button>
-          </div>
 
-          {/* Secondary Actions */}
-          <div className="flex items-center justify-center gap-1.5">
             <button
               onClick={() => onDelete(category)}
               disabled={isMutating}
-              className="flex-1 p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Hapus"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span className="text-xs">Hapus</span>
+              <Trash2 className="w-4 h-4" />
+              <span className="text-[10px] sm:text-xs">Hapus</span>
             </button>
           </div>
         </div>

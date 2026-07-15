@@ -30,7 +30,6 @@ const ProductTypeCard = ({
           
           <div className="flex justify-center">
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/60 rounded-md border border-slate-700/50">
-              <FolderOpen className="w-3 h-3 text-slate-400" />
               <span className="text-slate-300 text-xs font-medium tracking-wide">
                 {productType.category?.name || 'Tanpa Kategori'}
               </span>

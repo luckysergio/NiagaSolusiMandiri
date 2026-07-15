@@ -22,16 +22,18 @@ class ProductCategoryController extends Controller
             'is_active',
         ]);
 
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
         $categories = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
         return response()->json([
             'success' => true,
-            'data' => $categories,
+            'data' => $categories->items(),
             'meta' => [
                 'current_page' => $categories->currentPage(),
                 'per_page' => $categories->perPage(),
