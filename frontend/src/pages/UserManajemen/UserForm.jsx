@@ -3,6 +3,7 @@ import { X, Eye, EyeOff, UserPlus, Loader2 } from 'lucide-react';
 import { useUserManagement } from '../../hooks/useUserManagement';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
+import Card from '../../common/Card';
 
 const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
   const { handleCreateUser, handleUpdateUser, createUserMutation, updateUserMutation } =
@@ -25,9 +26,9 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
     if (isOpen) {
       if (editingUser) {
         setFormData({
-          role_id: editingUser.role_id || '',
-          name: editingUser.name,
-          email: editingUser.email,
+          role_id: String(editingUser.role_id || ''),
+          name: editingUser.name || '',
+          email: editingUser.email || '',
           password: '',
           password_confirmation: '',
         });
@@ -153,7 +154,7 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
         }
       }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
+      <Card variant="elevated" className="max-w-2xl w-full max-h-[90vh] flex flex-col animate-scaleIn relative overflow-hidden">
         {/* ✅ Loading Overlay */}
         {isPending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
@@ -168,14 +169,19 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
         )}
 
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-500/20 rounded-xl">
-              <UserPlus className="w-5 h-5 text-indigo-400" />
+            <div className="p-2.5 bg-indigo-500/20 rounded-xl">
+              <UserPlus className="w-6 h-6 text-indigo-400" />
             </div>
-            <h3 className="text-lg font-bold text-white">
-              {editingUser ? 'Edit User' : 'Tambah User Baru'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {editingUser ? 'Edit User' : 'Tambah User Baru'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {editingUser ? 'Perbarui detail user di bawah ini' : 'Isi formulir untuk menambahkan user baru'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -188,44 +194,49 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto flex-1">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Role <span className="text-red-400">*</span>
-            </label>
-            <select
-              name="role_id"
-              value={formData.role_id}
-              onChange={handleInputChange}
-              disabled={isPending}
-              className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.role_id ? 'border-red-500/50' : 'border-slate-600/50'
-              }`}
-              required
-            >
-              <option value="">Pilih Role</option>
-              {Array.isArray(roles) && roles.map((role) => (
-                <option key={role.id} value={role.id}>
-                  {role.display_name}
-                </option>
-              ))}
-            </select>
-            {errors.role_id && (
-              <p className="mt-1 text-xs text-red-400">{errors.role_id}</p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Role <span className="text-red-400">*</span>
+              </label>
+              <select
+                name="role_id"
+                value={formData.role_id}
+                onChange={handleInputChange}
+                disabled={isPending}
+                className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.role_id ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
+                }`}
+                required
+              >
+                <option value="">Pilih Role</option>
+                {Array.isArray(roles) && roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.display_name}
+                  </option>
+                ))}
+              </select>
+              {errors.role_id && (
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.role_id}
+                </p>
+              )}
+            </div>
 
-          <Input
-            label="Nama"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleInputChange}
-            placeholder="Nama lengkap"
-            error={errors.name}
-            disabled={isPending}
-            required
-          />
+            <Input
+              label="Nama Lengkap"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Masukkan nama lengkap"
+              error={errors.name}
+              disabled={isPending}
+              required
+            />
+          </div>
 
           <Input
             label="Email"
@@ -239,80 +250,88 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
             required
           />
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Password {!editingUser && <span className="text-red-400">*</span>}
-              {editingUser && (
-                <span className="text-xs text-slate-400 ml-2">
-                  (Kosongkan jika tidak diubah)
-                </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Password {!editingUser && <span className="text-red-400">*</span>}
+                {editingUser && (
+                  <span className="text-xs text-slate-400 ml-2 font-normal">
+                    (Kosongkan jika tidak diubah)
+                  </span>
+                )}
+              </label>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  disabled={isPending}
+                  className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 pr-10 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
+                  }`}
+                  placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Minimal 6 karakter'}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isPending}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-300 transition-colors disabled:opacity-50"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.password}
+                </p>
               )}
-            </label>
-            <div className="relative">
-              <input
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={handleInputChange}
-                disabled={isPending}
-                className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 pr-10 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.password ? 'border-red-500/50' : 'border-slate-600/50'
-                }`}
-                placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Minimal 6 karakter'}
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={isPending}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-300 transition-colors disabled:opacity-50"
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-            {errors.password && (
-              <p className="mt-1 text-xs text-red-400">{errors.password}</p>
-            )}
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Konfirmasi Password {!editingUser && <span className="text-red-400">*</span>}
-              {editingUser && (
-                <span className="text-xs text-slate-400 ml-2">
-                  (Kosongkan jika tidak diubah)
-                </span>
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Konfirmasi Password {!editingUser && <span className="text-red-400">*</span>}
+                {editingUser && (
+                  <span className="text-xs text-slate-400 ml-2 font-normal">
+                    (Kosongkan jika tidak diubah)
+                  </span>
+                )}
+              </label>
+              <div className="relative">
+                <input
+                  name="password_confirmation"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.password_confirmation}
+                  onChange={handleInputChange}
+                  disabled={isPending}
+                  className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 pr-10 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    errors.password_confirmation ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
+                  }`}
+                  placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Konfirmasi password'}
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  disabled={isPending}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-300 transition-colors disabled:opacity-50"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {errors.password_confirmation && (
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.password_confirmation}
+                </p>
               )}
-            </label>
-            <div className="relative">
-              <input
-                name="password_confirmation"
-                type={showConfirmPassword ? 'text' : 'password'}
-                value={formData.password_confirmation}
-                onChange={handleInputChange}
-                disabled={isPending}
-                className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 pr-10 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.password_confirmation ? 'border-red-500/50' : 'border-slate-600/50'
-                }`}
-                placeholder={editingUser ? 'Kosongkan jika tidak diubah' : 'Konfirmasi password'}
-                minLength={6}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={isPending}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-300 transition-colors disabled:opacity-50"
-              >
-                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
             </div>
-            {errors.password_confirmation && (
-              <p className="mt-1 text-xs text-red-400">{errors.password_confirmation}</p>
-            )}
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0 mt-6">
             <Button 
               variant="secondary" 
               onClick={onClose} 
@@ -335,7 +354,7 @@ const UserForm = ({ isOpen, onClose, onSuccess, editingUser, roles = [] }) => {
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

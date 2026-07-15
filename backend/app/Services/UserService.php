@@ -32,12 +32,12 @@ class UserService
         'remember_token',
     ];
 
-    public function paginate(array $filters = [], int $perPage = 20): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 20, int $page = 1): LengthAwarePaginator
     {
-        $cacheKey = $this->buildCacheKey($filters, $perPage);
+        $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_USERS, function () use ($filters, $perPage) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_USERS, function () use ($filters, $perPage, $page) {
             return User::query()
                 ->select([
                     'id',
@@ -79,7 +79,7 @@ class UserService
                     fn($q) => $q->active()->notLocked()
                 )
                 ->latest()
-                ->paginate(min($perPage, 100));
+                ->paginate(min($perPage, 100), ['*'], 'page', $page);
         });
     }
 
@@ -451,10 +451,10 @@ class UserService
         }
     }
 
-    private function buildCacheKey(array $filters, int $perPage): string
+    private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        return sprintf('%s:%s:%d', self::CACHE_KEY_USERS_LIST, $filterHash, $perPage);
+        return sprintf('%s:%s:%d:%d', self::CACHE_KEY_USERS_LIST, $filterHash, $perPage, $page);
     }
 
     private function registerListCacheKey(string $cacheKey): void

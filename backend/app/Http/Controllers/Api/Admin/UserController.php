@@ -25,15 +25,17 @@ class UserController extends Controller
         ]);
 
         $perPage = (int) $request->input('per_page', 20);
+        $page = (int) $request->input('page', 1);
 
         $users = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
         return response()->json([
             'success' => true,
-            'data' => $users,
+            'data' => $users->items(),
             'meta' => [
                 'current_page' => $users->currentPage(),
                 'per_page' => $users->perPage(),
