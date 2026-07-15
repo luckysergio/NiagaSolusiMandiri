@@ -18,16 +18,18 @@ class RoleController extends Controller
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only(['search']);
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
         $roles = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
         return response()->json([
             'success' => true,
-            'data' => $roles,
+            'data' => $roles->items(),
             'meta' => [
                 'current_page' => $roles->currentPage(),
                 'per_page' => $roles->perPage(),
@@ -169,7 +171,6 @@ class RoleController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle foreign key violation
             if ($e->getCode() === '23503') {
                 return response()->json([
                     'success' => false,

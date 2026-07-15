@@ -3,6 +3,7 @@ import { X, Shield, Loader2 } from 'lucide-react';
 import { useRoleManagement } from '../../hooks/useRoleManagement';
 import Input from '../../common/Input';
 import Button from '../../common/Button';
+import Card from '../../common/Card';
 
 const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
   const { handleCreateRole, handleUpdateRole, createRoleMutation, updateRoleMutation } =
@@ -117,8 +118,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
         }
       }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
-        {/* ✅ Loading Overlay */}
+      <Card variant="elevated" className="max-w-md w-full max-h-[90vh] flex flex-col animate-scaleIn relative overflow-hidden">
         {isPending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
@@ -131,15 +131,19 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-500/20 rounded-xl">
-              <Shield className="w-5 h-5 text-purple-400" />
+            <div className="p-2.5 bg-purple-500/20 rounded-xl">
+              <Shield className="w-6 h-6 text-purple-400" />
             </div>
-            <h3 className="text-lg font-bold text-white">
-              {editingRole ? 'Edit Role' : 'Tambah Role Baru'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {editingRole ? 'Edit Role' : 'Tambah Role Baru'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {editingRole ? 'Perbarui detail role di bawah ini' : 'Isi formulir untuk menambahkan role baru'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -151,8 +155,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto flex-1">
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
           <Input
             label="Nama Role"
             name="name"
@@ -161,7 +164,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
             onChange={handleInputChange}
             placeholder="contoh: super_admin"
             error={errors.name}
-            disabled={isPending}
+            disabled={isPending || !!editingRole}
             required
             helperText={editingRole ? 'Nama role tidak dapat diubah' : 'Hanya huruf kecil dan underscore'}
           />
@@ -179,8 +182,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
             helperText="Nama yang ditampilkan di UI"
           />
 
-          {/* Footer */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0 mt-6">
             <Button 
               variant="secondary" 
               onClick={onClose} 
@@ -203,7 +205,7 @@ const RoleForm = ({ isOpen, onClose, onSuccess, editingRole }) => {
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

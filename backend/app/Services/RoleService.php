@@ -24,20 +24,20 @@ class RoleService
 
     public function paginate(
         array $filters = [],
-        int $perPage = 10
+        int $perPage = 12,
+        int $page = 1
     ): LengthAwarePaginator {
 
-        $cacheKey = $this->buildCacheKey($filters, $perPage);
-
+        $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage, $page) {
             return Role::query()
                 ->select(['id', 'name', 'display_name', 'created_at', 'updated_at'])
                 ->withUserCount()
                 ->search($filters['search'] ?? null)
                 ->latest()
-                ->paginate(min($perPage, 100));
+                ->paginate(min($perPage, 100), ['*'], 'page', $page);
         });
     }
 
@@ -140,12 +140,6 @@ class RoleService
                 ]);
             }
 
-            if ($role->users()->exists()) {
-                throw ValidationException::withMessages([
-                    'id' => ['Role masih memiliki user terkait.']
-                ]);
-            }
-
             $oldData = $role->toArray();
 
             $this->logActivity(
@@ -197,10 +191,10 @@ class RoleService
         }
     }
 
-    private function buildCacheKey(array $filters, int $perPage): string
+    private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        return sprintf('%s:%s:%d', self::CACHE_KEY_ROLES_LIST, $filterHash, $perPage);
+        return sprintf('%s:%s:%d:%d', self::CACHE_KEY_ROLES_LIST, $filterHash, $perPage, $page);
     }
 
     private function registerListCacheKey(string $cacheKey): void
@@ -230,7 +224,6 @@ class RoleService
         }
 
         Cache::forget(self::CACHE_KEY_LIST_REGISTRY);
-
         Cache::forget(self::CACHE_KEY_STATISTICS);
         Cache::forget(self::CACHE_KEY_DROPDOWN);
     }
@@ -238,7 +231,6 @@ class RoleService
     private function clearRoleAndListCache(int $roleId): void
     {
         Cache::forget(self::CACHE_KEY_ROLE_PREFIX . $roleId);
-
         $this->clearAllListCache();
     }
 
