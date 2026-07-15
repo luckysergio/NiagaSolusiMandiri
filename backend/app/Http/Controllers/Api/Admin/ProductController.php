@@ -28,16 +28,18 @@ class ProductController extends Controller
             'price_max',
         ]);
 
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
         $products = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
         return response()->json([
             'success' => true,
-            'data' => $products,
+            'data' => $products->items(),
             'meta' => [
                 'current_page' => $products->currentPage(),
                 'per_page' => $products->perPage(),

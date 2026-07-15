@@ -1,4 +1,3 @@
-// src/pages/dashboard/components/common/EmptyState.jsx
 import React from 'react';
 
 const EmptyState = ({ icon: Icon, title, description }) => (

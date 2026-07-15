@@ -7,15 +7,19 @@ import {
   RefreshCw,
   X,
   Package,
+  Filter,
 } from 'lucide-react';
 import { useProducts } from '../../hooks/useProducts';
 import { useCategories } from '../../hooks/useCategories';
 import { useProductTypes } from '../../hooks/useProductTypes';
+import { useRealTimeProducts } from '../../hooks/useRealTimeProducts';
 import Card from '../../common/Card';
 import ProductCard from './components/ProductCard';
 import ProductForm from './components/ProductForm';
 
 const ProductsPage = () => {
+  useRealTimeProducts();
+
   const {
     useProductsList,
     handleDelete,
@@ -56,7 +60,7 @@ const ProductsPage = () => {
 
   useEffect(() => {
     setPage(1);
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       product_type_id: '',
     }));
@@ -72,12 +76,13 @@ const ProductsPage = () => {
     refetch,
     isFetching,
   } = useProductsList(page, {
+    per_page: 12,
     search: debouncedSearch,
     ...filters,
   });
 
-  const products = productsResponse?.data?.data || [];
-  const pagination = productsResponse?.data?.meta || {};
+  const products = productsResponse?.data || [];
+  const pagination = productsResponse?.meta || {};
 
   const hasActiveFilters = useMemo(() => {
     return (
@@ -133,69 +138,79 @@ const ProductsPage = () => {
               <Package className="w-6 h-6 text-indigo-400" />
             </div>
           </div>
-          <p className="text-slate-400 animate-pulse">Memuat data produk...</p>
+          <p className="text-slate-400 animate-pulse font-medium">Memuat data produk...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-24">
-      <Card variant="glass" padding="md">
-        <div className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Cari produk berdasarkan nama, kode, atau deskripsi..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-10 py-3 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
-            />
-            {searchTerm && (
-              <button
-                onClick={() => setSearchTerm('')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+    <div className="space-y-6 animate-fadeIn pb-32">
+      {/* 1. Filter & Search Section */}
+      <Card variant="glass" className="p-5 space-y-5">
+        {/* Search Bar */}
+        <div className="relative group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-indigo-400 transition-colors" />
+          <input
+            type="text"
+            placeholder="Cari produk berdasarkan nama, kode, atau deskripsi..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-10 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-700 rounded-full"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+        {/* Filters Row */}
+        <div className="flex flex-col xl:flex-row items-start xl:items-center gap-3">
+          <div className="flex items-center gap-2 text-slate-400 mr-2 xl:flex">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-medium">Filter:</span>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 flex-1 w-full">
             <select
               value={filters.category_id}
               onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
-              className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70"
+              className="flex-1 min-w-40 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-800/50"
             >
               <option value="">Semua Kategori</option>
-              {Array.isArray(categories) && categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
+              {Array.isArray(categories) &&
+                categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
             </select>
 
             <select
               value={filters.product_type_id}
               onChange={(e) => setFilters({ ...filters, product_type_id: e.target.value })}
               disabled={!filters.category_id}
-              className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 min-w-40 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="">Semua Jenis</option>
-              {Array.isArray(productTypes) && productTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.name}
-                </option>
-              ))}
+              {Array.isArray(productTypes) &&
+                productTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
             </select>
 
             <select
               value={filters.featured}
               onChange={(e) => setFilters({ ...filters, featured: e.target.value })}
-              className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70"
+              className="flex-1 min-w-35 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-800/50"
             >
-              <option value="">Semua Status Featured</option>
+              <option value="">Status Featured</option>
               <option value="1">Featured</option>
               <option value="0">Non-Featured</option>
             </select>
@@ -203,67 +218,67 @@ const ProductsPage = () => {
             <select
               value={filters.is_active}
               onChange={(e) => setFilters({ ...filters, is_active: e.target.value })}
-              className="px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-700/70"
+              className="flex-1 min-w-35 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all cursor-pointer hover:bg-slate-800/50"
             >
-              <option value="">Semua Status</option>
+              <option value="">Status Aktif</option>
               <option value="1">Aktif</option>
               <option value="0">Nonaktif</option>
             </select>
 
-            {hasActiveFilters ? (
-              <button
-                onClick={handleResetFilters}
-                className="px-4 py-2.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl transition-all flex items-center gap-2 text-sm text-slate-300 hover:text-white"
-                title="Reset Filter"
-              >
-                <X className="w-4 h-4" />
-                <span>Reset</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleRefresh}
-                disabled={isFetching}
-                className="px-4 py-2.5 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-xl transition-all flex items-center gap-2 text-sm text-slate-300 hover:text-white disabled:opacity-50"
-                title="Refresh Data"
-              >
-                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                <span>Refresh</span>
-              </button>
-            )}
-
-            <div className="ml-auto text-sm text-slate-400">
-              <span className="font-semibold text-indigo-400">
-                {pagination.total || 0}
-              </span>{' '}
-              produk ditemukan
+            <div className="flex items-center gap-2 ml-auto">
+              {hasActiveFilters ? (
+                <button
+                  onClick={handleResetFilters}
+                  className="px-4 py-2.5 bg-slate-700/50 hover:bg-red-500/20 hover:text-red-400 border border-slate-600/50 hover:border-red-500/30 rounded-xl transition-all flex items-center gap-2 text-sm font-medium"
+                >
+                  <X className="w-4 h-4" />
+                  <span>Reset</span>
+                </button>
+              ) : (
+                <button
+                  onClick={handleRefresh}
+                  disabled={isFetching}
+                  className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all flex items-center gap-2 text-sm font-medium shadow-lg shadow-indigo-500/20 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
+        
+        {/* Result Count */}
+        <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between">
+          <p className="text-sm text-slate-400">
+            Menampilkan <span className="font-semibold text-white">{products.length}</span> dari{' '}
+            <span className="font-semibold text-indigo-400">{pagination.total || 0}</span> total produk
+          </p>
+        </div>
       </Card>
 
+      {/* 2. Products Grid */}
       {products.length === 0 ? (
-        <Card variant="glass" padding="lg">
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-slate-700/50 flex items-center justify-center mb-4">
+        <Card variant="glass" className="p-12">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="w-24 h-24 rounded-full bg-slate-800/50 flex items-center justify-center mb-6 border border-slate-700/50">
               <Package className="w-10 h-10 text-slate-500" />
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Tidak ada produk
-            </h3>
-            <p className="text-slate-400 text-sm">
+            <h3 className="text-xl font-semibold text-white mb-2">Tidak ada produk</h3>
+            <p className="text-slate-400 text-sm max-w-md">
               {hasActiveFilters
-                ? 'Tidak ada produk yang cocok dengan filter Anda'
-                : 'Belum ada produk yang terdaftar'}
+                ? 'Tidak ada produk yang cocok dengan filter Anda. Coba ubah kata kunci atau reset filter.'
+                : 'Belum ada produk yang terdaftar. Klik tombol tambah di pojok kanan bawah untuk memulai.'}
             </p>
           </div>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 animate-fadeIn">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fadeIn">
           {products.map((product, index) => (
             <div
               key={product.id}
               className="animate-slideUp"
-              style={{ animationDelay: `${index * 50}ms` }}
+              style={{ animationDelay: `${index * 30}ms` }}
             >
               <ProductCard
                 product={product}
@@ -278,55 +293,45 @@ const ProductsPage = () => {
         </div>
       )}
 
+      {/* 3. Modern Compact Pagination */}
       {pagination.last_page > 1 && (
-        <Card variant="glass" padding="sm">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-slate-400">
-              Menampilkan{' '}
-              <span className="font-semibold text-white">
-                {pagination.from || 0}
-              </span>{' '}
-              -{' '}
-              <span className="font-semibold text-white">
-                {pagination.to || 0}
-              </span>{' '}
-              dari{' '}
-              <span className="font-semibold text-indigo-400">
-                {pagination.total || 0}
-              </span>
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={pagination.current_page === 1}
-                className="p-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="w-5 h-5 text-slate-400" />
-              </button>
-              <div className="flex items-center gap-1 px-3 py-1.5 bg-slate-700/50 border border-slate-600/50 rounded-lg">
-                <span className="text-sm font-semibold text-white">
-                  {pagination.current_page}
-                </span>
-                <span className="text-sm text-slate-400">/</span>
-                <span className="text-sm text-slate-400">
-                  {pagination.last_page}
-                </span>
-              </div>
-              <button
-                onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
-                disabled={pagination.current_page === pagination.last_page}
-                className="p-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600/50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="w-5 h-5 text-slate-400" />
-              </button>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-slate-800/60 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-xl animate-fadeIn">
+          <p className="text-sm text-slate-400 text-center sm:text-left">
+            Halaman <span className="font-semibold text-white">{pagination.current_page}</span> dari{' '}
+            <span className="font-semibold text-indigo-400">{pagination.last_page}</span>
+          </p>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={pagination.current_page === 1}
+              className="p-2.5 bg-slate-700/50 hover:bg-indigo-600 hover:text-white border border-slate-600/50 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-700/50 disabled:hover:text-slate-400"
+              title="Halaman Sebelumnya"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            
+            <div className="flex items-center gap-1 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-xl">
+              <span className="text-sm font-bold text-white">{pagination.current_page}</span>
+              <span className="text-sm text-slate-500">/</span>
+              <span className="text-sm text-slate-400">{pagination.last_page}</span>
             </div>
+            
+            <button
+              onClick={() => setPage((p) => Math.min(pagination.last_page, p + 1))}
+              disabled={pagination.current_page === pagination.last_page}
+              className="p-2.5 bg-slate-700/50 hover:bg-indigo-600 hover:text-white border border-slate-600/50 rounded-xl transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-700/50 disabled:hover:text-slate-400"
+              title="Halaman Selanjutnya"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
           </div>
-        </Card>
+        </div>
       )}
 
       <button
         onClick={openCreateForm}
-        className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
+        className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-2xl shadow-2xl shadow-indigo-500/40 hover:shadow-indigo-500/60 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center z-50 group"
         title="Tambah Produk"
       >
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />

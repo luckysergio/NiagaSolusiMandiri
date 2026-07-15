@@ -29,15 +29,18 @@ class ProductService
     private const CACHE_TTL_REGISTRY = 86400;
     private const CACHE_TTL_STATIC = 3600;
 
+    // ✅ Tambahkan parameter $page
     public function paginate(
         array $filters = [],
-        int $perPage = 10
+        int $perPage = 12, // ✅ Default disamakan dengan frontend (12)
+        int $page = 1
     ): LengthAwarePaginator {
 
-        $cacheKey = $this->buildCacheKey($filters, $perPage);
+        // ✅ Masukkan $page ke dalam cache key agar setiap halaman punya cache sendiri
+        $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage, $page) {
             return Product::query()
                 ->select([
                     'id',
@@ -84,7 +87,8 @@ class ProductService
                     fn($q) => $q->where('price', '<=', (float) $filters['price_max'])
                 )
                 ->ordered()
-                ->paginate(min($perPage, 100));
+                // ✅ Eksplisit tentukan parameter page agar tidak bentrok
+                ->paginate(min($perPage, 100), ['*'], 'page', $page);
         });
     }
 
@@ -449,10 +453,12 @@ class ProductService
         }
     }
 
-    private function buildCacheKey(array $filters, int $perPage): string
+    // ✅ Update signature: tambahkan $page
+    private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        return sprintf('%s:%s:%d', self::CACHE_KEY_LIST, $filterHash, $perPage);
+        // ✅ Format: products.list:hash_filter:per_page:page
+        return sprintf('%s:%s:%d:%d', self::CACHE_KEY_LIST, $filterHash, $perPage, $page);
     }
 
     private function registerListCacheKey(string $cacheKey): void

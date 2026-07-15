@@ -26,7 +26,7 @@ export const useProducts = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0,
+      staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -106,7 +106,6 @@ export const useProducts = () => {
   const createMutation = useMutation({
     mutationFn: (data) => productApi.create(data),
     onSuccess: async () => {
-      await invalidateProducts();
       showSuccess('Berhasil', 'Produk berhasil ditambahkan');
     },
     onError: (error) => {
@@ -119,12 +118,7 @@ export const useProducts = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => productApi.update(id, data),
-    onSuccess: async (_, variables) => {
-      await invalidateProducts();
-      await queryClient.invalidateQueries({
-        queryKey: productKeys.detail(variables.id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Produk berhasil diperbarui');
     },
     onError: (error) => {
@@ -138,7 +132,6 @@ export const useProducts = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => productApi.delete(id),
     onSuccess: async () => {
-      await invalidateProducts();
       showSuccess('Berhasil', 'Produk berhasil dihapus');
     },
     onError: (error) => {
@@ -151,12 +144,7 @@ export const useProducts = () => {
 
   const toggleActiveMutation = useMutation({
     mutationFn: (id) => productApi.toggleActive(id),
-    onSuccess: async (_, id) => {
-      await invalidateProducts();
-      await queryClient.invalidateQueries({
-        queryKey: productKeys.detail(id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Status produk berhasil diubah');
     },
     onError: (error) => {
@@ -166,12 +154,7 @@ export const useProducts = () => {
 
   const toggleFeaturedMutation = useMutation({
     mutationFn: (id) => productApi.toggleFeatured(id),
-    onSuccess: async (_, id) => {
-      await invalidateProducts();
-      await queryClient.invalidateQueries({
-        queryKey: productKeys.detail(id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Status featured berhasil diubah');
     },
     onError: (error) => {
