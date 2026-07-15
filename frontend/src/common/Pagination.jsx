@@ -5,12 +5,7 @@ const Pagination = ({ pagination, currentPage, onPageChange, className = '' }) =
   if (!pagination?.last_page || pagination.last_page <= 1) return null;
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 mt-4 border-t border-slate-700/50 animate-fadeIn ${className}`}>
-      <p className="text-sm text-slate-400 text-center sm:text-left">
-        Menampilkan <span className="font-semibold text-white">{pagination.from || 0}</span> -{' '}
-        <span className="font-semibold text-white">{pagination.to || 0}</span> dari{' '}
-        <span className="font-semibold text-indigo-400">{pagination.total || 0}</span>
-      </p>
+    <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 mt-4 border-t border-slate-700/50 animate-fadeIn ${className}`}>
       
       <div className="flex items-center gap-2">
         <button

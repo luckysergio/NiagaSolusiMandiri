@@ -136,8 +136,7 @@ const ProductsPage = () => {
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-32">
-      {/* 1. Filter & Search Section */}
+    <div className="space-y-6 animate-fadeIn">
       <Card variant="glass" className="p-5 space-y-5">
         <Input
           icon={Search}
@@ -228,16 +227,8 @@ const ProductsPage = () => {
             </div>
           </div>
         </div>
-        
-        <div className="pt-2 border-t border-slate-700/50 flex items-center justify-between">
-          <p className="text-sm text-slate-400">
-            Menampilkan <span className="font-semibold text-white">{products.length}</span> dari{' '}
-            <span className="font-semibold text-indigo-400">{pagination.total || 0}</span> total produk
-          </p>
-        </div>
       </Card>
 
-      {/* 2. Products Grid */}
       {products.length === 0 ? (
         <Card variant="glass" className="p-0 overflow-hidden">
           <EmptyState
@@ -276,14 +267,12 @@ const ProductsPage = () => {
         </div>
       )}
 
-      {/* 3. Modern Compact Pagination */}
       <Pagination
         pagination={pagination}
         currentPage={page}
         onPageChange={setPage}
       />
 
-      {/* 4. Modern Floating Action Button (FAB) */}
       <button
         onClick={openCreateForm}
         className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-2xl shadow-2xl shadow-indigo-500/40 hover:shadow-indigo-500/60 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center z-50 group"
@@ -292,7 +281,6 @@ const ProductsPage = () => {
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* 5. Form Modal */}
       {showForm && (
         <ProductForm
           isOpen={showForm}

@@ -39,26 +39,47 @@ const ProductCard = ({
       {/* ✅ FIX: bg-gradient-to-br */}
       <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-      <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-2">
-        {product.featured && <StatusBadge status="featured" size="xs" />}
-        <StatusBadge status={product.is_active ? 'active' : 'inactive'} size="xs" />
-      </div>
-
       <div className="relative flex-1 flex flex-col p-4 sm:p-5">
-        <div className="space-y-2 mb-3 pr-20">
-          <h3 className="text-white font-bold text-base sm:text-lg wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
+        
+        {/* 1. Top Bar: Featured Star (Start) & Status Badge (End) */}
+        <div className="flex items-center justify-between mb-3">
+          {/* Klik Bintang untuk Toggle Featured */}
+          <button
+            onClick={() => onToggleFeatured(product)}
+            disabled={isMutating}
+            className={`p-2 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
+              product.featured
+                ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 hover:scale-110'
+                : 'text-slate-600 hover:text-amber-400 hover:bg-slate-700/50 hover:scale-110'
+            }`}
+            title={product.featured ? 'Hapus Featured' : 'Tandai sebagai Featured'}
+          >
+            <Star className={`w-5 h-5 ${product.featured ? 'fill-amber-400' : ''}`} />
+          </button>
+
+          {/* Status Badge */}
+          <StatusBadge status={product.is_active ? 'active' : 'inactive'} size="xs" />
+        </div>
+
+        {/* 2 & 3. Nama (Center) & Kode (Center, baris sendiri) */}
+        <div className="space-y-3 mb-4">
+          <h3 className="text-white font-bold text-base sm:text-lg text-center wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
             {product.name}
           </h3>
-          <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-900/60 rounded-md border border-slate-700/50">
-            <Hash className="w-3 h-3 text-slate-400" />
-            <span className="text-slate-300 text-xs font-mono tracking-wide">
-              {product.code}
-            </span>
+          
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900/60 rounded-md border border-slate-700/50">
+              <Hash className="w-3 h-3 text-slate-400" />
+              <span className="text-slate-300 text-xs font-mono tracking-wide">
+                {product.code}
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="w-full h-px bg-linear-to-r from-transparent via-slate-700/50 to-transparent mb-4" />
 
+        {/* Details Section */}
         <div className="space-y-3 flex-1">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
@@ -87,11 +108,7 @@ const ProductCard = ({
           </div>
 
           <div className="mt-4 p-3 bg-slate-900/40 border border-slate-700/40 rounded-xl space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Package className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs text-slate-400 font-medium">Harga Satuan</span>
-              </div>
+            <div className="flex items-center justify-center">
               <span className="text-base font-bold text-emerald-400 tracking-tight">
                 {formatPrice(product.price)}
               </span>
@@ -108,12 +125,14 @@ const ProductCard = ({
           </div>
         </div>
 
+        {/* 4. Actions: Grid 3 Kolom (Featured button dihapus, diganti klik bintang di atas) */}
         <div className="mt-5 pt-4 border-t border-slate-700/40">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
+            {/* Toggle Active */}
             <button
               onClick={() => onToggleActive(product)}
               disabled={isMutating}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
                 product.is_active
                   ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40'
                   : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40'
@@ -121,41 +140,29 @@ const ProductCard = ({
               title={product.is_active ? 'Nonaktifkan' : 'Aktifkan'}
             >
               {product.is_active ? <XCircle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-              <span>{product.is_active ? 'Nonaktif' : 'Aktif'}</span>
+              <span className="text-[10px] sm:text-xs">{product.is_active ? 'Nonaktif' : 'Aktif'}</span>
             </button>
 
+            {/* Edit */}
             <button
               onClick={() => onEdit(product)}
               disabled={isMutating}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 hover:border-blue-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Edit"
             >
               <Edit className="w-4 h-4" />
-              <span>Edit</span>
+              <span className="text-[10px] sm:text-xs">Edit</span>
             </button>
 
-            <button
-              onClick={() => onToggleFeatured(product)}
-              disabled={isMutating}
-              className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
-                product.featured
-                  ? 'bg-amber-500/15 text-amber-400 border-amber-500/30 hover:bg-amber-500/25'
-                  : 'bg-slate-800/50 text-slate-400 border-slate-700/50 hover:bg-slate-700/50 hover:text-amber-400 hover:border-amber-500/30'
-              }`}
-              title={product.featured ? 'Hapus Featured' : 'Tandai Featured'}
-            >
-              <Star className={`w-4 h-4 ${product.featured ? 'fill-amber-400' : ''}`} />
-              <span className="truncate">{product.featured ? 'Unfeature' : 'Feature'}</span>
-            </button>
-
+            {/* Delete */}
             <button
               onClick={() => onDelete(product)}
               disabled={isMutating}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+              className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
               title="Hapus"
             >
               <Trash2 className="w-4 h-4" />
-              <span>Hapus</span>
+              <span className="text-[10px] sm:text-xs">Hapus</span>
             </button>
           </div>
         </div>
