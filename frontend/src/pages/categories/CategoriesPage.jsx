@@ -9,11 +9,15 @@ import {
   FolderOpen,
 } from 'lucide-react';
 import { useCategories } from '../../hooks/useCategories';
+import { useRealTimeCategories } from '../../hooks/useRealTimeCategories'; // ✅ IMPORT HOOK BARU
 import Card from '../../common/Card';
 import CategoryCard from './components/CategoryCard';
 import CategoryForm from './components/CategoryForm';
 
 const CategoriesPage = () => {
+  // ✅ AKTIFKAN LISTENER REAL-TIME
+  useRealTimeCategories();
+
   const {
     useCategoriesList,
     useStatistics,
@@ -32,7 +36,6 @@ const CategoriesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -42,12 +45,10 @@ const CategoriesPage = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Reset page saat filter berubah
   useEffect(() => {
     setPage(1);
   }, [filters]);
 
-  // Queries
   const {
     data: categoriesResponse,
     isLoading,
@@ -67,7 +68,6 @@ const CategoriesPage = () => {
     return searchTerm !== '' || filters.is_active !== '';
   }, [searchTerm, filters]);
 
-  // Handlers
   const openCreateForm = () => {
     setEditingCategory(null);
     setShowForm(true);
@@ -97,7 +97,6 @@ const CategoriesPage = () => {
     await refetch();
   };
 
-  // Loading state
   if (isLoading && !categoriesResponse) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -116,7 +115,6 @@ const CategoriesPage = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-24">
-      {/* Filters */}
       <Card variant="glass" padding="md">
         <div className="space-y-4">
           <div className="relative">
@@ -180,7 +178,6 @@ const CategoriesPage = () => {
         </div>
       </Card>
 
-      {/* Categories Grid */}
       {categories.length === 0 ? (
         <Card variant="glass" padding="lg">
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -217,7 +214,6 @@ const CategoriesPage = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pagination.last_page > 1 && (
         <Card variant="glass" padding="sm">
           <div className="flex items-center justify-between">
@@ -266,7 +262,7 @@ const CategoriesPage = () => {
         </Card>
       )}
 
-      {/* FAB Button */}
+      {/* ✅ FIX: bg-gradient-to-br (bukan bg-linear-to-br) */}
       <button
         onClick={openCreateForm}
         className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
@@ -275,7 +271,6 @@ const CategoriesPage = () => {
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* Form Modal */}
       {showForm && (
         <CategoryForm
           isOpen={showForm}

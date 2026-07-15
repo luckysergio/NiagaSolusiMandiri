@@ -21,35 +21,35 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
     sort_order: 0,
     is_active: true,
   });
+  
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [errors, setErrors] = useState({});
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  const { data: suggestedSortOrder } = useNextSortOrder(
-    formData.category_id ? parseInt(formData.category_id) : null
-  );
+  const categoryId = formData.category_id ? parseInt(formData.category_id, 10) : null;
+  const { data: suggestedSortOrder } = useNextSortOrder(categoryId);
 
   useEffect(() => {
     if (isOpen) {
       if (editingProductType) {
         setFormData({
-          category_id: editingProductType.category_id?.toString() || '',
+          category_id: String(editingProductType.category_id || ''),
           name: editingProductType.name || '',
           slug: editingProductType.slug || '',
           description: editingProductType.description || '',
-          sort_order: editingProductType.sort_order || 0,
-          is_active: editingProductType.is_active ?? true,
+          sort_order: editingProductType.sort_order ?? 0,
+          is_active: Boolean(editingProductType.is_active),
         });
-        setImagePreview(editingProductType.image_url || null);
+        setImagePreview(editingProductType.image_url || editingProductType.image || null);
       } else {
         setFormData({
           category_id: '',
           name: '',
           slug: '',
           description: '',
-          sort_order: suggestedSortOrder || 1,
+          sort_order: 1,
           is_active: true,
         });
         setImagePreview(null);
@@ -57,24 +57,23 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
       setImageFile(null);
       setErrors({});
     }
-  }, [editingProductType, isOpen, suggestedSortOrder]);
+  }, [editingProductType, isOpen]);
 
   useEffect(() => {
-    if (!editingProductType && suggestedSortOrder) {
+    if (!editingProductType && isOpen && suggestedSortOrder) {
       setFormData(prev => ({
         ...prev,
         sort_order: suggestedSortOrder,
       }));
     }
-  }, [suggestedSortOrder, editingProductType]);
+  }, [suggestedSortOrder, editingProductType, isOpen]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    // ✅ Handle select is_active yang kirim "true"/"false" sebagai string
     let finalValue = value;
     if (name === 'is_active') {
-      finalValue = value === 'true' || value === true;
+      finalValue = value === 'true';
     }
     
     setFormData((prev) => ({
@@ -88,7 +87,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
 
     if (!file.type.match('image/(jpeg|jpg|png|webp)')) {
@@ -154,13 +153,15 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
 
     try {
       const payload = new FormData();
-      payload.append('category_id', formData.category_id);
+      
+      payload.append('category_id', parseInt(formData.category_id, 10));
       payload.append('name', formData.name);
+      
       if (formData.slug) payload.append('slug', formData.slug);
       if (formData.description) payload.append('description', formData.description);
-      payload.append('sort_order', parseInt(formData.sort_order) || 0);
       
-      // ✅ FIX: Convert boolean ke 1/0 untuk Laravel validator
+      payload.append('sort_order', parseInt(formData.sort_order, 10) || 0);
+      
       payload.append('is_active', formData.is_active ? '1' : '0');
 
       if (imageFile) {
@@ -193,7 +194,9 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
 
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape' && isOpen && !isPending) onClose();
+      if (e.key === 'Escape' && isOpen && !isPending) {
+        onClose();
+      }
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
@@ -222,7 +225,6 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
           </div>
         )}
 
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-500/20 rounded-xl">
@@ -315,7 +317,6 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
             )}
           </div>
 
-          {/* Image Upload */}
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1.5">
               Gambar
@@ -407,7 +408,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
               </label>
               <select
                 name="is_active"
-                value={formData.is_active.toString()}
+                value={formData.is_active ? 'true' : 'false'}
                 onChange={handleInputChange}
                 disabled={isPending}
                 className="w-full px-4 py-2.5 bg-slate-700/50 border border-slate-600/50 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
@@ -418,7 +419,6 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
             </div>
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
             <Button 
               variant="secondary" 

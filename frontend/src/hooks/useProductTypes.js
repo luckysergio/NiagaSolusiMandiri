@@ -25,7 +25,7 @@ export const useProductTypes = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0,
+      staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -89,7 +89,6 @@ export const useProductTypes = () => {
   const createMutation = useMutation({
     mutationFn: (formData) => productTypeApi.create(formData),
     onSuccess: async () => {
-      await invalidateProductTypes();
       showSuccess('Berhasil', 'Jenis produk berhasil ditambahkan');
     },
     onError: (error) => {
@@ -102,12 +101,7 @@ export const useProductTypes = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, formData }) => productTypeApi.update(id, formData),
-    onSuccess: async (_, variables) => {
-      await invalidateProductTypes();
-      await queryClient.invalidateQueries({
-        queryKey: productTypeKeys.detail(variables.id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Jenis produk berhasil diperbarui');
     },
     onError: (error) => {
@@ -121,7 +115,6 @@ export const useProductTypes = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => productTypeApi.delete(id),
     onSuccess: async () => {
-      await invalidateProductTypes();
       showSuccess('Berhasil', 'Jenis produk berhasil dihapus');
     },
     onError: (error) => {
@@ -134,12 +127,7 @@ export const useProductTypes = () => {
 
   const toggleActiveMutation = useMutation({
     mutationFn: (id) => productTypeApi.toggleActive(id),
-    onSuccess: async (_, id) => {
-      await invalidateProductTypes();
-      await queryClient.invalidateQueries({
-        queryKey: productTypeKeys.detail(id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Status jenis produk berhasil diubah');
     },
     onError: (error) => {

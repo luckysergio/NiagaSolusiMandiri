@@ -10,11 +10,15 @@ import {
 } from 'lucide-react';
 import { useProductTypes } from '../../hooks/useProductTypes';
 import { useCategories } from '../../hooks/useCategories';
+import { useRealTimeProductTypes } from '../../hooks/useRealTimeProductTypes'; // ✅ IMPORT HOOK BARU
 import Card from '../../common/Card';
 import ProductTypeCard from './components/ProductTypeCard';
 import ProductTypeForm from './components/ProductTypeForm';
 
 const ProductTypesPage = () => {
+  // ✅ AKTIFKAN LISTENER REAL-TIME
+  useRealTimeProductTypes();
+
   const {
     useProductTypesList,
     handleDelete,
@@ -35,10 +39,8 @@ const ProductTypesPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingProductType, setEditingProductType] = useState(null);
 
-  // Get categories dropdown
   const { data: categories = [] } = useCategoriesDropdown();
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -48,12 +50,10 @@ const ProductTypesPage = () => {
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Reset page saat filter berubah
   useEffect(() => {
     setPage(1);
   }, [filters]);
 
-  // Queries
   const {
     data: productTypesResponse,
     isLoading,
@@ -75,7 +75,6 @@ const ProductTypesPage = () => {
     );
   }, [searchTerm, filters]);
 
-  // Handlers
   const openCreateForm = () => {
     setEditingProductType(null);
     setShowForm(true);
@@ -105,7 +104,6 @@ const ProductTypesPage = () => {
     await refetch();
   };
 
-  // Loading state
   if (isLoading && !productTypesResponse) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -124,7 +122,6 @@ const ProductTypesPage = () => {
 
   return (
     <div className="space-y-6 animate-fadeIn pb-24">
-      {/* Filters - Seragam dengan CategoriesPage */}
       <Card variant="glass" padding="md">
         <div className="space-y-4">
           <div className="relative">
@@ -147,7 +144,6 @@ const ProductTypesPage = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Filter Kategori */}
             <select
               value={filters.category_id}
               onChange={(e) => setFilters({ ...filters, category_id: e.target.value })}
@@ -162,7 +158,6 @@ const ProductTypesPage = () => {
                 ))}
             </select>
 
-            {/* Filter Status */}
             <select
               value={filters.is_active}
               onChange={(e) => setFilters({ ...filters, is_active: e.target.value })}
@@ -204,7 +199,6 @@ const ProductTypesPage = () => {
         </div>
       </Card>
 
-      {/* Product Types Grid */}
       {productTypes.length === 0 ? (
         <Card variant="glass" padding="lg">
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -241,7 +235,6 @@ const ProductTypesPage = () => {
         </div>
       )}
 
-      {/* Pagination */}
       {pagination.last_page > 1 && (
         <Card variant="glass" padding="sm">
           <div className="flex items-center justify-between">
@@ -290,7 +283,6 @@ const ProductTypesPage = () => {
         </Card>
       )}
 
-      {/* FAB Button - Warna sama dengan CategoriesPage */}
       <button
         onClick={openCreateForm}
         className="fixed bottom-8 right-8 w-14 h-14 bg-linear-to-br from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-full shadow-2xl shadow-indigo-500/50 hover:shadow-indigo-500/70 hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 group"
@@ -299,7 +291,6 @@ const ProductTypesPage = () => {
         <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
       </button>
 
-      {/* Form Modal */}
       {showForm && (
         <ProductTypeForm
           isOpen={showForm}

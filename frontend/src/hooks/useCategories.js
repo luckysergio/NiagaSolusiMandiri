@@ -25,7 +25,7 @@ export const useCategories = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0,
+      staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -89,7 +89,6 @@ export const useCategories = () => {
   const createMutation = useMutation({
     mutationFn: (data) => categoryApi.create(data),
     onSuccess: async () => {
-      await invalidateCategories();
       showSuccess('Berhasil', 'Kategori berhasil ditambahkan');
     },
     onError: (error) => {
@@ -103,11 +102,6 @@ export const useCategories = () => {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => categoryApi.update(id, data),
     onSuccess: async (_, variables) => {
-      await invalidateCategories();
-      await queryClient.invalidateQueries({
-        queryKey: categoryKeys.detail(variables.id),
-        refetchType: 'all',
-      });
       showSuccess('Berhasil', 'Kategori berhasil diperbarui');
     },
     onError: (error) => {
@@ -121,7 +115,6 @@ export const useCategories = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => categoryApi.delete(id),
     onSuccess: async () => {
-      await invalidateCategories();
       showSuccess('Berhasil', 'Kategori berhasil dihapus');
     },
     onError: (error) => {
@@ -135,11 +128,6 @@ export const useCategories = () => {
   const toggleActiveMutation = useMutation({
     mutationFn: (id) => categoryApi.toggleActive(id),
     onSuccess: async (_, id) => {
-      await invalidateCategories();
-      await queryClient.invalidateQueries({
-        queryKey: categoryKeys.detail(id),
-        refetchType: 'all',
-      });
       showSuccess('Berhasil', 'Status kategori berhasil diubah');
     },
     onError: (error) => {

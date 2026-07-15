@@ -54,12 +54,10 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
     ];
   }, [stats, txStats, trend]);
 
-  // Komponen Kartu Statistik Reusable
   const StatCard = ({ title, value, icon: Icon, color, isCurrency = true, trend: trendValue, subtitle }) => {
     const isPositive = trendValue >= 0;
     return (
       <Card variant="elevated" className="p-5 group relative overflow-hidden h-full">
-        {/* ✅ Perbaikan: bg-gradient-to-br (bukan bg-linear-to-br) */}
         <div className={`absolute inset-0 bg-linear-to-br ${color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
         <div className="relative flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
