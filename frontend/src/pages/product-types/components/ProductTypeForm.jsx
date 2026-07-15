@@ -3,6 +3,7 @@ import { X, Layers, Info, Upload, Loader2 } from 'lucide-react';
 import { useProductTypes } from '../../../hooks/useProductTypes';
 import Input from '../../../common/Input';
 import Button from '../../../common/Button';
+import Card from '../../../common/Card';
 
 const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categories = [] }) => {
   const { 
@@ -211,8 +212,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
         if (e.target === e.currentTarget && !isPending) onClose();
       }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
-        {/* Loading Overlay */}
+      <Card variant="elevated" className="max-w-2xl w-full max-h-[90vh] flex flex-col animate-scaleIn relative overflow-hidden">
         {isPending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
@@ -225,14 +225,19 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
           </div>
         )}
 
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-500/20 rounded-xl">
-              <Layers className="w-5 h-5 text-indigo-400" />
+            <div className="p-2.5 bg-indigo-500/20 rounded-xl">
+              <Layers className="w-6 h-6 text-indigo-400" />
             </div>
-            <h3 className="text-lg font-bold text-white">
-              {editingProductType ? 'Edit Jenis Produk' : 'Tambah Jenis Produk Baru'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {editingProductType ? 'Edit Jenis Produk' : 'Tambah Jenis Produk Baru'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {editingProductType ? 'Perbarui detail jenis produk di bawah ini' : 'Isi formulir untuk menambahkan jenis produk baru'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -244,46 +249,48 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-4 space-y-4 overflow-y-auto flex-1">
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
-              Kategori <span className="text-red-400">*</span>
-            </label>
-            <select
-              name="category_id"
-              value={formData.category_id}
-              onChange={handleInputChange}
-              disabled={isPending}
-              className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.category_id ? 'border-red-500/50' : 'border-slate-600/50'
-              }`}
-              required
-            >
-              <option value="">Pilih Kategori</option>
-              {Array.isArray(categories) && categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            {errors.category_id && (
-              <p className="mt-1 text-xs text-red-400">{errors.category_id}</p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
+                Kategori <span className="text-red-400">*</span>
+              </label>
+              <select
+                name="category_id"
+                value={formData.category_id}
+                onChange={handleInputChange}
+                disabled={isPending}
+                className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 appearance-none transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  errors.category_id ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
+                }`}
+              >
+                <option value="">Pilih Kategori</option>
+                {Array.isArray(categories) && categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category_id && (
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.category_id}
+                </p>
+              )}
+            </div>
 
-          <Input
-            label="Nama Jenis Produk"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleInputChange}
-            placeholder="Contoh: Standar, Mini, Longboom"
-            error={errors.name}
-            disabled={isPending}
-            required
-          />
+            <Input
+              label="Nama Jenis Produk"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Contoh: Standar, Mini, Longboom"
+              error={errors.name}
+              disabled={isPending}
+              required
+            />
+          </div>
 
           <Input
             label="Slug"
@@ -298,7 +305,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
           />
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
               Deskripsi
             </label>
             <textarea
@@ -308,17 +315,20 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
               disabled={isPending}
               rows={3}
               className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed ${
-                errors.description ? 'border-red-500/50' : 'border-slate-600/50'
+                errors.description ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
               }`}
               placeholder="Deskripsi singkat tentang jenis produk ini"
             />
             {errors.description && (
-              <p className="mt-1 text-xs text-red-400">{errors.description}</p>
+              <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                {errors.description}
+              </p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">
+            <label className="block text-sm font-semibold text-slate-300 mb-2">
               Gambar
             </label>
             
@@ -346,9 +356,9 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
                 htmlFor="image-upload"
                 className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
                   errors.image 
-                    ? 'border-red-500/50 bg-red-500/5' 
-                    : 'border-slate-600/50 bg-slate-700/30 hover:bg-slate-700/50 hover:border-indigo-500/50'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    ? 'border-red-500 focus:ring-red-500/20' 
+                    : 'border-slate-600 hover:border-indigo-500/50'
+                } bg-slate-700/30 hover:bg-slate-700/50 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <Upload className="w-8 h-8 text-slate-400 mb-3" />
@@ -369,15 +379,17 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
                 />
               </label>
             )}
-
             {errors.image && (
-              <p className="mt-1 text-xs text-red-400">{errors.image}</p>
+              <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                {errors.image}
+              </p>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Sort Order
               </label>
               <input
@@ -387,15 +399,19 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
                 onChange={handleInputChange}
                 disabled={isPending}
                 min={0}
+                step="1"
                 className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                  errors.sort_order ? 'border-red-500/50' : 'border-slate-600/50'
+                  errors.sort_order ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                 }`}
                 placeholder="0"
               />
               {errors.sort_order ? (
-                <p className="mt-1 text-xs text-red-400">{errors.sort_order}</p>
+                <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-red-400"></span>
+                  {errors.sort_order}
+                </p>
               ) : !editingProductType && (
-                <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+                <p className="mt-1.5 text-xs text-slate-500 flex items-center gap-1">
                   <Info className="w-3 h-3" />
                   Auto-filled
                 </p>
@@ -403,7 +419,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">
+              <label className="block text-sm font-semibold text-slate-300 mb-2">
                 Status
               </label>
               <select
@@ -419,7 +435,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50 shrink-0 mt-6">
             <Button 
               variant="secondary" 
               onClick={onClose} 
@@ -442,7 +458,7 @@ const ProductTypeForm = ({ isOpen, onClose, onSuccess, editingProductType, categ
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

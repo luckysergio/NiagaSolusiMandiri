@@ -29,14 +29,12 @@ class ProductService
     private const CACHE_TTL_REGISTRY = 86400;
     private const CACHE_TTL_STATIC = 3600;
 
-    // ✅ Tambahkan parameter $page
     public function paginate(
         array $filters = [],
-        int $perPage = 12, // ✅ Default disamakan dengan frontend (12)
+        int $perPage = 12,
         int $page = 1
     ): LengthAwarePaginator {
 
-        // ✅ Masukkan $page ke dalam cache key agar setiap halaman punya cache sendiri
         $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
@@ -87,7 +85,6 @@ class ProductService
                     fn($q) => $q->where('price', '<=', (float) $filters['price_max'])
                 )
                 ->ordered()
-                // ✅ Eksplisit tentukan parameter page agar tidak bentrok
                 ->paginate(min($perPage, 100), ['*'], 'page', $page);
         });
     }
@@ -453,11 +450,9 @@ class ProductService
         }
     }
 
-    // ✅ Update signature: tambahkan $page
     private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        // ✅ Format: products.list:hash_filter:per_page:page
         return sprintf('%s:%s:%d:%d', self::CACHE_KEY_LIST, $filterHash, $perPage, $page);
     }
 

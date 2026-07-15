@@ -25,21 +25,23 @@ class ProductTypeController extends Controller
             'is_active',
         ]);
 
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
         $types = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
-        $types = $types->through(function ($type) {
+        $types->through(function ($type) {
             $type->image_url = $this->imageService->getUrl($type->image);
             return $type;
         });
 
         return response()->json([
             'success' => true,
-            'data' => $types,
+            'data' => $types->items(),
             'meta' => [
                 'current_page' => $types->currentPage(),
                 'per_page' => $types->perPage(),
@@ -73,7 +75,7 @@ class ProductTypeController extends Controller
                 'description' => ['nullable', 'string'],
                 'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
                 'sort_order' => ['nullable', 'integer', 'min:0'],
-                'is_active' => ['nullable'],
+                'is_active' => ['nullable', 'boolean'],
             ],
             [
                 'category_id.required' => 'Kategori wajib dipilih',
@@ -86,7 +88,6 @@ class ProductTypeController extends Controller
                 'image.max' => 'Ukuran gambar maksimal 2MB',
                 'sort_order.integer' => 'Sort order harus berupa angka',
                 'sort_order.min' => 'Sort order minimal 0',
-                'is_active.nullable' => 'Status harus diisi',
             ]
         );
 
@@ -130,7 +131,7 @@ class ProductTypeController extends Controller
                 'description' => ['nullable', 'string'],
                 'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
                 'sort_order' => ['nullable', 'integer', 'min:0'],
-                'is_active' => ['nullable'],
+                'is_active' => ['nullable', 'boolean'],
             ],
             [
                 'category_id.required' => 'Kategori wajib dipilih',
@@ -143,7 +144,6 @@ class ProductTypeController extends Controller
                 'image.max' => 'Ukuran gambar maksimal 2MB',
                 'sort_order.integer' => 'Sort order harus berupa angka',
                 'sort_order.min' => 'Sort order minimal 0',
-                'is_active.nullable' => 'Status harus diisi',
             ]
         );
 

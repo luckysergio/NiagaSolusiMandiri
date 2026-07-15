@@ -32,13 +32,14 @@ class ProductTypeService
 
     public function paginate(
         array $filters = [],
-        int $perPage = 10
+        int $perPage = 12,
+        int $page = 1
     ): LengthAwarePaginator {
 
-        $cacheKey = $this->buildCacheKey($filters, $perPage);
+        $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage, $page) {
             return ProductType::query()
                 ->select([
                     'id',
@@ -63,7 +64,7 @@ class ProductTypeService
                     fn($q) => $q->where('is_active', (bool) $filters['is_active'])
                 )
                 ->ordered()
-                ->paginate(min($perPage, 100));
+                ->paginate($perPage, ['*'], 'page', $page);
         });
     }
 
@@ -254,7 +255,6 @@ class ProductTypeService
 
             broadcast(new ProductTypeDeleted($id, $productTypeName, $categoryName));
 
-            // Delete image
             if ($imagePath) {
                 $this->imageService->delete($imagePath);
             }
@@ -323,10 +323,10 @@ class ProductTypeService
         }
     }
 
-    private function buildCacheKey(array $filters, int $perPage): string
+    private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        return sprintf('%s:%s:%d', self::CACHE_KEY_LIST, $filterHash, $perPage);
+        return sprintf('%s:%s:%d:%d', self::CACHE_KEY_LIST, $filterHash, $perPage, $page);
     }
 
     private function registerListCacheKey(string $cacheKey): void

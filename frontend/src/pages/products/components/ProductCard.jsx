@@ -36,14 +36,11 @@ const ProductCard = ({
 
   return (
     <Card className="group relative overflow-hidden h-full flex flex-col border border-slate-700/50 bg-slate-800/40 hover:border-indigo-500/40 hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1 transition-all duration-300">
-      {/* ✅ FIX: bg-gradient-to-br */}
       <div className="absolute inset-0 bg-linear-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
       <div className="relative flex-1 flex flex-col p-4 sm:p-5">
         
-        {/* 1. Top Bar: Featured Star (Start) & Status Badge (End) */}
         <div className="flex items-center justify-between mb-3">
-          {/* Klik Bintang untuk Toggle Featured */}
           <button
             onClick={() => onToggleFeatured(product)}
             disabled={isMutating}
@@ -61,9 +58,8 @@ const ProductCard = ({
           <StatusBadge status={product.is_active ? 'active' : 'inactive'} size="xs" />
         </div>
 
-        {/* 2 & 3. Nama (Center) & Kode (Center, baris sendiri) */}
         <div className="space-y-3 mb-4">
-          <h3 className="text-white font-bold text-base sm:text-lg text-center wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-2">
+          <h3 className="text-white font-bold text-base sm:text-lg text-center wrap-break-word leading-snug group-hover:text-indigo-300 transition-colors line-clamp-3">
             {product.name}
           </h3>
           
@@ -79,7 +75,6 @@ const ProductCard = ({
 
         <div className="w-full h-px bg-linear-to-r from-transparent via-slate-700/50 to-transparent mb-4" />
 
-        {/* Details Section */}
         <div className="space-y-3 flex-1">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">
@@ -125,25 +120,8 @@ const ProductCard = ({
           </div>
         </div>
 
-        {/* 4. Actions: Grid 3 Kolom (Featured button dihapus, diganti klik bintang di atas) */}
         <div className="mt-5 pt-4 border-t border-slate-700/40">
-          <div className="grid grid-cols-3 gap-2">
-            {/* Toggle Active */}
-            <button
-              onClick={() => onToggleActive(product)}
-              disabled={isMutating}
-              className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-2 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 ${
-                product.is_active
-                  ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40'
-                  : 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40'
-              }`}
-              title={product.is_active ? 'Nonaktifkan' : 'Aktifkan'}
-            >
-              {product.is_active ? <XCircle className="w-4 h-4" /> : <Check className="w-4 h-4" />}
-              <span className="text-[10px] sm:text-xs">{product.is_active ? 'Nonaktif' : 'Aktif'}</span>
-            </button>
-
-            {/* Edit */}
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => onEdit(product)}
               disabled={isMutating}
@@ -154,7 +132,6 @@ const ProductCard = ({
               <span className="text-[10px] sm:text-xs">Edit</span>
             </button>
 
-            {/* Delete */}
             <button
               onClick={() => onDelete(product)}
               disabled={isMutating}
