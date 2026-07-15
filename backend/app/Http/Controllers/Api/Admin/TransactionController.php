@@ -29,16 +29,18 @@ class TransactionController extends Controller
             'end_date',
         ]);
 
-        $perPage = (int) $request->input('per_page', 10);
+        $perPage = (int) $request->input('per_page', 12);
+        $page = (int) $request->input('page', 1);
 
         $transactions = $this->service->paginate(
             filters: $filters,
-            perPage: $perPage
+            perPage: $perPage,
+            page: $page
         );
 
         return response()->json([
             'success' => true,
-            'data' => $transactions,
+            'data' => $transactions->items(),
             'meta' => [
                 'current_page' => $transactions->currentPage(),
                 'per_page' => $transactions->perPage(),

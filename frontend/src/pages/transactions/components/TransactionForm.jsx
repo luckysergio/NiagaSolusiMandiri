@@ -3,6 +3,7 @@ import { X, Receipt, Loader2, Plus } from 'lucide-react';
 import { useTransactions } from '../../../hooks/useTransactions';
 import Input from '../../../common/Input';
 import Button from '../../../common/Button';
+import Card from '../../../common/Card';
 import TransactionDetailRow from './TransactionDetailRow';
 import { formatRupiah, formatRupiahInput, parseRupiah } from '../../../utils/currency';
 
@@ -22,10 +23,8 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
-  // ✅ useEffect yang menunggu data tersedia tanpa ref yang memblokir
   useEffect(() => {
     if (!isOpen) {
-      // Reset form saat modal ditutup
       setFormData({
         transaction_date: new Date().toISOString().split('T')[0],
         customer_name: '',
@@ -39,13 +38,11 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
       return;
     }
 
-    // Jika mode edit tapi data belum ter-load, tunggu dulu (jangan lakukan apa-apa)
     if (editingTransaction && !editingTransaction.id) {
       return; 
     }
 
     if (editingTransaction) {
-      // ✅ Mode Edit: Data sudah tersedia
       const detailsArray = editingTransaction?.details || [];
       const formattedDetails = detailsArray.map(detail => {
         const price = parseFloat(detail.product_price) || 0;
@@ -73,7 +70,6 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
         details: formattedDetails,
       });
     } else {
-      // ✅ Mode Create
       setFormData({
         transaction_date: new Date().toISOString().split('T')[0],
         customer_name: '',
@@ -86,7 +82,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
     }
 
     setErrors({});
-  }, [isOpen, editingTransaction]); // ✅ Dependency hanya pada isOpen dan editingTransaction
+  }, [isOpen, editingTransaction]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -221,7 +217,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn"
       onClick={(e) => { if (e.target === e.currentTarget && !isPending) onClose(); }}
     >
-      <div className="bg-slate-800 rounded-2xl shadow-2xl max-w-4xl w-full border border-slate-700/50 max-h-[90vh] flex flex-col animate-scaleIn relative">
+      <Card variant="elevated" className="max-w-4xl w-full max-h-[90vh] flex flex-col animate-scaleIn relative overflow-hidden">
         {isPending && (
           <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm rounded-2xl z-10 flex items-center justify-center">
             <div className="flex flex-col items-center gap-3">
@@ -232,14 +228,19 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
           </div>
         )}
 
-        <div className="flex items-center justify-between p-4 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-amber-500/20 rounded-xl">
-              <Receipt className="w-5 h-5 text-amber-400" />
+            <div className="p-2.5 bg-amber-500/20 rounded-xl">
+              <Receipt className="w-6 h-6 text-amber-400" />
             </div>
-            <h3 className="text-lg font-bold text-white">
-              {editingTransaction ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}
-            </h3>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                {editingTransaction ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}
+              </h3>
+              <p className="text-slate-400 text-sm">
+                {editingTransaction ? 'Perbarui detail transaksi di bawah ini' : 'Isi formulir untuk menambahkan transaksi baru'}
+              </p>
+            </div>
           </div>
           <button
             type="button"
@@ -252,10 +253,10 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
         </div>
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-4">
+          <div className="p-6 space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">
+                <label className="block text-sm font-semibold text-slate-300 mb-2">
                   Tanggal Transaksi <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -265,14 +266,14 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
                   onChange={handleInputChange}
                   disabled={isPending}
                   className={`w-full px-4 py-2.5 bg-slate-700/50 border rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                    errors.transaction_date ? 'border-red-500/50' : 'border-slate-600/50'
+                    errors.transaction_date ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-600'
                   }`}
                 />
-                {errors.transaction_date && <p className="mt-1 text-xs text-red-400">{errors.transaction_date}</p>}
+                {errors.transaction_date && <p className="mt-1.5 text-xs text-red-400 flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-red-400"></span>{errors.transaction_date}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Status</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Status</label>
                 <select
                   name="status"
                   value={formData.status}
@@ -311,7 +312,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
                 disabled={isPending}
               />
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Alamat Proyek</label>
+                <label className="block text-sm font-semibold text-slate-300 mb-2">Alamat Proyek</label>
                 <input
                   type="text"
                   name="project_address"
@@ -325,7 +326,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Catatan</label>
+              <label className="block text-sm font-semibold text-slate-300 mb-2">Catatan</label>
               <textarea
                 name="notes"
                 value={formData.notes}
@@ -341,15 +342,16 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Detail Transaksi</h4>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
+                  icon={Plus}
                   onClick={handleAddDetail}
                   disabled={isPending}
-                  className="px-3 py-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/30 rounded-lg text-indigo-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 text-xs font-medium"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Tambah Item</span>
-                </button>
+                  Tambah Item
+                </Button>
               </div>
 
               {formData.details.length === 0 ? (
@@ -395,8 +397,13 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 p-4 border-t border-slate-700/50 shrink-0 bg-slate-800 rounded-b-2xl">
-            <Button variant="secondary" onClick={onClose} type="button" disabled={isPending}>
+          <div className="flex justify-end gap-3 p-6 border-t border-slate-700/50 shrink-0 bg-slate-800 rounded-b-2xl">
+            <Button 
+              variant="secondary" 
+              onClick={onClose} 
+              type="button" 
+              disabled={isPending}
+            >
               Batal
             </Button>
             <Button 
@@ -410,7 +417,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
             </Button>
           </div>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

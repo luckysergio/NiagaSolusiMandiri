@@ -80,7 +80,6 @@ const SupplierCard = ({
           </div>
         </div>
 
-        {/* Actions: Grid 3 Kolom */}
         <div className="mt-5 pt-4 border-t border-slate-700/40">
           <div className="grid grid-cols-2 gap-2">
 

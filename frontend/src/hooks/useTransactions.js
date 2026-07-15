@@ -24,7 +24,8 @@ export const useTransactions = () => {
         return response;
       },
       keepPreviousData: true,
-      staleTime: 0,
+      // ✅ PERBAIKAN: Dari 0 menjadi 1 menit agar harmonis dengan WebSocket
+      staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
@@ -76,7 +77,6 @@ export const useTransactions = () => {
   const createMutation = useMutation({
     mutationFn: (data) => transactionApi.create(data),
     onSuccess: async () => {
-      await invalidateTransactions();
       showSuccess('Berhasil', 'Transaksi berhasil ditambahkan');
     },
     onError: (error) => {
@@ -89,12 +89,7 @@ export const useTransactions = () => {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => transactionApi.update(id, data),
-    onSuccess: async (_, variables) => {
-      await invalidateTransactions();
-      await queryClient.invalidateQueries({
-        queryKey: transactionKeys.detail(variables.id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Transaksi berhasil diperbarui');
     },
     onError: (error) => {
@@ -108,7 +103,6 @@ export const useTransactions = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => transactionApi.delete(id),
     onSuccess: async () => {
-      await invalidateTransactions();
       showSuccess('Berhasil', 'Transaksi berhasil dihapus');
     },
     onError: (error) => {
@@ -121,12 +115,7 @@ export const useTransactions = () => {
 
   const changeStatusMutation = useMutation({
     mutationFn: ({ id, status }) => transactionApi.changeStatus(id, status),
-    onSuccess: async (_, variables) => {
-      await invalidateTransactions();
-      await queryClient.invalidateQueries({
-        queryKey: transactionKeys.detail(variables.id),
-        refetchType: 'all',
-      });
+    onSuccess: async () => {
       showSuccess('Berhasil', 'Status transaksi berhasil diubah');
     },
     onError: (error) => {

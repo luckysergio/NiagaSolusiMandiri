@@ -30,12 +30,12 @@ class TransactionService
     private const CACHE_TTL_REGISTRY = 86400;
     private const CACHE_TTL_STATIC = 3600;
 
-    public function paginate(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 12, int $page = 1): LengthAwarePaginator
     {
-        $cacheKey = $this->buildCacheKey($filters, $perPage);
+        $cacheKey = $this->buildCacheKey($filters, $perPage, $page);
         $this->registerListCacheKey($cacheKey);
 
-        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage) {
+        return Cache::remember($cacheKey, self::CACHE_TTL_LIST, function () use ($filters, $perPage, $page) {
             return Transaction::query()
                 ->select([
                     'id',
@@ -66,7 +66,7 @@ class TransactionService
                     fn($q) => $q->byDateRange($filters['start_date'], $filters['end_date'])
                 )
                 ->ordered()
-                ->paginate(min($perPage, 100));
+                ->paginate(min($perPage, 100), ['*'], 'page', $page);
         });
     }
 
@@ -323,10 +323,10 @@ class TransactionService
         }
     }
 
-    private function buildCacheKey(array $filters, int $perPage): string
+    private function buildCacheKey(array $filters, int $perPage, int $page): string
     {
         $filterHash = md5(json_encode($filters));
-        return sprintf('%s:%s:%d', self::CACHE_KEY_LIST, $filterHash, $perPage);
+        return sprintf('%s:%s:%d:%d', self::CACHE_KEY_LIST, $filterHash, $perPage, $page);
     }
 
     private function registerListCacheKey(string $cacheKey): void
