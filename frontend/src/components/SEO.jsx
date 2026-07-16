@@ -14,7 +14,6 @@ export default function SEO({
 }) {
   const siteUrl = "https://betoncortangerang.com";
   
-  // ✅ FIX: Canonical URL dinamis untuk mencegah duplicate content
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
   const finalCanonical = canonicalUrl || `${siteUrl}${currentPath}`;
   
@@ -22,13 +21,11 @@ export default function SEO({
   const finalOgImage = ogImage || defaultOgImage;
   const fullImageUrl = finalOgImage.startsWith('http') ? finalOgImage : `${siteUrl}${finalOgImage}`;
   
-  // ✅ FIX: Mencegah double pipe (|) dan memastikan format judul konsisten
   const fullTitle = title.includes("Beton Cor Tangerang") ? title : `${title} | Beton Cor Tangerang`;
   const trimmedDescription = description.length > 160 ? description.substring(0, 157) + "..." : description;
   
   const isHomePage = finalCanonical === siteUrl || finalCanonical === `${siteUrl}/`;
   
-  // ✅ OPTIMASI: Schema LocalBusiness yang diperkaya
   const localBusinessSchema = isHomePage ? {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -80,7 +77,6 @@ export default function SEO({
     ]
   } : null;
 
-  // ✅ OPTIMASI: Schema Organization untuk memperkuat brand entity
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",

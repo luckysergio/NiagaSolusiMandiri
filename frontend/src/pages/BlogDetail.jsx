@@ -48,8 +48,12 @@ export default function BlogDetail() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [toast, setToast] = useState(null);
 
+  // ✅ OPTIMASI AOS: Inisialisasi sekali dan refresh setelah window load
   useEffect(() => {
     AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 50 });
+    const handleLoad = () => AOS.refresh();
+    window.addEventListener('load', handleLoad);
+    return () => window.removeEventListener('load', handleLoad);
   }, []);
 
   useEffect(() => {
@@ -72,7 +76,6 @@ export default function BlogDetail() {
     const response = await blogApi.getPostBySlug(slug);
     if (response.success && response.data) {
       setPost(response.data);
-      // ✅ PERBAIKAN: Menggunakan fungsi khusus getRelatedPosts agar tidak bentrok dengan pagination
       const related = await blogApi.getRelatedPosts(response.data.slug, 3);
       setRelatedPosts(related);
     }
@@ -177,142 +180,149 @@ export default function BlogDetail() {
 
   return (
     <Layout>
-      {/* ✅ PERBAIKAN: Domain disesuaikan menjadi betoncortangerang.com */}
       <SEO title={`${post.title} | Beton Cor Tangerang`} description={post.excerpt} canonicalUrl={`https://betoncortangerang.com/blog/${post.slug}`} />
 
-      {toast && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-slate-800 border border-indigo-500/30 rounded-xl shadow-2xl text-white text-sm font-medium animate-in fade-in slide-in-from-top duration-300 flex items-center gap-2">
-          <Check className="w-4 h-4 text-emerald-400" /> {toast}
-        </div>
-      )}
-
-      <section className="relative w-full min-h-[40vh] flex items-center justify-center px-4 pt-20 overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-slate-950/85 to-slate-950/95 z-10"></div>
-          {post.image ? (
-            <img src={post.image} alt={post.title} className="w-full h-full object-cover scale-105" />
-          ) : (
-            <div className="w-full h-full bg-linear-to-br from-indigo-600/10 to-purple-600/10 flex items-center justify-center">
-              <FileText className="w-24 h-24 text-slate-600 opacity-30" />
-            </div>
-          )}
-        </div>
-
-        <div className="relative z-10 text-center max-w-4xl mx-auto px-4 py-12">
-          <div data-aos="fade-down" className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md mb-6 mx-auto ${categoryColor}`}>
-            <span className="text-base">{categoryIcon}</span>
-            <span className="text-sm font-bold">{post.category}</span>
+      <main className="overflow-x-hidden">
+        {toast && (
+          <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-slate-800 border border-indigo-500/30 rounded-xl shadow-2xl text-white text-sm font-medium animate-in fade-in slide-in-from-top duration-300 flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-400" /> {toast}
           </div>
-          <h1 data-aos="zoom-in" className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight drop-shadow-2xl tracking-tight">
-            {post.title}
-          </h1>
-          <div data-aos="fade-up" className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-slate-300 text-sm">
-            <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-              <Calendar className="w-4 h-4 text-indigo-400" /> {formatDate(post.date)}
-            </span>
-            <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-              <Clock className="w-4 h-4 text-emerald-400" /> {post.readTime} menit baca
-            </span>
-            <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
-              <User className="w-4 h-4 text-amber-400" /> {post.author}
-            </span>
+        )}
+
+        <section className="relative w-full min-h-[40vh] flex items-center justify-center px-4 pt-20 overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-slate-950/85 to-slate-950/95 z-10"></div>
+            {post.image ? (
+              <img 
+                src={post.image} 
+                alt={post.title} 
+                className="w-full h-full object-cover scale-105" 
+                loading="eager"
+                fetchPriority="high"
+              />
+            ) : (
+              <div className="w-full h-full bg-linear-to-br from-indigo-600/10 to-purple-600/10 flex items-center justify-center">
+                <FileText className="w-24 h-24 text-slate-600 opacity-30" />
+              </div>
+            )}
           </div>
-        </div>
-      </section>
 
-      <section className="w-full py-12 sm:py-16 px-4 bg-slate-950">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-slate-900/60 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
-            <div className="mb-8 sm:mb-10 p-5 sm:p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-center">
-              <p className="text-indigo-200 text-base sm:text-lg leading-relaxed italic font-medium">
-                "{post.excerpt}"
-              </p>
+          <div className="relative z-10 text-center max-w-4xl mx-auto px-4 py-12">
+            <div data-aos="fade-down" className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md mb-6 mx-auto ${categoryColor}`}>
+              <span className="text-base">{categoryIcon}</span>
+              <span className="text-sm font-bold">{post.category}</span>
             </div>
+            <h1 data-aos="zoom-in" className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-6 leading-tight drop-shadow-2xl tracking-tight">
+              {post.title}
+            </h1>
+            <div data-aos="fade-up" className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-slate-300 text-sm">
+              <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                <Calendar className="w-4 h-4 text-indigo-400" /> {formatDate(post.date)}
+              </span>
+              <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                <Clock className="w-4 h-4 text-emerald-400" /> {post.readTime} menit baca
+              </span>
+              <span className="flex items-center gap-2 bg-slate-800/50 px-3 py-1.5 rounded-lg border border-slate-700/50">
+                <User className="w-4 h-4 text-amber-400" /> {post.author}
+              </span>
+            </div>
+          </div>
+        </section>
 
-            <div className="prose prose-invert prose-indigo max-w-none">
-              {post.content ? renderMarkdown(post.content) : (
-                <div className="space-y-4 text-slate-300 leading-relaxed text-left">
-                  <p>Konten artikel ini sedang dalam proses penyusunan. Silakan kembali lagi nanti untuk informasi lengkapnya.</p>
+        <section className="w-full py-12 sm:py-16 px-4 bg-slate-950">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-slate-900/60 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
+              <div className="mb-8 sm:mb-10 p-5 sm:p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-center">
+                <p className="text-indigo-200 text-base sm:text-lg leading-relaxed italic font-medium">
+                  "{post.excerpt}"
+                </p>
+              </div>
+
+              <div className="prose prose-invert prose-indigo max-w-none">
+                {post.content ? renderMarkdown(post.content) : (
+                  <div className="space-y-4 text-slate-300 leading-relaxed text-left">
+                    <p>Konten artikel ini sedang dalam proses penyusunan. Silakan kembali lagi nanti untuk informasi lengkapnya.</p>
+                  </div>
+                )}
+              </div>
+
+              {post.tags && post.tags.length > 0 && (
+                <div className="mt-10 pt-6 border-t border-slate-800">
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Tag className="w-4 h-4 text-slate-500" />
+                    {post.tags.map((tag, index) => (
+                      <span key={index} className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs font-medium hover:bg-slate-700 transition cursor-default border border-slate-700/50">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3 relative">
+                  <span className="text-sm text-slate-400 font-medium whitespace-nowrap">Bagikan:</span>
+                  <div className="relative">
+                    <button onClick={() => setShowShareMenu(!showShareMenu)} className="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl transition group border border-slate-700/50 hover:border-indigo-500/50 active:scale-95" aria-label="Bagikan artikel">
+                      <Share2 className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition" />
+                    </button>
+                    {showShareMenu && (
+                      <div className="absolute left-0 bottom-full mb-2 bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-2 z-20 w-48 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                        <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50 px-2">
+                          <span className="text-[10px] text-slate-400 font-bold tracking-wider">BAGIKAN KE</span>
+                          <button onClick={() => setShowShareMenu(false)} className="p-1 hover:bg-slate-700/50 rounded-lg transition active:scale-95"><X className="w-3.5 h-3.5 text-slate-400" /></button>
+                        </div>
+                        <div className="space-y-1">
+                          {SHARE_PLATFORMS.map((platform) => (
+                            <button key={platform.id} onClick={() => handleShareTo(platform.id)} className={`w-full flex items-center gap-3 px-3 py-2 ${platform.color} hover:bg-opacity-20 rounded-xl transition text-sm text-slate-300 hover:text-white group active:scale-95`}>
+                              <span className={`${platform.bg} p-1.5 rounded-lg shrink-0`}>{platform.icon}</span>
+                              <span className="text-xs font-semibold whitespace-nowrap">{platform.id === 'copy' && copySuccess ? 'Tersalin ✓' : platform.name}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={handleBookmark} className={`p-2.5 rounded-xl transition border active:scale-95 ${isBookmarked ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20' : 'bg-slate-800 text-slate-300 border-slate-700/50 hover:bg-slate-700 hover:text-white'}`} aria-label="Bookmark">
+                    {isBookmarked ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                <Link to="/blog" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold text-sm whitespace-nowrap px-4 py-2.5 rounded-xl hover:bg-indigo-500/10 transition-all active:scale-95">
+                  <ArrowLeft className="w-4 h-4" /> Kembali ke Blog
+                </Link>
+              </div>
             </div>
 
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-10 pt-6 border-t border-slate-800">
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Tag className="w-4 h-4 text-slate-500" />
-                  {post.tags.map((tag, index) => (
-                    <span key={index} className="px-3 py-1 bg-slate-800 text-slate-300 rounded-full text-xs font-medium hover:bg-slate-700 transition cursor-default border border-slate-700/50">
-                      #{tag}
-                    </span>
+            {relatedPosts.length > 0 && (
+              <div className="mt-16" data-aos="fade-up">
+                <h3 className="text-2xl font-bold text-white text-center mb-8 flex items-center justify-center gap-3">
+                  <Sparkles className="w-5 h-5 text-indigo-400" /> Artikel Terkait
+                </h3>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {relatedPosts.map((related) => (
+                    <Link key={related.id} to={`/blog/${related.slug}`} className="group bg-slate-900/60 rounded-2xl overflow-hidden border border-slate-800 hover:border-indigo-500/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col active:scale-[0.98]">
+                      <div className="p-5 flex-1 flex flex-col justify-between text-center">
+                        <div>
+                          <span className="inline-block px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-md text-[10px] font-bold mb-3 border border-indigo-500/20">
+                            {CATEGORY_ICONS[related.category]} {related.category}
+                          </span>
+                          <h4 className="text-white font-bold group-hover:text-indigo-400 transition line-clamp-2 leading-snug">
+                            {related.title}
+                          </h4>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-slate-400 pt-4 border-t border-slate-800">
+                          <Calendar className="w-3.5 h-3.5" /> {formatDate(related.date)}
+                        </div>
+                      </div>
+                    </Link>
                   ))}
                 </div>
               </div>
             )}
-
-            <div className="mt-10 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3 relative">
-                <span className="text-sm text-slate-400 font-medium whitespace-nowrap">Bagikan:</span>
-                <div className="relative">
-                  <button onClick={() => setShowShareMenu(!showShareMenu)} className="p-2.5 bg-slate-800 hover:bg-slate-700 rounded-xl transition group border border-slate-700/50 hover:border-indigo-500/50 active:scale-95" aria-label="Bagikan artikel">
-                    <Share2 className="w-4 h-4 text-slate-300 group-hover:text-indigo-400 transition" />
-                  </button>
-                  {showShareMenu && (
-                    <div className="absolute left-0 bottom-full mb-2 bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-2 z-20 w-48 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-700/50 px-2">
-                        <span className="text-[10px] text-slate-400 font-bold tracking-wider">BAGIKAN KE</span>
-                        <button onClick={() => setShowShareMenu(false)} className="p-1 hover:bg-slate-700/50 rounded-lg transition active:scale-95"><X className="w-3.5 h-3.5 text-slate-400" /></button>
-                      </div>
-                      <div className="space-y-1">
-                        {SHARE_PLATFORMS.map((platform) => (
-                          <button key={platform.id} onClick={() => handleShareTo(platform.id)} className={`w-full flex items-center gap-3 px-3 py-2 ${platform.color} hover:bg-opacity-20 rounded-xl transition text-sm text-slate-300 hover:text-white group active:scale-95`}>
-                            <span className={`${platform.bg} p-1.5 rounded-lg shrink-0`}>{platform.icon}</span>
-                            <span className="text-xs font-semibold whitespace-nowrap">{platform.id === 'copy' && copySuccess ? 'Tersalin ✓' : platform.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <button onClick={handleBookmark} className={`p-2.5 rounded-xl transition border active:scale-95 ${isBookmarked ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/20' : 'bg-slate-800 text-slate-300 border-slate-700/50 hover:bg-slate-700 hover:text-white'}`} aria-label="Bookmark">
-                  {isBookmarked ? <Check className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                </button>
-              </div>
-
-              <Link to="/blog" className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold text-sm whitespace-nowrap px-4 py-2.5 rounded-xl hover:bg-indigo-500/10 transition-all active:scale-95">
-                <ArrowLeft className="w-4 h-4" /> Kembali ke Blog
-              </Link>
-            </div>
           </div>
-
-          {relatedPosts.length > 0 && (
-            <div className="mt-16" data-aos="fade-up">
-              <h3 className="text-2xl font-bold text-white text-center mb-8 flex items-center justify-center gap-3">
-                <Sparkles className="w-5 h-5 text-indigo-400" /> Artikel Terkait
-              </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedPosts.map((related) => (
-                  <Link key={related.id} to={`/blog/${related.slug}`} className="group bg-slate-900/60 rounded-2xl overflow-hidden border border-slate-800 hover:border-indigo-500/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col active:scale-[0.98]">
-                    <div className="p-5 flex-1 flex flex-col justify-between text-center">
-                      <div>
-                        <span className="inline-block px-2 py-0.5 bg-indigo-500/10 text-indigo-400 rounded-md text-[10px] font-bold mb-3 border border-indigo-500/20">
-                          {CATEGORY_ICONS[related.category]} {related.category}
-                        </span>
-                        <h4 className="text-white font-bold group-hover:text-indigo-400 transition line-clamp-2 leading-snug">
-                          {related.title}
-                        </h4>
-                      </div>
-                      <div className="flex items-center justify-center gap-2 mt-4 text-xs text-slate-400 pt-4 border-t border-slate-800">
-                        <Calendar className="w-3.5 h-3.5" /> {formatDate(related.date)}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+        </section>
+      </main>
     </Layout>
   );
 }

@@ -38,6 +38,7 @@ export default function Contact() {
   const touchEndX = useRef(0);
   const heroImages = [img1, img2, img3, img4, img5, img6, img7, img8, img9, img10];
 
+  // ✅ OPTIMASI AOS: Inisialisasi sekali dan refresh setelah window load
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -45,6 +46,10 @@ export default function Contact() {
       once: true,
       offset: 50,
     });
+    
+    const handleLoad = () => AOS.refresh();
+    window.addEventListener('load', handleLoad);
+    return () => window.removeEventListener('load', handleLoad);
   }, []);
 
   useEffect(() => {
@@ -88,7 +93,6 @@ export default function Contact() {
     }
   };
 
-  // ✅ DATA FILOSOFI 3 HEMAT
   const tigaHemat = [
     {
       icon: Timer,
@@ -210,21 +214,25 @@ export default function Contact() {
   return (
     <Layout>
       <SEO 
-        title="Kontak Kami | Solusi Pompa Beton & Niaga Solusi Mandiri"
-        description="Hubungi tim marketing kami Ade SE, Zulfikar, atau Lucky Sergio untuk konsultasi dan pemesanan sewa pompa beton serta beton cor di Tangerang. Hemat Waktu, Hemat Biaya, Hemat Tenaga."
-        canonicalUrl="https://solusipompabeton.com/kontak"
+        title="Kontak Kami | Sewa Pompa Beton & Beton Cor Tangerang"
+        description="Hubungi tim marketing kami untuk konsultasi dan pemesanan sewa pompa beton serta beton cor di Tangerang. Hemat Waktu, Hemat Biaya, Hemat Tenaga."
+        canonicalUrl="https://betoncortangerang.com/kontak"
       />
       
-      {/* ✅ FIX: Wrapper dengan overflow-x-hidden untuk mencegah scroll horizontal */}
-      <div className="w-full overflow-x-hidden">
-        
+      <main className="overflow-x-hidden">
         {/* 1. Hero Section */}
         <section className="relative w-full min-h-[60vh] flex items-center justify-center px-4 pt-20 overflow-hidden">
           <div className="absolute inset-0 z-0">
             {heroImages.map((img, index) => (
               <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}>
                 <div className="absolute inset-0 bg-linear-to-br from-slate-950/90 via-slate-950/80 to-slate-950/90 z-10"></div>
-                <img src={img} alt={`Hero ${index + 1}`} className="w-full h-full object-cover scale-105" />
+                <img 
+                  src={img} 
+                  alt={`Hero background ${index + 1}`} 
+                  className="w-full h-full object-cover scale-105" 
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                />
               </div>
             ))}
           </div>
@@ -253,7 +261,6 @@ export default function Contact() {
               Hubungi tim marketing kami untuk konsultasi, informasi harga, atau pemesanan beton cor dan sewa pompa beton.
             </p>
 
-            {/* 3 Hemat Badges in Hero */}
             <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
               {tigaHemat.map((item, i) => {
                 const Icon = item.icon;
@@ -642,7 +649,7 @@ export default function Contact() {
             </div>
           </div>
         </section>
-      </div>
+      </main>
     </Layout>
   );
 }
