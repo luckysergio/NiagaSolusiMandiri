@@ -35,7 +35,7 @@ Route::middleware(['auth:api', 'force.logout'])->group(function () {
 });
 
 Route::prefix('admin')
-    ->middleware(['auth:api', 'force.logout', 'role:super_admin'])
+    ->middleware(['auth:api', 'force.logout', 'role:super_admin,admin,sales'])
     ->group(function () {
 
         Route::get('/stats', [DashboardController::class, 'stats']);

@@ -2,219 +2,183 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
-  <!-- Halaman Utama -->
+  <!-- 1. Halaman Utama & Komersial (Prioritas Tertinggi) -->
   <url>
     <loc>https://betoncortangerang.com/</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="id" href="https://betoncortangerang.com/"/>
   </url>
-
-  <!-- Halaman Komersial Utama & Landing Page Harga -->
   <url>
     <loc>https://betoncortangerang.com/harga</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>daily</changefreq>
+    <lastmod>2024-06-20</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/layanan/beton-readymix</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
-
   <url>
-    <loc>https://betoncortangerang.com/layanan/sewa-pompa-beton</loc>
-    <lastmod>2026-06-17</lastmod>
+    <loc>https://betoncortangerang.com/layanan/pompa-beton</loc>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
-
   <url>
-    <loc>https://betoncortangerang.com/layanan/jasa-cor-beton</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-
-  <url>
-    <loc>https://betoncortangerang.com/layanan/finishing-trowel</loc>
-    <lastmod>2026-06-17</lastmod>
+    <loc>https://betoncortangerang.com/layanan/jasa-finishing</loc>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
-
-  <!-- Halaman Navigasi / Pendukung -->
   <url>
     <loc>https://betoncortangerang.com/layanan</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
+    <priority>0.80</priority>
   </url>
-
-  <url>
-    <loc>https://betoncortangerang.com/blog</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.75</priority>
-  </url>
-
-  <url>
-    <loc>https://betoncortangerang.com/tentang</loc>
-    <lastmod>2026-06-17</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
-  </url>
-
   <url>
     <loc>https://betoncortangerang.com/kontak</loc>
-    <lastmod>2026-06-17</lastmod>
+    <lastmod>2024-06-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.70</priority>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://betoncortangerang.com/tentang</loc>
+    <lastmod>2024-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://betoncortangerang.com/blog</loc>
+    <lastmod>2024-06-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.80</priority>
   </url>
 
-  <!-- Halaman Blog / Edukasi -->
+  <!-- 2. Daftar Lengkap Artikel Blog (Long-tail Keywords) -->
   <url>
     <loc>https://betoncortangerang.com/blog/daftar-harga-beton-cor-ready-mix-tangerang-terbaru-2026</loc>
     <lastmod>2026-04-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.70</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
   </url>
-  
   <url>
     <loc>https://betoncortangerang.com/blog/pentingnya-mengetahui-slump-test-beton-sebelum-pengecoran</loc>
     <lastmod>2026-05-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/apa-itu-pompa-beton-dan-bagaimana-cara-kerjanya</loc>
     <lastmod>2026-06-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/beton-readymix-vs-beton-cor-manual-mana-yang-lebih-baik</loc>
     <lastmod>2026-06-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/panduan-memilih-mutu-beton-k-125-hingga-k-500</loc>
     <lastmod>2026-06-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/kapan-saya-membutuhkan-sewa-pompa-beton</loc>
     <lastmod>2026-06-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/5-hal-yang-harus-diperhatikan-sebelum-menyewa-pompa-beton</loc>
     <lastmod>2026-06-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/apa-itu-finishing-trowel-dan-mengapa-penting</loc>
     <lastmod>2026-06-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/tips-memilih-supplier-beton-cor-yang-tepat</loc>
     <lastmod>2026-06-01</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/cara-menghemat-biaya-pada-proyek-pengecoran</loc>
     <lastmod>2026-05-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/tren-konstruksi-indonesia-2026-peluang-kontraktor</loc>
     <lastmod>2026-05-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/dampak-teknologi-digital-pada-industri-konstruksi</loc>
     <lastmod>2026-05-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/solusi-pengecoran-di-gang-sempit-pakai-truk-minimix-dan-pompa-mini</loc>
     <lastmod>2026-05-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/mengenal-jenis-pompa-beton-standar-long-boom-dan-mini</loc>
     <lastmod>2026-05-18</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/cara-menghitung-kebutuhan-beton-cor-dak-lantai-rumah</loc>
     <lastmod>2026-05-12</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/penyebab-beton-retak-setelah-dicor-dan-cara-mengatasinya</loc>
     <lastmod>2026-05-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/tips-sukses-pengecoran-rumah-2-lantai-agar-hemat-biaya</loc>
     <lastmod>2026-05-08</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/jasa-sewa-concrete-pump-murah-di-tangerang-selatan</loc>
     <lastmod>2026-05-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/panduan-proyek-rigid-pavement-jalan-perumahan-beton-mutu-tinggi</loc>
     <lastmod>2026-05-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
-
   <url>
     <loc>https://betoncortangerang.com/blog/mengapa-beton-cor-ready-mix-lebih-unggul-dari-adukan-manual</loc>
     <lastmod>2026-04-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.60</priority>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
   </url>
 
 </urlset>

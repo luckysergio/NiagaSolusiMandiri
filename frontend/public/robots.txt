@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+
 Disallow: /api/
 Disallow: /admin/
 Disallow: /dashboard/
@@ -13,5 +14,8 @@ Disallow: /payment/
 
 Allow: /static/
 Allow: /assets/
+Allow: /*.jpg$
+Allow: /*.png$
+Allow: /*.webp$
 
 Sitemap: https://betoncortangerang.com/sitemap.xml
