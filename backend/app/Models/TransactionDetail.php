@@ -15,8 +15,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class TransactionDetail extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'transaction_details';
 
     protected $fillable = [

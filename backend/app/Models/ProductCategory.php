@@ -10,8 +10,6 @@ use Illuminate\Support\Str;
 
 class ProductCategory extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'product_categories';
 
     protected $fillable = [

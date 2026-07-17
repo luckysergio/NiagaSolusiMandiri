@@ -12,6 +12,8 @@ export const transactionKeys = {
   statistics: (startDate, endDate) => [...transactionKeys.all, 'statistics', startDate, endDate],
 };
 
+export const dashboardPrefix = ['admin', 'dashboard'];
+
 export const useTransactions = () => {
   const queryClient = useQueryClient();
   const { showError, showSuccess, showWarning } = useModal();
@@ -24,7 +26,6 @@ export const useTransactions = () => {
         return response;
       },
       keepPreviousData: true,
-      // ✅ PERBAIKAN: Dari 0 menjadi 1 menit agar harmonis dengan WebSocket
       staleTime: 1000 * 60, 
       gcTime: 1000 * 60 * 5,
       refetchOnMount: 'always',
@@ -67,16 +68,15 @@ export const useTransactions = () => {
     });
   };
 
-  const invalidateTransactions = async () => {
-    await queryClient.invalidateQueries({
-      queryKey: transactionKeys.all,
-      refetchType: 'all',
-    });
+  const invalidateAll = async () => {
+    await queryClient.invalidateQueries({ queryKey: transactionKeys.all, refetchType: 'all' });
+    await queryClient.invalidateQueries({ queryKey: dashboardPrefix, refetchType: 'all' });
   };
 
   const createMutation = useMutation({
     mutationFn: (data) => transactionApi.create(data),
     onSuccess: async () => {
+      await invalidateAll();
       showSuccess('Berhasil', 'Transaksi berhasil ditambahkan');
     },
     onError: (error) => {
@@ -90,6 +90,7 @@ export const useTransactions = () => {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => transactionApi.update(id, data),
     onSuccess: async () => {
+      await invalidateAll();
       showSuccess('Berhasil', 'Transaksi berhasil diperbarui');
     },
     onError: (error) => {
@@ -103,6 +104,7 @@ export const useTransactions = () => {
   const deleteMutation = useMutation({
     mutationFn: (id) => transactionApi.delete(id),
     onSuccess: async () => {
+      await invalidateAll();
       showSuccess('Berhasil', 'Transaksi berhasil dihapus');
     },
     onError: (error) => {
@@ -116,6 +118,7 @@ export const useTransactions = () => {
   const changeStatusMutation = useMutation({
     mutationFn: ({ id, status }) => transactionApi.changeStatus(id, status),
     onSuccess: async () => {
+      await invalidateAll(); // ✅ Langsung update UI
       showSuccess('Berhasil', 'Status transaksi berhasil diubah');
     },
     onError: (error) => {
@@ -159,15 +162,12 @@ export const useTransactions = () => {
     useTransaction,
     useDropdown,
     useStatistics,
-
     handleDelete,
     handleChangeStatus,
     handleCreate,
     handleUpdate,
-
     isMutating,
-    invalidateTransactions,
-
+    invalidateAll,
     createMutation,
     updateMutation,
     deleteMutation,

@@ -3,25 +3,19 @@ import { dashboardApi } from '../api/dashboard';
 
 export const dashboardKeys = {
   all: ['admin', 'dashboard'],
-
   stats: () => [...dashboardKeys.all, 'stats'],
-
   transactionChart: (period) => [...dashboardKeys.all, 'transactionChart', period],
   topProducts: (limit) => [...dashboardKeys.all, 'topProducts', limit],
   recentTransactions: (limit) => [...dashboardKeys.all, 'recentTransactions', limit],
-
   loginLogs: () => [...dashboardKeys.all, 'loginLogs'],
   loginLogList: (filters) => [...dashboardKeys.loginLogs(), 'list', filters],
   loginLogDetail: (id) => [...dashboardKeys.loginLogs(), 'detail', id],
-
   activityLogs: () => [...dashboardKeys.all, 'activityLogs'],
   activityLogList: (filters) => [...dashboardKeys.activityLogs(), 'list', filters],
   activityLogDetail: (id) => [...dashboardKeys.activityLogs(), 'detail', id],
-
   blockedIps: () => [...dashboardKeys.all, 'blockedIps'],
   blockedIpList: (filters) => [...dashboardKeys.blockedIps(), 'list', filters],
   blockedIpDetail: (id) => [...dashboardKeys.blockedIps(), 'detail', id],
-
   securityAlerts: () => [...dashboardKeys.all, 'securityAlerts'],
   securityAlertList: (filters) => [...dashboardKeys.securityAlerts(), 'list', filters],
   securityAlertDetail: (id) => [...dashboardKeys.securityAlerts(), 'detail', id],

@@ -281,8 +281,8 @@ export default function Landing() {
 
                   {/* ✅ OPTIMASI SEO: Hanya satu H1 per halaman */}
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white mb-6 leading-tight tracking-tight">
-                    Solusi Beton & <br />
-                    <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-purple-400 to-cyan-400">Pompa Beton Terpercaya</span>
+                    Solusi <br />
+                    <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-purple-400 to-cyan-400">Pengecoran Bangunan Anda</span>
                   </h1>
 
                   <div className="flex flex-wrap gap-3 mb-8">

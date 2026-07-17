@@ -38,10 +38,6 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
       return;
     }
 
-    if (editingTransaction && !editingTransaction.id) {
-      return; 
-    }
-
     if (editingTransaction) {
       const detailsArray = editingTransaction?.details || [];
       const formattedDetails = detailsArray.map(detail => {
@@ -80,7 +76,6 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
         details: [],
       });
     }
-
     setErrors({});
   }, [isOpen, editingTransaction]);
 
@@ -139,25 +134,21 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
 
   const validate = () => {
     const newErrors = {};
-
     if (!formData.transaction_date) newErrors.transaction_date = 'Tanggal transaksi wajib diisi';
     if (!formData.customer_name.trim()) {
       newErrors.customer_name = 'Nama pelanggan wajib diisi';
     } else if (formData.customer_name.length > 150) {
       newErrors.customer_name = 'Nama pelanggan maksimal 150 karakter';
     }
-
     if (formData.project_name && formData.project_name.length > 200) {
       newErrors.project_name = 'Nama proyek maksimal 200 karakter';
     }
-
     if (formData.details.length > 0) {
       formData.details.forEach((detail, index) => {
         if (!detail.product_id) newErrors[`detail_${index}_product`] = 'Produk wajib dipilih';
         if (!detail.qty || parseFloat(detail.qty) <= 0) newErrors[`detail_${index}_qty`] = 'Quantity minimal 0.01';
       });
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -190,7 +181,7 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
         await handleUpdate(editingTransaction.id, payload);
       }
 
-      onSuccess();
+      onSuccess(); // ✅ Ini akan memanggil handleFormSuccess di TransactionsPage
     } catch (err) {
       console.error('Form submission error:', err);
     }
@@ -338,7 +329,6 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
               />
             </div>
 
-            {/* Details Section */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-semibold text-white">Detail Transaksi</h4>
@@ -374,7 +364,6 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
               )}
             </div>
 
-            {/* Summary */}
             {formData.details.length > 0 && (
               <div className="bg-slate-700/30 border border-slate-600/50 rounded-xl p-4 space-y-2">
                 <h4 className="text-sm font-semibold text-white mb-3">Ringkasan</h4>
@@ -396,14 +385,8 @@ const TransactionForm = ({ isOpen, onClose, onSuccess, editingTransaction }) => 
             )}
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end gap-3 p-6 border-t border-slate-700/50 shrink-0 bg-slate-800 rounded-b-2xl">
-            <Button 
-              variant="secondary" 
-              onClick={onClose} 
-              type="button" 
-              disabled={isPending}
-            >
+            <Button variant="secondary" onClick={onClose} type="button" disabled={isPending}>
               Batal
             </Button>
             <Button 

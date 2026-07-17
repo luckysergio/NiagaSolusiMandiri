@@ -11,8 +11,6 @@ use Illuminate\Support\Str;
 
 class ProductType extends Model
 {
-    use SoftDeletes;
-
     protected $table = 'product_types';
 
     protected $fillable = [

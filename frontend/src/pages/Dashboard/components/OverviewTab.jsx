@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import {
   Users, UserCheck, LogIn, AlertTriangle, Info, Clock, Calendar, User,
-  DollarSign, ShoppingCart, TrendingUp, TrendingDown, Package, RefreshCw, ArrowUpRight, ArrowDownRight, PieChart as PieChartIcon
+  DollarSign, ShoppingCart, TrendingUp, TrendingDown, Package, RefreshCw, 
+  ArrowUpRight, ArrowDownRight, PieChart as PieChartIcon, AreaChart as AreaChartIcon
 } from 'lucide-react';
 import {
   AreaChart, Area, PieChart, Pie, Cell,
@@ -58,7 +59,6 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
     const isPositive = trendValue >= 0;
     return (
       <Card variant="elevated" className="p-5 group relative overflow-hidden h-full transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-        {/* ✅ FIX: bg-gradient-to-br */}
         <div className={`absolute inset-0 bg-linear-to-br ${color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
         <div className="relative flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
@@ -88,7 +88,7 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
   const statusPieData = useMemo(() => {
     if (!txStats?.status_breakdown) return [];
     return Object.entries(txStats.status_breakdown)
-      .filter(([_, value]) => value.count > 0) // ✅ Hanya ambil data yang count > 0 agar grafik tidak error/lemot
+      .filter(([_, value]) => value.count > 0)
       .map(([key, value]) => ({
         name: value.label,
         value: value.count,
@@ -156,7 +156,7 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
           
           {isChartLoading || areaChartData.length === 0 ? (
             <div className="h-75 flex flex-col items-center justify-center text-slate-500">
-              <AreaChart className="w-12 h-12 mb-2 opacity-30" />
+              <AreaChartIcon className="w-12 h-12 mb-2 opacity-30" />
               <p className="text-sm font-medium">{isChartLoading ? 'Memuat grafik...' : 'Belum ada data grafik'}</p>
             </div>
           ) : (
@@ -180,48 +180,50 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
                   formatter={(value) => formatRupiah(value)}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
-                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" name="Pendapatan" />
-                <Area type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorExpense)" name="Pengeluaran" />
+                <Area type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" name="Pendapatan" isAnimationActive={true} />
+                <Area type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} fillOpacity={1} fill="url(#colorExpense)" name="Pengeluaran" isAnimationActive={true} />
               </AreaChart>
             </ResponsiveContainer>
           )}
         </Card>
 
         {/* Pie Chart */}
-        <Card variant="elevated" className="p-5">
+        <Card variant="elevated" className="p-5 flex flex-col">
           <h3 className="text-base font-semibold text-white mb-4">Status Transaksi</h3>
           
-          {/* ✅ FIX: Cek panjang array agar Recharts tidak merender grafik kosong yang menyebabkan lag */}
-          {statusPieData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={statusPieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                  nameKey="name" // ✅ CRITICAL: Membuat rendering tooltip & legend jauh lebih cepat dan smooth
-                >
-                  {statusPieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="rgba(0,0,0,0)" />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
-                  formatter={(value, name) => [`${value} Transaksi`, name]}
-                />
-                <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-75 flex flex-col items-center justify-center text-slate-500">
-              <PieChartIcon className="w-12 h-12 mb-2 opacity-30" />
-              <p className="text-sm font-medium">Belum ada data status</p>
-            </div>
-          )}
+          <div className="h-75 w-full flex items-center justify-center flex-1">
+            {statusPieData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusPieData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                    nameKey="name"
+                    isAnimationActive={true} // ✅ Memastikan animasi smooth saat data real-time berubah
+                  >
+                    {statusPieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="rgba(0,0,0,0)" />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff', fontSize: '12px' }}
+                    formatter={(value, name) => [`${value} Transaksi`, name]}
+                  />
+                  <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-slate-500 h-full w-full">
+                <PieChartIcon className="w-12 h-12 mb-2 opacity-30" />
+                <p className="text-sm font-medium">Belum ada data status</p>
+              </div>
+            )}
+          </div>
         </Card>
       </div>
 

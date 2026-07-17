@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { echo } from '../lib/echo';
-import { transactionKeys } from './useTransactions';
+import { transactionKeys, dashboardPrefix } from './useTransactions';
 import { useModal } from '../contexts/ModalContext';
 
 export const useRealTimeTransactions = () => {
@@ -11,8 +11,11 @@ export const useRealTimeTransactions = () => {
 
   const forceRefetch = () => {
     queryClient.cancelQueries({ queryKey: transactionKeys.all });
+    queryClient.cancelQueries({ queryKey: dashboardPrefix });
+    
     setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: transactionKeys.all, refetchType: 'all' });
+      queryClient.invalidateQueries({ queryKey: dashboardPrefix, refetchType: 'all' });
     }, 50);
   };
 

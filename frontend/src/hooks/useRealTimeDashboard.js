@@ -47,10 +47,9 @@ export const useRealTimeDashboard = () => {
       queryClient.setQueryData(dashboardKeys.stats(), e.stats);
 
       const keysToRefetch = [
-        dashboardKeys.transactionChart('monthly'),
-        dashboardKeys.transactionChart('weekly'),
-        dashboardKeys.topProducts(5),
-        dashboardKeys.recentTransactions(5),
+        ['admin', 'dashboard', 'transactionChart'],
+        ['admin', 'dashboard', 'topProducts'],
+        ['admin', 'dashboard', 'recentTransactions'],
       ];
 
       keysToRefetch.forEach((key) => {
@@ -67,10 +66,7 @@ export const useRealTimeDashboard = () => {
       queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
       if (e.loginLog.status === 'success') {
-        showSuccess(
-          'Login Baru',
-          `${e.loginLog.user?.name || e.loginLog.email} berhasil login`
-        );
+        showSuccess('Login Baru', `${e.loginLog.user?.name || e.loginLog.email} berhasil login`);
       }
     });
 
@@ -81,10 +77,7 @@ export const useRealTimeDashboard = () => {
       queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
-      showSuccess(
-        ' Aktivitas Baru',
-        `${e.activityLog.user?.name || 'System'} - ${e.activityLog.action}`
-      );
+      showSuccess('Aktivitas Baru', `${e.activityLog.user?.name || 'System'} - ${e.activityLog.action}`);
     });
 
     channel.listen('.blocked-ip.created', (e) => {
@@ -94,10 +87,7 @@ export const useRealTimeDashboard = () => {
       queryClient.cancelQueries({ queryKey: dashboardKeys.stats() });
       queryClient.invalidateQueries({ queryKey: dashboardKeys.stats(), refetchType: 'all' });
 
-      showSuccess(
-        '⚠️ IP Diblokir',
-        `IP ${e.blockedIp.ip_address} telah diblokir`
-      );
+      showSuccess('⚠️ IP Diblokir', `IP ${e.blockedIp.ip_address} telah diblokir`);
     });
 
     channel.listen('.security-alert.created', (e) => {
@@ -110,7 +100,7 @@ export const useRealTimeDashboard = () => {
       const severityEmoji = {
         critical: '🚨',
         high: '⚠️',
-        medium: '',
+        medium: '⚠️',
         low: 'ℹ️',
       };
 

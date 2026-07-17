@@ -1,12 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import {
-  Plus,
-  Search,
-  RefreshCw,
-  X,
-  Receipt,
-  FileSpreadsheet,
-} from 'lucide-react';
+import { Plus, Search, RefreshCw, X, Receipt, FileSpreadsheet } from 'lucide-react';
 import { useTransactions } from '../../hooks/useTransactions';
 import { useRealTimeTransactions } from '../../hooks/useRealTimeTransactions';
 import { useModal } from '../../contexts/ModalContext';
@@ -30,7 +23,7 @@ const TransactionsPage = () => {
     handleDelete,
     handleChangeStatus,
     isMutating,
-    invalidateTransactions,
+    invalidateTransactions, // ✅ Pastikan nama ini sesuai dengan return di useTransactions
   } = useTransactions();
 
   const { showSuccess, showError, showLoading, closeLoading } = useModal();
@@ -69,12 +62,11 @@ const TransactionsPage = () => {
     refetch,
     isFetching,
   } = useTransactionsList(page, {
-    per_page: 12, // ✅ Disamakan dengan halaman lain
+    per_page: 12,
     search: debouncedSearch,
     ...filters,
   });
 
-  // ✅ FIX: Ambil data langsung dari response.data (karena backend sudah return items())
   const transactions = transactionsResponse?.data || [];
   const pagination = transactionsResponse?.meta || {};
 
@@ -100,7 +92,7 @@ const TransactionsPage = () => {
   const handleFormSuccess = async () => {
     setShowForm(false);
     setEditingTransactionId(null);
-    await invalidateTransactions();
+    await invalidateTransactions(); // ✅ Ini sekarang akan berfungsi
     await refetch();
   };
 
@@ -142,12 +134,9 @@ const TransactionsPage = () => {
       setIsExporting(true);
       showLoading('Mempersiapkan Laporan...', 'Mohon tunggu sebentar');
       
-      const params = {
-        search: debouncedSearch,
-        ...filters,
-      };
-
+      const params = { search: debouncedSearch, ...filters };
       let filename = 'Laporan_Transaksi';
+      
       if (filters.start_date && filters.end_date) {
         filename += `_dari_${filters.start_date}_sampai_${filters.end_date}`;
       } else {
@@ -161,7 +150,6 @@ const TransactionsPage = () => {
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);
-      
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -222,12 +210,7 @@ const TransactionsPage = () => {
 
             <div className="flex items-center gap-2 ml-auto">
               {hasActiveFilters ? (
-                <Button
-                  variant="secondary"
-                  size="md"
-                  icon={X}
-                  onClick={handleResetFilters}
-                >
+                <Button variant="secondary" size="md" icon={X} onClick={handleResetFilters}>
                   Reset
                 </Button>
               ) : (
@@ -297,11 +280,7 @@ const TransactionsPage = () => {
         </div>
       )}
 
-      <Pagination
-        pagination={pagination}
-        currentPage={page}
-        onPageChange={setPage}
-      />
+      <Pagination pagination={pagination} currentPage={page} onPageChange={setPage} />
 
       <button
         onClick={openCreateForm}

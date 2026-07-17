@@ -16,7 +16,6 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasFactory;
     use Notifiable;
-    use SoftDeletes;
 
     protected $fillable = [
         'role_id',
