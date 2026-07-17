@@ -1,9 +1,3 @@
-/**
- * @fileoverview Mock API dan Data Statis untuk Blog & Informasi Harga
- * Mensimulasikan respons backend Laravel untuk kebutuhan development frontend.
- * Nanti dapat dengan mudah diganti dengan pemanggilan axiosInstance yang sebenarnya.
- */
-
 import { 
   Shield, Truck, TrendingUp, Zap, Award, Clock,
   Users, Ruler, Gauge, Sparkles 
@@ -338,12 +332,53 @@ const BLOG_POSTS = [
     tags: ["Ready Mix", "Beton Berkualitas", "Tips Bangun Rumah"],
     featured: false,
   },
-  {
+    {
     id: 20,
     title: "Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026",
     slug: "daftar-harga-beton-cor-ready-mix-tangerang-terbaru-2026",
     excerpt: "Cek estimasi biaya dan daftar harga beton cor ready mix terlengkap untuk wilayah Kota Tangerang, Tangerang Selatan, dan Kabupaten Tangerang.",
-    content: `# 💰 Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026\n\nMelaksanakan agenda pembangunan infrastruktur, gedung, ruko, maupun hunian pribadi di wilayah strategis Tangerang tentu menuntut ketelitian perencanaan anggaran biaya yang matang dan akurat di awal. Guna membantu kelancaran penyusunan anggaran Anda, berikut kami sajikan rangkuman informasi resmi mengenai daftar harga beton cor ready mix...\n\n*(Data harga akan di-render secara dinamis oleh komponen frontend)*`,
+    content: `# 💰 Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026
+
+Melaksanakan agenda pembangunan infrastruktur, gedung, ruko, maupun hunian pribadi di wilayah strategis Tangerang tentu menuntut ketelitian perencanaan anggaran biaya yang matang dan akurat di awal. Guna membantu kelancaran penyusunan anggaran Anda, berikut kami sajikan rangkuman informasi resmi mengenai daftar harga beton cor ready mix.
+
+> **Catatan:** Harga di bawah adalah estimasi standar. Hubungi tim marketing kami untuk penawaran khusus volume besar dan penyesuaian lokasi proyek.
+
+## 1. Harga Beton Cor Readymix (Per m³)
+
+| Mutu Beton | Minimix / m³ | Standar / m³ |
+| :--- | :---: | :---: |
+| **K 125** | Rp 1.470.000 | Rp 1.160.000 |
+| **K 175** | Rp 1.490.000 | Rp 1.190.000 |
+| **K 225** | Rp 1.510.000 | Rp 1.205.000 |
+| **K 250** | Rp 1.520.000 | Rp 1.215.000 |
+| **K 275** | Rp 1.530.000 | Rp 1.230.000 |
+| **K 300** | Rp 1.540.000 | Rp 1.250.000 |
+| **K 350** | Rp 1.560.000 | Rp 1.305.000 |
+| **K 400** | Rp 1.600.000 | Rp 1.330.000 |
+| **K 450** | Rp 1.640.000 | Rp 1.360.000 |
+| **K 500** | Rp 1.690.000 | Rp 1.400.000 |
+
+## 2. Harga Sewa Pompa Beton
+
+| Volume Pengecoran | Standar / Mini | Longboom | Super Longboom |
+| :--- | :---: | :---: | :---: |
+| **5 m³ s/d 25 m³** | Rp 4.000.000 | Rp 5.000.000 | Rp 7.500.000 |
+| **26 m³ s/d 50 m³** | Rp 4.200.000 | Rp 5.250.000 | Rp 7.750.000 |
+| **51 m³ s/d 75 m³** | Rp 4.400.000 | Rp 5.500.000 | Rp 8.000.000 |
+| **76 m³ s/d 100 m³** | Rp 4.600.000 | Rp 5.750.000 | Rp 8.250.000 |
+| **Di atas 100 m³** | Rp 45.000/m³ | Rp 60.000/m³ | Rp 85.000/m³ |
+
+## 3. Harga Jasa Finishing & Trowel
+
+| Dosis | Natural (Lokal) | Warna (Lokal) | Natural (Sika) | Warna (Sika) |
+| :--- | :---: | :---: | :---: | :---: |
+| **3 Kg/m²** | Rp 30.000/m² | Rp 40.000/m² | Rp 40.000/m² | Rp 50.000/m² |
+| **5 Kg/m²** | Rp 40.000/m² | Rp 50.000/m² | Rp 50.000/m² | Rp 60.000/m² |
+
+> **💡 Info Tambahan:** Khusus untuk **Jasa Trowel Saja** (tanpa material), harga mulai dari **Rp 12.000/m²**.
+
+---
+*Harga dapat berubah sewaktu-waktu mengikuti fluktuasi harga material. Pastikan untuk mengonfirmasi harga terbaru ke tim marketing kami sebelum melakukan pemesanan.*`,
     category: "Info Harga",
     author: "Tim Niaga Solusi Mandiri",
     date: "2026-04-25",

@@ -155,7 +155,7 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
           </div>
           
           {isChartLoading || areaChartData.length === 0 ? (
-            <div className="h-75 flex flex-col items-center justify-center text-slate-500">
+            <div className="h-80 flex flex-col items-center justify-center text-slate-500">
               <AreaChartIcon className="w-12 h-12 mb-2 opacity-30" />
               <p className="text-sm font-medium">{isChartLoading ? 'Memuat grafik...' : 'Belum ada data grafik'}</p>
             </div>
@@ -191,7 +191,9 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
         <Card variant="elevated" className="p-5 flex flex-col">
           <h3 className="text-base font-semibold text-white mb-4">Status Transaksi</h3>
           
-          <div className="h-75 w-full flex items-center justify-center flex-1">
+          {/* ✅ PERBAIKAN DEFINITIF: Menggunakan h-80 (class standar Tailwind = 320px) 
+              untuk memastikan container memiliki tinggi yang pasti dan tidak collapse */}
+          <div className="w-full h-80 flex items-center justify-center">
             {statusPieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -204,7 +206,7 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
                     paddingAngle={5}
                     dataKey="value"
                     nameKey="name"
-                    isAnimationActive={true} // ✅ Memastikan animasi smooth saat data real-time berubah
+                    isAnimationActive={true}
                   >
                     {statusPieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} stroke="rgba(0,0,0,0)" />
@@ -218,7 +220,7 @@ const OverviewTab = ({ stats, lastUpdate, user, onTabChange }) => {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex flex-col items-center justify-center text-slate-500 h-full w-full">
+              <div className="flex flex-col items-center justify-center text-slate-500 w-full h-full">
                 <PieChartIcon className="w-12 h-12 mb-2 opacity-30" />
                 <p className="text-sm font-medium">Belum ada data status</p>
               </div>

@@ -48,7 +48,6 @@ export default function BlogDetail() {
   const [copySuccess, setCopySuccess] = useState(false);
   const [toast, setToast] = useState(null);
 
-  // ✅ OPTIMASI AOS: Inisialisasi sekali dan refresh setelah window load
   useEffect(() => {
     AOS.init({ duration: 800, easing: 'ease-out-cubic', once: true, offset: 50 });
     const handleLoad = () => AOS.refresh();
@@ -125,17 +124,19 @@ export default function BlogDetail() {
         ul: ({ children }) => <ul className="list-disc list-outside ml-5 text-slate-300 space-y-2 mb-4 text-left">{children}</ul>,
         ol: ({ children }) => <ol className="list-decimal list-outside ml-5 text-slate-300 space-y-2 mb-4 text-left">{children}</ol>,
         li: ({ children }) => <li className="text-slate-300">{children}</li>,
+        
         table: ({ children }) => (
           <div className="overflow-x-auto mb-6 rounded-lg border border-slate-700/50">
-            <table className="w-full border-collapse text-left">
+            <table className="w-full border-collapse text-left min-w-125">
               {children}
             </table>
           </div>
         ),
         thead: ({ children }) => <thead className="bg-indigo-600/20">{children}</thead>,
         th: ({ children }) => <th className="border border-slate-700/50 px-4 py-3 text-white font-semibold text-left whitespace-nowrap">{children}</th>,
-        td: ({ children }) => <td className="border border-slate-700/50 px-4 py-2 text-slate-300 text-left">{children}</td>,
+        td: ({ children }) => <td className="border border-slate-700/50 px-4 py-3 text-slate-300 text-left">{children}</td>,
         tr: ({ children }) => <tr className="hover:bg-slate-700/20 transition-colors">{children}</tr>,
+        
         a: ({ href, children }) => <a href={href} target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 underline transition-colors">{children}</a>,
         strong: ({ children }) => <strong className="text-white font-bold">{children}</strong>,
         blockquote: ({ children }) => <blockquote className="border-l-4 border-indigo-500 pl-4 my-6 text-slate-400 italic bg-slate-800/30 py-3 pr-3 rounded-r-lg">{children}</blockquote>,
@@ -182,14 +183,15 @@ export default function BlogDetail() {
     <Layout>
       <SEO title={`${post.title} | Beton Cor Tangerang`} description={post.excerpt} canonicalUrl={`https://betoncortangerang.com/blog/${post.slug}`} />
 
-      <main className="overflow-x-hidden">
+      {/* ✅ PERBAIKAN: Hapus overflow-x-hidden dari main, biarkan Layout yang handle agar tidak double */}
+      <main className="w-full min-h-screen">
         {toast && (
           <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-slate-800 border border-indigo-500/30 rounded-xl shadow-2xl text-white text-sm font-medium animate-in fade-in slide-in-from-top duration-300 flex items-center gap-2">
             <Check className="w-4 h-4 text-emerald-400" /> {toast}
           </div>
         )}
 
-        <section className="relative w-full min-h-[40vh] flex items-center justify-center px-4 pt-20 overflow-hidden">
+        <section className="relative w-full min-h-[40vh] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-linear-to-br from-slate-950/95 via-slate-950/85 to-slate-950/95 z-10"></div>
             {post.image ? (
@@ -207,7 +209,7 @@ export default function BlogDetail() {
             )}
           </div>
 
-          <div className="relative z-10 text-center max-w-4xl mx-auto px-4 py-12">
+          <div className="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
             <div data-aos="fade-down" className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border backdrop-blur-md mb-6 mx-auto ${categoryColor}`}>
               <span className="text-base">{categoryIcon}</span>
               <span className="text-sm font-bold">{post.category}</span>
@@ -229,7 +231,7 @@ export default function BlogDetail() {
           </div>
         </section>
 
-        <section className="w-full py-12 sm:py-16 px-4 bg-slate-950">
+        <section className="w-full py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-slate-950">
           <div className="max-w-4xl mx-auto">
             <div className="bg-slate-900/60 rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
               <div className="mb-8 sm:mb-10 p-5 sm:p-6 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl text-center">
