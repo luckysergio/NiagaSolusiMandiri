@@ -73,7 +73,7 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 group shrink-0">
             <div className="w-9 h-9 lg:w-10 lg:h-10 bg-white rounded-xl flex items-center justify-center transform transition-transform group-hover:scale-105 shadow-lg shadow-indigo-500/10 overflow-hidden p-1.5">
-              <img src={logoNsm} alt="Niaga Solusi Mandiri" className="w-full h-full object-contain" />
+              <img src={logoNsm} alt="Niaga Solusi Mandiri" width="40" height="40" className="w-full h-full object-contain" />
             </div>
             <div className="hidden sm:block">
               <span className="text-white font-bold text-sm lg:text-base tracking-wide">Niaga Solusi Mandiri</span>
@@ -87,21 +87,26 @@ export default function Header() {
               if (link.label === "Layanan") {
                 return (
                   <div key={link.to} className="relative" ref={dropdownRef} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                    <button className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      isServicesOpen || isServicesActive() ? 'text-white bg-indigo-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
-                    }`}>
+                    <button 
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        isServicesOpen || isServicesActive() ? 'text-white bg-indigo-500/10' : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                      }`}
+                      aria-expanded={isServicesOpen}
+                      aria-haspopup="true"
+                    >
                       Layanan
                       <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isServicesOpen ? 'rotate-180' : ''}`} />
                     </button>
 
                     {isServicesOpen && (
                       <div className="absolute top-full left-0 mt-2 w-72 bg-slate-900 rounded-xl shadow-2xl shadow-black/40 border border-slate-800 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200"
-                        onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                        onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}
+                        role="menu">
                         <div className="p-2">
                           {serviceCategories.map((service, idx) => {
                             const Icon = service.icon;
                             return (
-                              <Link key={idx} to={service.path} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-800/80 transition-all duration-200 group" onClick={() => setIsServicesOpen(false)}>
+                              <Link key={idx} to={service.path} className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-800/80 transition-all duration-200 group" onClick={() => setIsServicesOpen(false)} role="menuitem">
                                 <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-indigo-500/20 group-hover:scale-105 transition-all duration-300">
                                   <Icon className="w-5 h-5 text-indigo-400 group-hover:text-indigo-300" />
                                 </div>
@@ -152,20 +157,27 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
+          <button 
+            className="lg:hidden p-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all duration-300" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            aria-label="Toggle menu"
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-menu"
+          >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-200 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
+        <div id="mobile-menu" className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-125 opacity-100 mt-4' : 'max-h-0 opacity-0'}`}>
           <div className="bg-slate-900/95 backdrop-blur-xl rounded-2xl p-4 border border-slate-800 space-y-1 shadow-2xl">
             {navLinks.map((link) => {
               if (link.label === "Layanan") {
                 return (
                   <div key={link.to}>
                     <button onClick={() => setIsMobileServicesOpen(!isMobileServicesOpen)}
-                      className={`w-full flex items-center justify-between py-3 px-4 rounded-xl hover:bg-slate-800 transition text-slate-300 font-medium ${isMobileServicesOpen || isServicesActive() ? 'bg-slate-800/50 text-white' : ''}`}>
+                      className={`w-full flex items-center justify-between py-3 px-4 rounded-xl hover:bg-slate-800 transition text-slate-300 font-medium ${isMobileServicesOpen || isServicesActive() ? 'bg-slate-800/50 text-white' : ''}`}
+                      aria-expanded={isMobileServicesOpen}>
                       <span>Layanan</span>
                       <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isMobileServicesOpen ? 'rotate-180' : ''}`} />
                     </button>

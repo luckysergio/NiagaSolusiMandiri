@@ -77,6 +77,7 @@ const BLOG_POSTS = [
     date: "2026-06-15",
     readTime: 5,
     image: "/images/blog/pompa-beton.png",
+    imageAlt: "Truk pompa beton sedang melakukan pengecoran di lokasi proyek konstruksi",
     tags: ["Pompa Beton", "Konstruksi", "Pengecoran"],
     featured: true,
   },
@@ -91,6 +92,7 @@ const BLOG_POSTS = [
     date: "2026-06-12",
     readTime: 7,
     image: "/images/blog/beton-readymix.png",
+    imageAlt: "Perbandingan beton readymix dari truk mixer dengan beton cor manual menggunakan molen",
     tags: ["Beton Readymix", "Beton Cor", "Konstruksi"],
     featured: true,
   },
@@ -105,6 +107,7 @@ const BLOG_POSTS = [
     date: "2026-06-10",
     readTime: 6,
     image: "/images/blog/mutu-beton.png",
+    imageAlt: "Tabel perbandingan mutu beton K-125 sampai K-500 untuk berbagai jenis konstruksi",
     tags: ["Mutu Beton", "K-125", "K-500", "Konstruksi"],
     featured: false,
   },
@@ -119,6 +122,7 @@ const BLOG_POSTS = [
     date: "2026-06-08",
     readTime: 5,
     image: "/images/blog/sewa-pompa.png",
+    imageAlt: "Pompa beton mini untuk area sempit dengan akses terbatas",
     tags: ["Sewa Pompa", "Pompa Beton", "Konstruksi"],
     featured: false,
   },
@@ -133,6 +137,7 @@ const BLOG_POSTS = [
     date: "2026-06-05",
     readTime: 4,
     image: "/images/blog/tips-pompa.png",
+    imageAlt: "Checklist persiapan sebelum menyewa pompa beton untuk proyek",
     tags: ["Tips", "Sewa Pompa", "Konstruksi"],
     featured: false,
   },
@@ -147,6 +152,7 @@ const BLOG_POSTS = [
     date: "2026-06-03",
     readTime: 5,
     image: "/images/blog/finishing-trowel.png",
+    imageAlt: "Proses finishing trowel lantai beton menggunakan mesin trowel",
     tags: ["Finishing Trowel", "Lantai Beton", "Konstruksi"],
     featured: false,
   },
@@ -161,6 +167,7 @@ const BLOG_POSTS = [
     date: "2026-06-01",
     readTime: 6,
     image: "/images/blog/supplier-beton.png",
+    imageAlt: "Supplier beton cor profesional dengan armada ready mix",
     tags: ["Supplier Beton", "Beton Cor", "Konstruksi"],
     featured: false,
   },
@@ -175,6 +182,7 @@ const BLOG_POSTS = [
     date: "2026-05-28",
     readTime: 4,
     image: "/images/blog/hemat-biaya.png",
+    imageAlt: "Tips menghemat biaya pengecoran beton untuk proyek konstruksi",
     tags: ["Hemat Biaya", "Pengecoran", "Konstruksi"],
     featured: false,
   },
@@ -189,6 +197,7 @@ const BLOG_POSTS = [
     date: "2026-05-25",
     readTime: 8,
     image: "/images/blog/tren-konstruksi.png",
+    imageAlt: "Grafik tren industri konstruksi Indonesia tahun 2026",
     tags: ["Tren Konstruksi", "2026", "Industri"],
     featured: false,
   },
@@ -203,6 +212,7 @@ const BLOG_POSTS = [
     date: "2026-05-22",
     readTime: 7,
     image: "/images/blog/teknologi-konstruksi.png",
+    imageAlt: "Teknologi digital BIM dan drone untuk manajemen proyek konstruksi",
     tags: ["Teknologi", "Digital", "Konstruksi"],
     featured: false,
   },
@@ -217,6 +227,7 @@ const BLOG_POSTS = [
     date: "2026-05-20",
     readTime: 5,
     image: "/images/blog/solusi-gang-sempit.png",
+    imageAlt: "Solusi pengecoran di gang sempit menggunakan truk minimix dan pompa mini",
     tags: ["Minimix", "Pompa Beton Mini", "Tangerang"],
     featured: false,
   },
@@ -231,6 +242,7 @@ const BLOG_POSTS = [
     date: "2026-05-18",
     readTime: 6,
     image: "/images/blog/jenis-pompa-beton.png",
+    imageAlt: "Perbedaan pompa beton standar, long boom, dan mini concrete pump",
     tags: ["Sewa Pompa Beton", "Concrete Pump", "Jenis Alat"],
     featured: false,
   },
@@ -245,6 +257,7 @@ const BLOG_POSTS = [
     date: "2026-05-15",
     readTime: 4,
     image: "/images/blog/slump-test-beton.png",
+    imageAlt: "Alat slump test untuk mengukur kekentalan beton segar",
     tags: ["Slump Test", "Kualitas Beton", "Uji Laboratorium"],
     featured: false,
   },
@@ -259,6 +272,7 @@ const BLOG_POSTS = [
     date: "2026-05-12",
     readTime: 4,
     image: "/images/blog/hitung-volume-beton.png",
+    imageAlt: "Rumus menghitung volume beton cor untuk dak lantai rumah",
     tags: ["Tips Konstruksi", "Rumus Beton", "Dak Rumah"],
     featured: false,
   },
@@ -273,6 +287,7 @@ const BLOG_POSTS = [
     date: "2026-05-10",
     readTime: 5,
     image: "/images/blog/beton-retak.png",
+    imageAlt: "Contoh retak rambut pada beton cor dan cara perbaikannya",
     tags: ["Perawatan Beton", "Curing Beton", "Solusi Retak"],
     featured: false,
   },
@@ -287,6 +302,7 @@ const BLOG_POSTS = [
     date: "2026-05-08",
     readTime: 5,
     image: "/images/blog/cor-rumah-dua-lantai.png",
+    imageAlt: "Proses pengecoran dak lantai 2 rumah bertingkat",
     tags: ["Rumah Minimalis", "Dak Lantai 2", "Renovasi Rumah"],
     featured: false,
   },
@@ -301,6 +317,7 @@ const BLOG_POSTS = [
     date: "2026-05-05",
     readTime: 4,
     image: "/images/blog/sewa-pompa-tangsel.png",
+    imageAlt: "Armada pompa beton siap sewa untuk area Tangerang Selatan BSD Bintaro",
     tags: ["Sewa Pompa Beton", "Tangerang Selatan", "BSD Properti"],
     featured: false,
   },
@@ -315,6 +332,7 @@ const BLOG_POSTS = [
     date: "2026-05-02",
     readTime: 7,
     image: "/images/blog/rigid-pavement-guide.png",
+    imageAlt: "Proyek rigid pavement jalan perumahan dengan beton mutu K-350",
     tags: ["Rigid Pavement", "Beton K-350", "Proyek Perumahan", "Konstruksi Jalan"],
     featured: true,
   },
@@ -329,15 +347,16 @@ const BLOG_POSTS = [
     date: "2026-04-28",
     readTime: 4,
     image: "/images/blog/ready-mix-vs-manual.png",
+    imageAlt: "Perbandingan kualitas beton ready mix versus adukan manual",
     tags: ["Ready Mix", "Beton Berkualitas", "Tips Bangun Rumah"],
     featured: false,
   },
-    {
+  {
     id: 20,
     title: "Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026",
     slug: "daftar-harga-beton-cor-ready-mix-tangerang-terbaru-2026",
     excerpt: "Cek estimasi biaya dan daftar harga beton cor ready mix terlengkap untuk wilayah Kota Tangerang, Tangerang Selatan, dan Kabupaten Tangerang.",
-    content: `# 💰 Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026
+    content: `#  Daftar Harga Beton Cor Ready Mix Tangerang Terbaru 2026
 
 Melaksanakan agenda pembangunan infrastruktur, gedung, ruko, maupun hunian pribadi di wilayah strategis Tangerang tentu menuntut ketelitian perencanaan anggaran biaya yang matang dan akurat di awal. Guna membantu kelancaran penyusunan anggaran Anda, berikut kami sajikan rangkuman informasi resmi mengenai daftar harga beton cor ready mix.
 
@@ -384,6 +403,7 @@ Melaksanakan agenda pembangunan infrastruktur, gedung, ruko, maupun hunian priba
     date: "2026-04-25",
     readTime: 8,
     image: "/images/blog/harga-ready-mix-tangerang.png",
+    imageAlt: "Daftar harga beton cor readymix dan sewa pompa beton Tangerang 2026",
     tags: ["Harga Beton Cor", "Ready Mix Tangerang", "Biaya Konstruksi", "Sewa Pompa", "Finishing Lantai"],
     featured: true,
   }
@@ -391,7 +411,6 @@ Melaksanakan agenda pembangunan infrastruktur, gedung, ruko, maupun hunian priba
 
 export const blogApi = {
   getPosts: async (page = 1, limit = 6, category = '') => {
-
     let filtered = [...BLOG_POSTS];
     
     if (category) {

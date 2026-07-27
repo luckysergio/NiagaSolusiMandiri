@@ -1,9 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const navigate = useNavigate();
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLinkClick = (path) => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -37,9 +47,11 @@ const Footer = () => {
   return (
     <footer className="relative bg-slate-950 border-t border-slate-800/50">
       {/* Back to Top Button */}
-      <button onClick={scrollToTop}
-        className="fixed bottom-8 right-8 z-40 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg shadow-indigo-500/25 hover:scale-110 hover:shadow-xl transition-all duration-300 group"
-        aria-label="Back to top">
+      <button 
+        onClick={scrollToTop}
+        className={`fixed bottom-8 right-8 z-40 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-full shadow-lg shadow-indigo-500/25 hover:scale-110 hover:shadow-xl transition-all duration-300 group ${showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+        aria-label="Kembali ke atas"
+      >
         <ArrowUp className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
       </button>
 
@@ -71,7 +83,7 @@ const Footer = () => {
               {quickLinks.map((link, idx) => (
                 <li key={idx}>
                   <button onClick={() => handleLinkClick(link.path)}
-                    className="text-slate-400 hover:text-indigo-400 transition-all duration-300 flex items-center gap-2 group text-sm cursor-pointer">
+                    className="text-slate-400 hover:text-indigo-400 transition-all duration-300 flex items-center gap-2 group text-sm cursor-pointer text-left w-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-indigo-500 transition-colors" />
                     {link.name}
                   </button>
@@ -90,7 +102,7 @@ const Footer = () => {
               {serviceLinks.map((link, idx) => (
                 <li key={idx}>
                   <button onClick={() => handleLinkClick(link.path)}
-                    className="text-slate-400 hover:text-indigo-400 transition-all duration-300 flex items-center gap-2 group text-sm cursor-pointer">
+                    className="text-slate-400 hover:text-indigo-400 transition-all duration-300 flex items-center gap-2 group text-sm cursor-pointer text-left w-full">
                     <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-indigo-500 transition-colors" />
                     {link.name}
                   </button>
@@ -130,8 +142,9 @@ const Footer = () => {
           <div className="flex flex-wrap justify-center gap-3">
             {socialLinks.map((social) => (
               <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer"
-                className={`p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 transition-all duration-300 hover:scale-110 ${social.color}`}>
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">{social.icon}</svg>
+                className={`p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-400 transition-all duration-300 hover:scale-110 ${social.color}`}
+                aria-label={`Kunjungi ${social.name} kami`}>
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{social.icon}</svg>
               </a>
             ))}
           </div>

@@ -47,7 +47,7 @@ export default function Preloader() {
     
     const initParticles = () => {
       particles = [];
-      const particleCount = Math.min(60, window.innerWidth / 30);
+      const particleCount = Math.min(60, Math.floor(window.innerWidth / 30));
       for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle(Math.random() * canvas.width, Math.random() * canvas.height));
       }
@@ -80,14 +80,14 @@ export default function Preloader() {
           clearInterval(interval);
           return 100;
         }
-        return prev + Math.random() * 10;
+        return prev + Math.random() * 15;
       });
     }, 100);
     
     const timer = setTimeout(() => {
       setIsFading(true);
       setTimeout(() => setIsLoading(false), 500);
-    }, 1500);
+    }, 1200);
     
     return () => {
       clearTimeout(timer);
@@ -111,6 +111,8 @@ export default function Preloader() {
               <img 
                 src={logoNsm} 
                 alt="Niaga Solusi Mandiri" 
+                width="80"
+                height="80"
                 className="w-full h-full object-contain"
               />
             </div>
