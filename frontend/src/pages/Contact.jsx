@@ -259,8 +259,8 @@ export default function Contact() {
   return (
     <Layout>
       <SEO
-        title="Kontak Kami | Sewa Pompa Beton & Beton Cor Tangerang"
-        description="Hubungi tim marketing kami untuk konsultasi dan pemesanan sewa pompa beton serta beton cor di Tangerang. Hemat Waktu, Hemat Biaya, Hemat Tenaga."
+        title="Kontak Kami | Jual Beton Cor Tangerang & Pompa Beton Terdekat"
+        description="Hubungi supplier beton cor terdekat di Tangerang. Konsultasi gratis & pemesanan sewa pompa beton dan readymix. Hemat Waktu, Biaya, & Tenaga. Hubungi kami!"
         canonicalUrl="https://betoncortangerang.com/kontak"
       />
 

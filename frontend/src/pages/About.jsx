@@ -1,8 +1,9 @@
-import SEO from "../components/SEO";
-import Layout from "../components/Layout";
-import { useEffect, useState, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Layout from "../components/Layout";
+import SEO from "../components/SEO";
 import {
   Building2,
   Truck,
@@ -215,8 +216,8 @@ export default function About() {
   return (
     <Layout>
       <SEO
-        title="Tentang Kami | Beton Cor & Sewa Pompa Beton Tangerang"
-        description="Niaga Solusi Mandiri: Supplier beton cor dan sewa pompa beton berpengalaman lebih dari 10 tahun di Tangerang. Menerapkan prinsip Hemat Waktu, Hemat Biaya, Hemat Tenaga."
+        title="Tentang Kami | Supplier Beton Cor Terdekat di Tangerang"
+        description="Profil Niaga Solusi Mandiri, supplier beton cor terdekat dan sewa pompa beton di Tangerang. Berpengalaman 10+ tahun, mutu SNI, armada lengkap. Hemat Waktu, Biaya, Tenaga."
         canonicalUrl="https://betoncortangerang.com/tentang"
       />
 
@@ -233,7 +234,7 @@ export default function About() {
             <img
               key={currentImageIndex}
               src={heroImages[currentImageIndex]}
-              alt={`Proyek konstruksi Niaga Solusi Mandiri ${currentImageIndex + 1}`}
+              alt={`Supplier beton cor terdekat dan sewa pompa beton di Tangerang oleh Niaga Solusi Mandiri ${currentImageIndex + 1}`}
               className="w-full h-full object-cover scale-105 transition-opacity duration-1000"
               loading={currentImageIndex === 0 ? "eager" : "lazy"}
               fetchPriority={currentImageIndex === 0 ? "high" : "auto"}
@@ -265,9 +266,9 @@ export default function About() {
                 data-aos-duration="1000"
                 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-2xl max-w-5xl"
               >
-                <span className="block">Mitra Terpercaya untuk</span>
+                <span className="block">Supplier</span>
                 <span className="block mt-2 text-transparent bg-clip-text bg-linear-to-r from-indigo-400 via-purple-400 to-cyan-400">
-                  Proyek Konstruksi Anda
+                  Beton Cor Terdekat di Tangerang
                 </span>
               </h1>
 
@@ -302,9 +303,11 @@ export default function About() {
                 data-aos-delay="300"
                 className="text-sm sm:text-base lg:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-light px-2"
               >
-                Niaga Solusi Mandiri hadir sebagai solusi lengkap kebutuhan
-                beton cor dan sewa pompa beton di Tangerang, menghadirkan
-                efisiensi maksimal untuk setiap proyek.
+                Niaga Solusi Mandiri adalah{" "}
+                <strong>supplier beton cor terdekat</strong> dan penyedia jasa
+                sewa pompa beton di Tangerang. Kami menghadirkan efisiensi
+                maksimal dengan prinsip Hemat Waktu, Hemat Biaya, Hemat Tenaga
+                untuk setiap proyek konstruksi Anda.
               </p>
 
               <div
@@ -742,7 +745,7 @@ export default function About() {
                   href="https://wa.me/6281315913559"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all hover:scale-105 shadow-lg shadow-emerald-600/25"
+                  className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all hover:scale-105 shadow-lg shadow-emerald-700/25"
                 >
                   <MessageCircle className="w-5 h-5" aria-hidden="true" />
                   Konsultasi Gratis via WA

@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useState, useEffect } from 'react';
 import {
   User,
@@ -54,7 +53,6 @@ const Profile = () => {
   const [errors, setErrors] = useState({});
   const [passwordErrors, setPasswordErrors] = useState({});
 
-  // Sync form with profile data
   useEffect(() => {
     if (profileData) {
       setFormData({
@@ -68,12 +66,6 @@ const Profile = () => {
 
   const isProfilePending = updateProfileMutation.isPending;
   const isPasswordPending = changePasswordMutation.isPending;
-
-  /*
-  |--------------------------------------------------------------------------
-  | Handlers
-  |--------------------------------------------------------------------------
-  */
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -168,7 +160,6 @@ const Profile = () => {
 
       await handleUpdateProfile(payload);
 
-      // Reset password fields after success
       setFormData((prev) => ({
         ...prev,
         password: '',
@@ -193,7 +184,6 @@ const Profile = () => {
         new_password_confirmation: passwordData.new_password_confirmation,
       });
 
-      // Reset form
       setPasswordData({
         current_password: '',
         new_password: '',
@@ -227,12 +217,6 @@ const Profile = () => {
     });
     setPasswordErrors({});
   };
-
-  /*
-  |--------------------------------------------------------------------------
-  | Helpers
-  |--------------------------------------------------------------------------
-  */
 
   const formatDate = (dateString) => {
     if (!dateString) return '-';
@@ -272,12 +256,6 @@ const Profile = () => {
     return '-';
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | Loading State
-  |--------------------------------------------------------------------------
-  */
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -293,12 +271,6 @@ const Profile = () => {
       </div>
     );
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | Render
-  |--------------------------------------------------------------------------
-  */
 
   return (
     <div className="space-y-6 animate-fadeIn">

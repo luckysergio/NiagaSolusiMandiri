@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import Layout from "../components/Layout";
@@ -59,32 +58,13 @@ import pompaBeton8 from "../assets/images/pompabeton/8.webp";
 import trowel1 from "../assets/images/trowel/1.webp";
 
 const heroImages = [
-  heroImg1,
-  heroImg2,
-  heroImg3,
-  heroImg4,
-  heroImg5,
-  heroImg6,
-  heroImg7,
-  heroImg8,
-  heroImg9,
-  heroImg10,
+  heroImg1, heroImg2, heroImg3, heroImg4, heroImg5,
+  heroImg6, heroImg7, heroImg8, heroImg9, heroImg10,
 ];
-const betonReadymixImages = [
-  betonReadymix1,
-  betonReadymix2,
-  betonReadymix3,
-  betonReadymix4,
-];
+const betonReadymixImages = [betonReadymix1, betonReadymix2, betonReadymix3, betonReadymix4];
 const pompaBetonImages = [
-  pompaBeton1,
-  pompaBeton2,
-  pompaBeton3,
-  pompaBeton4,
-  pompaBeton5,
-  pompaBeton6,
-  pompaBeton7,
-  pompaBeton8,
+  pompaBeton1, pompaBeton2, pompaBeton3, pompaBeton4,
+  pompaBeton5, pompaBeton6, pompaBeton7, pompaBeton8,
 ];
 const trowelImages = [trowel1];
 
@@ -131,24 +111,24 @@ export default function Landing() {
 
   const faqData = [
     {
-      question: "Apa itu beton readymix dan kapan sebaiknya digunakan?",
+      question: "Di mana mencari supplier beton cor terdekat di Tangerang?",
       answer:
-        "Beton readymix adalah beton cor siap pakai yang diproduksi di batching plant dengan kontrol kualitas ketat. Sangat cocok untuk proyek dengan volume besar seperti pondasi gedung, jalan raya, jembatan, dan lantai pabrik karena kualitasnya konsisten dan pengerjaan lebih cepat.",
+        "Niaga Solusi Mandiri adalah supplier beton cor terdekat yang berbasis di Serpong, Tangerang Selatan. Kami melayani pengiriman cepat ke seluruh wilayah Tangerang, Tangerang Selatan (BSD, Bintaro, Pamulang), dan Kabupaten Tangerang dengan armada yang siap 24/7.",
     },
     {
-      question: "Kapan saya membutuhkan sewa pompa beton?",
+      question: "Berapa harga beton cor readymix di Tangerang saat ini?",
       answer:
-        "Sewa pompa beton diperlukan saat lokasi pengecoran sulit dijangkau truk mixer. Misalnya area perumahan dengan gang sempit, lantai atas bangunan bertingkat, atau area dengan jarak jauh dari akses truk. Kami menyediakan berbagai jenis pompa sesuai kebutuhan.",
+        "Harga beton cor di Tangerang sangat kompetitif, mulai dari Rp 1.160.000/m³ untuk mutu K-125 hingga Rp 1.690.000/m³ untuk mutu K-500. Kami memberikan harga langsung dari batching plant tanpa perantara, menjamin kualitas mutu SNI.",
+    },
+    {
+      question: "Kapan saya membutuhkan sewa pompa beton untuk proyek?",
+      answer:
+        "Sewa pompa beton sangat diperlukan jika lokasi proyek Anda sulit dijangkau truk mixer, seperti di gang sempit perumahan, lantai atas bangunan bertingkat, atau area dengan akses terbatas. Kami menyediakan pompa mini, standar, hingga longboom.",
     },
     {
       question: "Apa manfaat finishing trowel untuk lantai beton?",
       answer:
-        "Finishing trowel membuat lantai beton menjadi rata sempurna, anti slip, tahan benturan dan oli, bebas perawatan, serta lebih awet. Sangat cocok untuk gudang, pabrik, area parkir, dan showroom.",
-    },
-    {
-      question: "Bagaimana cara memesan layanan?",
-      answer:
-        "Hubungi tim marketing kami via WhatsApp atau telepon. Konsultasikan kebutuhan proyek Anda, tim kami akan memberikan penawaran harga dan jadwal pelaksanaan yang sesuai.",
+        "Finishing trowel membuat lantai beton menjadi rata sempurna, anti slip, tahan benturan dan oli, serta lebih awet. Sangat cocok untuk lantai gudang, pabrik, area parkir, dan showroom.",
     },
   ];
 
@@ -231,59 +211,66 @@ export default function Landing() {
     },
   ];
 
-  const nextServiceImage = (serviceId, images) => {
+  const nextServiceImage = useCallback((serviceId, images) => {
     setServiceImageIndex((prev) => ({
       ...prev,
       [serviceId]: ((prev[serviceId] || 0) + 1) % images.length,
     }));
-  };
+  }, []);
 
-  const prevServiceImage = (serviceId, images) => {
+  const prevServiceImage = useCallback((serviceId, images) => {
     setServiceImageIndex((prev) => ({
       ...prev,
       [serviceId]: ((prev[serviceId] || 0) - 1 + images.length) % images.length,
     }));
-  };
+  }, []);
 
-  const scrollToSection = (sectionId) => {
+  const scrollToSection = useCallback((sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) element.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
-  const toggleFaq = (index) => setOpenFaq(openFaq === index ? null : index);
+  const toggleFaq = useCallback(
+    (index) => setOpenFaq((prev) => (prev === index ? null : index)),
+    [],
+  );
 
   const renderStars = (rating) =>
     Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
         className={`w-4 h-4 ${i < rating ? "text-amber-400 fill-amber-400" : "text-slate-600"}`}
+        aria-hidden="true"
       />
     ));
 
-  const handleContactSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleContactSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      setIsSubmitting(true);
 
-    const text =
-      `Halo Niaga Solusi Mandiri, saya ingin berkonsultasi.%0A%0A` +
-      `*Nama:* ${contactForm.name}%0A` +
-      `*No. HP:* ${contactForm.phone}%0A` +
-      `*Layanan:* ${contactForm.service || "Belum dipilih"}%0A` +
-      `*Pesan:* ${contactForm.message}`;
+      const text =
+        `Halo Niaga Solusi Mandiri, saya ingin berkonsultasi.%0A%0A` +
+        `*Nama:* ${contactForm.name}%0A` +
+        `*No. HP:* ${contactForm.phone}%0A` +
+        `*Layanan:* ${contactForm.service || "Belum dipilih"}%0A` +
+        `*Pesan:* ${contactForm.message}`;
 
-    const waUrl = `https://wa.me/6281315913559?text=${text}`;
+      const waUrl = `https://wa.me/6281315913559?text=${text}`;
 
-    setTimeout(() => {
-      window.open(waUrl, "_blank");
-      setIsSubmitting(false);
-      setContactForm({ name: "", phone: "", service: "", message: "" });
-    }, 800);
-  };
+      setTimeout(() => {
+        window.open(waUrl, "_blank");
+        setIsSubmitting(false);
+        setContactForm({ name: "", phone: "", service: "", message: "" });
+      }, 800);
+    },
+    [contactForm],
+  );
 
-  const handleFormChange = (e) => {
+  const handleFormChange = useCallback((e) => {
     const { name, value } = e.target;
     setContactForm((prev) => ({ ...prev, [name]: value }));
-  };
+  }, []);
 
   const renderServiceCard = (service, idx) => {
     const Icon = service.icon;
@@ -309,7 +296,7 @@ export default function Landing() {
             >
               <img
                 src={img}
-                alt={`${service.title} ${imgIdx + 1}`}
+                alt={`${service.title} beton cor tangerang ${imgIdx + 1}`}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 loading="lazy"
                 decoding="async"
@@ -321,7 +308,7 @@ export default function Landing() {
           <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/20 to-transparent"></div>
 
           <div className="absolute top-4 left-4 p-2.5 bg-slate-900/80 backdrop-blur-md rounded-xl border border-slate-700/50 shadow-lg">
-            <Icon className="w-6 h-6 text-indigo-400" />
+            <Icon className="w-6 h-6 text-indigo-400" aria-hidden="true" />
           </div>
 
           {hasMultipleImages && (
@@ -331,20 +318,20 @@ export default function Landing() {
                   e.stopPropagation();
                   prevServiceImage(service.id, service.images);
                 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-indigo-600 rounded-full transition-all duration-300 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100"
-                aria-label="Previous image"
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/50 hover:bg-indigo-600 rounded-full transition-all duration-300 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center"
+                aria-label={`Gambar sebelumnya ${service.title}`}
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5" aria-hidden="true" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   nextServiceImage(service.id, service.images);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-indigo-600 rounded-full transition-all duration-300 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100"
-                aria-label="Next image"
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-black/50 hover:bg-indigo-600 rounded-full transition-all duration-300 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center"
+                aria-label={`Gambar berikutnya ${service.title}`}
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5" aria-hidden="true" />
               </button>
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
                 {service.images.map((_, imgIdx) => (
@@ -357,9 +344,11 @@ export default function Landing() {
                         [service.id]: imgIdx,
                       }));
                     }}
-                    className={`transition-all duration-300 rounded-full ${imgIdx === currentIndex ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40 hover:bg-white/70"}`}
-                    aria-label={`Go to image ${imgIdx + 1}`}
-                  />
+                    className="flex items-center justify-center transition-all duration-300 rounded-full p-2.5 hover:bg-white/10"
+                    aria-label={`Lihat gambar ${imgIdx + 1} ${service.title}`}
+                  >
+                    <span className={`block rounded-full transition-all duration-300 ${imgIdx === currentIndex ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40"}`} />
+                  </button>
                 ))}
               </div>
             </>
@@ -379,7 +368,10 @@ export default function Landing() {
                 key={fIdx}
                 className="flex items-start gap-2.5 text-sm text-slate-300"
               >
-                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle
+                  className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"
+                  aria-hidden="true"
+                />
                 <span>{feature}</span>
               </li>
             ))}
@@ -389,7 +381,10 @@ export default function Landing() {
             className="w-full py-3 bg-slate-800 hover:bg-indigo-600 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 border border-slate-700 hover:border-indigo-500 group-hover:shadow-lg group-hover:shadow-indigo-500/25"
           >
             <span>Konsultasi Sekarang</span>
-            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+            <ArrowUpRight
+              className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1"
+              aria-hidden="true"
+            />
           </button>
         </div>
       </div>
@@ -400,8 +395,8 @@ export default function Landing() {
     <div className="overflow-x-hidden">
       <Layout>
         <SEO
-          title="Jual Beton Cor Readymix & Sewa Pompa Beton Tangerang"
-          description="Niaga Solusi Mandiri - Penyedia jasa sewa pompa beton, beton readymix, dan finishing trowel di Tangerang. Hemat Waktu, Hemat Biaya, Hemat Tenaga. Harga termurah, mutu SNI, armada lengkap."
+          title="Jual Beton Cor Tangerang & Sewa Pompa Beton Terdekat"
+          description="Niaga Solusi Mandiri: Supplier beton cor terdekat di Tangerang. Melayani readymix mutu SNI, sewa pompa beton, dan finishing trowel. Harga termurah & armada lengkap."
           canonicalUrl="https://betoncortangerang.com/"
         />
 
@@ -416,10 +411,10 @@ export default function Landing() {
               <img
                 key={currentHeroIndex}
                 src={heroImages[currentHeroIndex]}
-                alt={`Hero background ${currentHeroIndex + 1}`}
+                alt={`Proyek beton cor Tangerang dan sewa pompa beton terdekat oleh Niaga Solusi Mandiri ${currentHeroIndex + 1}`}
                 className="w-full h-full object-cover animate-fade-in"
                 loading={currentHeroIndex === 0 ? "eager" : "lazy"}
-                fetchPriority={currentHeroIndex === 0 ? "high" : "low"}
+                fetchPriority={currentHeroIndex === 0 ? "high" : "auto"}
                 decoding="async"
                 width="1920"
                 height="1080"
@@ -430,7 +425,10 @@ export default function Landing() {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div data-aos="fade-right" data-aos-duration="1000">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-6 backdrop-blur-sm">
-                    <Building2 className="w-4 h-4 text-indigo-400" />
+                    <Building2
+                      className="w-4 h-4 text-indigo-400"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm font-semibold text-indigo-300 tracking-wide">
                       NIAGA SOLUSI MANDIRI
                     </span>
@@ -457,14 +455,15 @@ export default function Landing() {
                           data-aos-delay={300 + i * 100}
                           className="flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-emerald-200 text-sm font-semibold backdrop-blur-sm hover:bg-emerald-500/30 transition-colors"
                         >
-                          <Icon className="w-4 h-4" /> {item.text}
+                          <Icon className="w-4 h-4" aria-hidden="true" />{" "}
+                          {item.text}
                         </div>
                       );
                     })}
                   </div>
 
                   <p className="text-lg text-slate-300 mb-8 max-w-xl leading-relaxed">
-                    Supplier beton cor Tangerang dengan pengalaman 10+ tahun.
+                    Supplier <strong>beton cor terdekat</strong> di Tangerang dengan pengalaman 10+ tahun.
                     Melayani beton readymix, sewa pompa beton, dan finishing
                     trowel untuk proyek konstruksi Anda.
                   </p>
@@ -475,15 +474,18 @@ export default function Landing() {
                       className="group px-8 py-4 bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/25 hover:shadow-indigo-500/40 hover:-translate-y-1"
                     >
                       <span>Lihat Layanan</span>
-                      <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <ArrowUpRight
+                        className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                        aria-hidden="true"
+                      />
                     </button>
                     <a
                       href="https://wa.me/6281315913559"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 hover:shadow-emerald-500/40 hover:-translate-y-1"
+                      className="group px-8 py-4 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg shadow-emerald-700/25 hover:shadow-emerald-600/40 hover:-translate-y-1"
                     >
-                      <MessageCircle className="w-5 h-5" />
+                      <MessageCircle className="w-5 h-5" aria-hidden="true" />
                       <span>Hubungi via WA</span>
                     </a>
                   </div>
@@ -505,7 +507,10 @@ export default function Landing() {
                           key={idx}
                           className="text-center group cursor-default"
                         >
-                          <Icon className="w-6 h-6 text-indigo-400 mx-auto mb-2 group-hover:scale-125 group-hover:text-purple-400 transition-all duration-300" />
+                          <Icon
+                            className="w-6 h-6 text-indigo-400 mx-auto mb-2 group-hover:scale-125 group-hover:text-purple-400 transition-all duration-300"
+                            aria-hidden="true"
+                          />
                           <div className="text-2xl font-bold text-white">
                             {stat.number}
                           </div>
@@ -533,10 +538,12 @@ export default function Landing() {
                             {logoNsm ? (
                               <img
                                 src={logoNsm}
-                                alt="Logo Niaga Solusi Mandiri"
+                                alt="Logo Niaga Solusi Mandiri - Beton Cor Tangerang"
                                 className="w-full h-full object-contain"
                                 width="160"
                                 height="160"
+                                loading="lazy"
+                                decoding="async"
                               />
                             ) : (
                               <span className="text-5xl font-bold text-indigo-600">
@@ -544,19 +551,27 @@ export default function Landing() {
                               </span>
                             )}
                           </div>
-                          <h3 className="text-3xl font-bold text-white tracking-tight">
+                          
+                          <h2 className="text-3xl font-bold text-white tracking-tight">
                             Niaga Solusi Mandiri
-                          </h3>
+                          </h2>
+                          
                           <p className="text-slate-400 text-sm mt-2 font-medium">
                             Readymix & Concrete Pump
                           </p>
                           <div className="flex items-center justify-center gap-4 mt-6">
                             <span className="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-                              <Shield className="w-3.5 h-3.5 text-emerald-400" />{" "}
+                              <Shield
+                                className="w-3.5 h-3.5 text-emerald-400"
+                                aria-hidden="true"
+                              />{" "}
                               Terpercaya
                             </span>
                             <span className="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
-                              <Zap className="w-3.5 h-3.5 text-amber-400" />{" "}
+                              <Zap
+                                className="w-3.5 h-3.5 text-amber-400"
+                                aria-hidden="true"
+                              />{" "}
                               Profesional
                             </span>
                           </div>
@@ -578,7 +593,10 @@ export default function Landing() {
                   data-aos="fade-down"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4"
                 >
-                  <Brush className="w-4 h-4 text-indigo-400" />
+                  <Brush
+                    className="w-4 h-4 text-indigo-400"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-semibold text-indigo-300 tracking-wide">
                     LAYANAN KAMI
                   </span>
@@ -654,12 +672,15 @@ export default function Landing() {
                           className="flex gap-4 p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:border-indigo-500/30 transition-all duration-300"
                         >
                           <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center shrink-0">
-                            <Icon className="w-6 h-6 text-indigo-400" />
+                            <Icon
+                              className="w-6 h-6 text-indigo-400"
+                              aria-hidden="true"
+                            />
                           </div>
                           <div>
-                            <h4 className="text-lg font-bold text-white mb-1">
+                            <h3 className="text-lg font-bold text-white mb-1">
                               {item.title}
-                            </h4>
+                            </h3>
                             <p className="text-slate-400 text-sm leading-relaxed">
                               {item.desc}
                             </p>
@@ -672,24 +693,36 @@ export default function Landing() {
                 <div className="grid grid-cols-2 gap-4" data-aos="fade-left">
                   <div className="space-y-4 mt-8">
                     <div className="bg-linear-to-br from-indigo-600 to-indigo-800 rounded-2xl p-6 text-white text-center hover:scale-105 transition-transform duration-300 shadow-lg shadow-indigo-900/20">
-                      <Users className="w-8 h-8 mx-auto mb-3 text-indigo-200" />
+                      <Users
+                        className="w-8 h-8 mx-auto mb-3 text-indigo-200"
+                        aria-hidden="true"
+                      />
                       <p className="text-3xl font-bold">20+</p>
                       <p className="text-sm text-indigo-200">Tenaga Ahli</p>
                     </div>
                     <div className="bg-linear-to-br from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white text-center hover:scale-105 transition-transform duration-300 shadow-lg shadow-emerald-900/20">
-                      <Building2 className="w-8 h-8 mx-auto mb-3 text-emerald-200" />
+                      <Building2
+                        className="w-8 h-8 mx-auto mb-3 text-emerald-200"
+                        aria-hidden="true"
+                      />
                       <p className="text-3xl font-bold">500+</p>
                       <p className="text-sm text-emerald-200">Proyek Selesai</p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     <div className="bg-linear-to-br from-purple-600 to-purple-800 rounded-2xl p-6 text-white text-center hover:scale-105 transition-transform duration-300 shadow-lg shadow-purple-900/20">
-                      <Truck className="w-8 h-8 mx-auto mb-3 text-purple-200" />
+                      <Truck
+                        className="w-8 h-8 mx-auto mb-3 text-purple-200"
+                        aria-hidden="true"
+                      />
                       <p className="text-3xl font-bold">50+</p>
                       <p className="text-sm text-purple-200">Unit Armada</p>
                     </div>
                     <div className="bg-linear-to-br from-amber-600 to-amber-800 rounded-2xl p-6 text-white text-center hover:scale-105 transition-transform duration-300 shadow-lg shadow-amber-900/20">
-                      <Star className="w-8 h-8 mx-auto mb-3 text-amber-200" />
+                      <Star
+                        className="w-8 h-8 mx-auto mb-3 text-amber-200"
+                        aria-hidden="true"
+                      />
                       <p className="text-3xl font-bold">100%</p>
                       <p className="text-sm text-amber-200">Kepuasan Klien</p>
                     </div>
@@ -743,13 +776,16 @@ export default function Landing() {
                             aria-hidden="true"
                           />
                           <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                            <div
+                              className="w-14 h-14 rounded-full bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg"
+                              aria-hidden="true"
+                            >
                               {testimonial.name.charAt(0)}
                             </div>
                             <div>
-                              <h4 className="text-white font-bold text-lg">
+                              <h3 className="text-white font-bold text-lg">
                                 {testimonial.name}
-                              </h4>
+                              </h3>
                               <p className="text-sm text-indigo-400 font-medium">
                                 {testimonial.project}
                               </p>
@@ -779,20 +815,33 @@ export default function Landing() {
                       )
                     }
                     className="p-3 rounded-full bg-slate-800 hover:bg-indigo-600 text-white transition-all duration-300 border border-slate-700 hover:border-indigo-500"
-                    aria-label="Previous testimonial"
+                    aria-label="Testimoni sebelumnya"
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft className="w-5 h-5" aria-hidden="true" />
                   </button>
-                  <div className="flex gap-2">
+                  
+                  {/* PERBAIKAN ACCESSIBILITY: Menambahkan padding (p-2.5) untuk memperbesar area klik minimal 24x24px */}
+                  <div
+                    className="flex gap-2"
+                    role="tablist"
+                    aria-label="Navigasi testimoni"
+                  >
                     {testimonials.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentTestimonial(index)}
-                        className={`transition-all duration-300 rounded-full ${index === currentTestimonial ? "w-8 h-2 bg-indigo-500" : "w-2 h-2 bg-slate-700 hover:bg-slate-600"}`}
-                        aria-label={`Go to testimonial ${index + 1}`}
-                      />
+                        role="tab"
+                        aria-selected={index === currentTestimonial}
+                        aria-label={`Lihat testimoni ${index + 1}`}
+                        className="flex items-center justify-center transition-all duration-300 rounded-full p-2.5 hover:bg-slate-800"
+                      >
+                        <span
+                          className={`block rounded-full transition-all duration-300 ${index === currentTestimonial ? "w-8 h-2 bg-indigo-500" : "w-2 h-2 bg-slate-700"}`}
+                        />
+                      </button>
                     ))}
                   </div>
+
                   <button
                     onClick={() =>
                       setCurrentTestimonial(
@@ -800,9 +849,9 @@ export default function Landing() {
                       )
                     }
                     className="p-3 rounded-full bg-slate-800 hover:bg-indigo-600 text-white transition-all duration-300 border border-slate-700 hover:border-indigo-500"
-                    aria-label="Next testimonial"
+                    aria-label="Testimoni berikutnya"
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -820,7 +869,10 @@ export default function Landing() {
                   data-aos="fade-down"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4"
                 >
-                  <MapPin className="w-4 h-4 text-indigo-400" />
+                  <MapPin
+                    className="w-4 h-4 text-indigo-400"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-semibold text-indigo-300 tracking-wide">
                     WILAYAH LAYANAN
                   </span>
@@ -871,7 +923,10 @@ export default function Landing() {
                   >
                     <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
                       <div className="p-2 bg-indigo-500/10 rounded-lg">
-                        <MapPin className="w-5 h-5 text-indigo-400" />
+                        <MapPin
+                          className="w-5 h-5 text-indigo-400"
+                          aria-hidden="true"
+                        />
                       </div>
                       {region.region}
                     </h3>
@@ -881,7 +936,10 @@ export default function Landing() {
                           key={areaIdx}
                           className="flex items-center gap-2.5 p-3 bg-slate-900 rounded-xl border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-800/50 transition-all duration-300"
                         >
-                          <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                          <CheckCircle
+                            className="w-4 h-4 text-emerald-400 shrink-0"
+                            aria-hidden="true"
+                          />
                           <span className="text-sm text-slate-300 font-medium">
                             {area}
                           </span>
@@ -902,7 +960,10 @@ export default function Landing() {
                   data-aos="fade-down"
                   className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4"
                 >
-                  <MessageCircle className="w-4 h-4 text-indigo-400" />
+                  <MessageCircle
+                    className="w-4 h-4 text-indigo-400"
+                    aria-hidden="true"
+                  />
                   <span className="text-sm font-semibold text-indigo-300 tracking-wide">
                     FAQ
                   </span>
@@ -928,18 +989,26 @@ export default function Landing() {
                       onClick={() => toggleFaq(idx)}
                       className="w-full flex items-center justify-between p-6 text-left hover:bg-slate-800/50 transition duration-300"
                       aria-expanded={openFaq === idx}
+                      aria-controls={`faq-answer-${idx}`}
                     >
                       <span className="font-semibold text-white pr-4 text-lg">
                         {faq.question}
                       </span>
                       {openFaq === idx ? (
-                        <ChevronUp className="w-5 h-5 text-indigo-400 shrink-0" />
+                        <ChevronUp
+                          className="w-5 h-5 text-indigo-400 shrink-0"
+                          aria-hidden="true"
+                        />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-slate-500 shrink-0" />
+                        <ChevronDown
+                          className="w-5 h-5 text-slate-500 shrink-0"
+                          aria-hidden="true"
+                        />
                       )}
                     </button>
                     {openFaq === idx && (
                       <div
+                        id={`faq-answer-${idx}`}
                         className="px-6 pb-6"
                         data-aos="fade-down"
                         data-aos-duration="300"
@@ -960,14 +1029,23 @@ export default function Landing() {
             id="contact"
             className="py-24 px-4 bg-linear-to-br from-indigo-950 via-slate-950 to-purple-950 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div
+              className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"
+              aria-hidden="true"
+            ></div>
+            <div
+              className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"
+              aria-hidden="true"
+            ></div>
 
             <div className="max-w-7xl mx-auto relative z-10">
               <div className="grid lg:grid-cols-2 gap-16 items-start">
                 <div data-aos="fade-right">
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-6 backdrop-blur-sm">
-                    <MessageCircle className="w-4 h-4 text-indigo-400" />
+                    <MessageCircle
+                      className="w-4 h-4 text-indigo-400"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm font-semibold text-indigo-300 tracking-wide">
                       KONTAK KAMI
                     </span>
@@ -992,7 +1070,10 @@ export default function Landing() {
                       className="flex items-center gap-4 p-5 bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all duration-300 group"
                     >
                       <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Phone className="w-6 h-6 text-emerald-400" />
+                        <Phone
+                          className="w-6 h-6 text-emerald-400"
+                          aria-hidden="true"
+                        />
                       </div>
                       <div>
                         <div className="text-sm text-slate-400 font-medium mb-1">
@@ -1010,7 +1091,10 @@ export default function Landing() {
                       className="flex items-center gap-4 p-5 bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all duration-300 group"
                     >
                       <div className="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                        <Phone className="w-6 h-6 text-emerald-400" />
+                        <Phone
+                          className="w-6 h-6 text-emerald-400"
+                          aria-hidden="true"
+                        />
                       </div>
                       <div>
                         <div className="text-sm text-slate-400 font-medium mb-1">
@@ -1028,9 +1112,10 @@ export default function Landing() {
                       href="https://wa.me/6281315913559"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-500/40 hover:-translate-y-1"
+                      className="inline-flex items-center gap-2 px-6 py-3.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg shadow-emerald-700/20 hover:shadow-emerald-600/40 hover:-translate-y-1"
                     >
-                      <MessageCircle className="w-5 h-5" /> Chat WhatsApp
+                      <MessageCircle className="w-5 h-5" aria-hidden="true" />{" "}
+                      Chat WhatsApp
                     </a>
                   </div>
                 </div>
@@ -1057,6 +1142,7 @@ export default function Landing() {
                         value={contactForm.name}
                         onChange={handleFormChange}
                         required
+                        autoComplete="name"
                         className="w-full px-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-400"
                         placeholder="Nama Anda"
                       />
@@ -1076,6 +1162,7 @@ export default function Landing() {
                           value={contactForm.phone}
                           onChange={handleFormChange}
                           required
+                          autoComplete="tel"
                           className="w-full px-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white placeholder-slate-400"
                           placeholder="0812-xxxx-xxxx"
                         />
@@ -1092,6 +1179,7 @@ export default function Landing() {
                           name="service"
                           value={contactForm.service}
                           onChange={handleFormChange}
+                          required
                           className="w-full px-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-white"
                         >
                           <option value="">Pilih layanan</option>
@@ -1131,13 +1219,16 @@ export default function Landing() {
                     >
                       {isSubmitting ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <div
+                            className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                            aria-hidden="true"
+                          ></div>
                           <span>Mengirim...</span>
                         </>
                       ) : (
                         <>
                           <span>Kirim ke WhatsApp</span>
-                          <Send className="w-5 h-5" />
+                          <Send className="w-5 h-5" aria-hidden="true" />
                         </>
                       )}
                     </button>
