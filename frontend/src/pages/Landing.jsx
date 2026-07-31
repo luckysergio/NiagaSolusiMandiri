@@ -31,32 +31,32 @@ import {
 } from "lucide-react";
 import logoNsm from "../assets/logo-nsm.png";
 
-import heroImg1 from "../assets/images/header/1.jpg";
-import heroImg2 from "../assets/images/header/2.jpg";
-import heroImg3 from "../assets/images/header/3.jpg";
-import heroImg4 from "../assets/images/header/4.jpg";
-import heroImg5 from "../assets/images/header/5.jpg";
-import heroImg6 from "../assets/images/header/6.jpg";
-import heroImg7 from "../assets/images/header/7.jpg";
-import heroImg8 from "../assets/images/header/8.jpg";
-import heroImg9 from "../assets/images/header/9.jpg";
-import heroImg10 from "../assets/images/header/10.jpg";
+import heroImg1 from "../assets/images/header/1.webp";
+import heroImg2 from "../assets/images/header/2.webp";
+import heroImg3 from "../assets/images/header/3.webp";
+import heroImg4 from "../assets/images/header/4.webp";
+import heroImg5 from "../assets/images/header/5.webp";
+import heroImg6 from "../assets/images/header/6.webp";
+import heroImg7 from "../assets/images/header/7.webp";
+import heroImg8 from "../assets/images/header/8.webp";
+import heroImg9 from "../assets/images/header/9.webp";
+import heroImg10 from "../assets/images/header/10.webp";
 
-import betonReadymix1 from "../assets/images/betonreadymix/1.jpg";
-import betonReadymix2 from "../assets/images/betonreadymix/2.jpg";
-import betonReadymix3 from "../assets/images/betonreadymix/3.jpg";
-import betonReadymix4 from "../assets/images/betonreadymix/4.jpg";
+import betonReadymix1 from "../assets/images/betonreadymix/1.webp";
+import betonReadymix2 from "../assets/images/betonreadymix/2.webp";
+import betonReadymix3 from "../assets/images/betonreadymix/3.webp";
+import betonReadymix4 from "../assets/images/betonreadymix/4.webp";
 
-import pompaBeton1 from "../assets/images/pompabeton/1.jpg";
-import pompaBeton2 from "../assets/images/pompabeton/2.jpg";
-import pompaBeton3 from "../assets/images/pompabeton/3.jpg";
-import pompaBeton4 from "../assets/images/pompabeton/4.jpg";
-import pompaBeton5 from "../assets/images/pompabeton/5.jpg";
-import pompaBeton6 from "../assets/images/pompabeton/6.jpg";
-import pompaBeton7 from "../assets/images/pompabeton/7.jpg";
-import pompaBeton8 from "../assets/images/pompabeton/8.jpg";
+import pompaBeton1 from "../assets/images/pompabeton/1.webp";
+import pompaBeton2 from "../assets/images/pompabeton/2.webp";
+import pompaBeton3 from "../assets/images/pompabeton/3.webp";
+import pompaBeton4 from "../assets/images/pompabeton/4.webp";
+import pompaBeton5 from "../assets/images/pompabeton/5.webp";
+import pompaBeton6 from "../assets/images/pompabeton/6.webp";
+import pompaBeton7 from "../assets/images/pompabeton/7.webp";
+import pompaBeton8 from "../assets/images/pompabeton/8.webp";
 
-import trowel1 from "../assets/images/trowel/1.jpg";
+import trowel1 from "../assets/images/trowel/1.webp";
 
 const heroImages = [
   heroImg1,

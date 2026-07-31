@@ -30,16 +30,16 @@ import {
   HandMetal,
 } from "lucide-react";
 
-import img1 from "../assets/images/header/1.jpg";
-import img2 from "../assets/images/header/2.jpg";
-import img3 from "../assets/images/header/3.jpg";
-import img4 from "../assets/images/header/4.jpg";
-import img5 from "../assets/images/header/5.jpg";
-import img6 from "../assets/images/header/6.jpg";
-import img7 from "../assets/images/header/7.jpg";
-import img8 from "../assets/images/header/8.jpg";
-import img9 from "../assets/images/header/9.jpg";
-import img10 from "../assets/images/header/10.jpg";
+import img1 from "../assets/images/header/1.webp";
+import img2 from "../assets/images/header/2.webp";
+import img3 from "../assets/images/header/3.webp";
+import img4 from "../assets/images/header/4.webp";
+import img5 from "../assets/images/header/5.webp";
+import img6 from "../assets/images/header/6.webp";
+import img7 from "../assets/images/header/7.webp";
+import img8 from "../assets/images/header/8.webp";
+import img9 from "../assets/images/header/9.webp";
+import img10 from "../assets/images/header/10.webp";
 
 const heroImages = [
   img1,

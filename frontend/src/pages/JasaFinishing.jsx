@@ -23,7 +23,7 @@ import {
   HandMetal,
 } from "lucide-react";
 
-import trowel1 from "../assets/images/trowel/1.jpg";
+import trowel1 from "../assets/images/trowel/1.webp";
 
 const heroImages = [trowel1];
 

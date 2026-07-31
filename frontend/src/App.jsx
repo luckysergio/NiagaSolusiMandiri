@@ -1,147 +1,151 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { HelmetProvider } from 'react-helmet-async';
-import { AuthProvider } from './contexts/AuthContext';
 import { ModalProvider } from './contexts/ModalContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Landing from './pages/Landing';
-import Dashboard from './pages/Dashboard/Dashboard';
-import Users from './pages/UserManajemen/User';
-import Roles from './pages/RoleManajemen/Roles';
-import Profile from './pages/Profile';
 
-import About from './pages/About';
-import Services from './pages/Services';
-import BetonReadymix from './pages/BetonReadymix';
-import PompaBeton from './pages/PompaBeton';
-import JasaFinishing from './pages/JasaFinishing';
-import Contact from './pages/Contact';
-import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
-import CategoriesPage from './pages/categories/CategoriesPage';
-import ProductTypesPage from './pages/product-types/ProductTypesPage';
-import ProductsPage from './pages/products/ProductsPage';
-import SuppliersPage from './pages/suppliers/SuppliersPage';
-import TransactionsPage from './pages/transactions/TransactionsPage';
+const About = lazy(() => import('./pages/About'));
+const Services = lazy(() => import('./pages/Services'));
+const BetonReadymix = lazy(() => import('./pages/BetonReadymix'));
+const PompaBeton = lazy(() => import('./pages/PompaBeton'));
+const JasaFinishing = lazy(() => import('./pages/JasaFinishing'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogDetail = lazy(() => import('./pages/BlogDetail'));
+
+const Dashboard = lazy(() => import('./pages/Dashboard/Dashboard'));
+const Users = lazy(() => import('./pages/UserManajemen/User'));
+const Roles = lazy(() => import('./pages/RoleManajemen/Roles'));
+const Profile = lazy(() => import('./pages/Profile'));
+const CategoriesPage = lazy(() => import('./pages/categories/CategoriesPage'));
+const ProductTypesPage = lazy(() => import('./pages/product-types/ProductTypesPage'));
+const ProductsPage = lazy(() => import('./pages/products/ProductsPage'));
+const SuppliersPage = lazy(() => import('./pages/suppliers/SuppliersPage'));
+const TransactionsPage = lazy(() => import('./pages/transactions/TransactionsPage'));
+
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-950">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 border-4 border-indigo-500/20 rounded-full animate-spin border-t-indigo-500"></div>
+      <p className="text-slate-400 animate-pulse">Memuat halaman...</p>
+    </div>
+  </div>
+);
 
 function App() {
   return (
-    <HelmetProvider>
-      <AuthProvider>
-        <ModalProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/tentang" element={<About />} />
-              <Route path="/layanan" element={<Services />} />
-              <Route path="/layanan/beton-readymix" element={<BetonReadymix />} />
-              <Route path="/layanan/pompa-beton" element={<PompaBeton />} />
-              <Route path="/layanan/jasa-finishing" element={<JasaFinishing />} />
-              <Route path="/kontak" element={<Contact />} />
-              <Route path="/blog" element={<Blog />} />
-              <Route path="/blog/:slug" element={<BlogDetail />} />
+    <ModalProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
 
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Dashboard />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/users"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Users />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/roles"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Roles />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/categories"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CategoriesPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/product-types"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ProductTypesPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/products"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <ProductsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/suppliers"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <SuppliersPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/transactions"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <TransactionsPage />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Profile />
-                    </MainLayout>
-                  </ProtectedRoute>
-                }
-              />
+          <Route path="/tentang" element={<Suspense fallback={<PageLoader />}><About /></Suspense>} />
+          <Route path="/layanan" element={<Suspense fallback={<PageLoader />}><Services /></Suspense>} />
+          <Route path="/layanan/beton-readymix" element={<Suspense fallback={<PageLoader />}><BetonReadymix /></Suspense>} />
+          <Route path="/layanan/pompa-beton" element={<Suspense fallback={<PageLoader />}><PompaBeton /></Suspense>} />
+          <Route path="/layanan/jasa-finishing" element={<Suspense fallback={<PageLoader />}><JasaFinishing /></Suspense>} />
+          <Route path="/kontak" element={<Suspense fallback={<PageLoader />}><Contact /></Suspense>} />
+          <Route path="/blog" element={<Suspense fallback={<PageLoader />}><Blog /></Suspense>} />
+          <Route path="/blog/:slug" element={<Suspense fallback={<PageLoader />}><BlogDetail /></Suspense>} />
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
-        </ModalProvider>
-      </AuthProvider>
-    </HelmetProvider>
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><Dashboard /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><Users /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><Roles /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/categories"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><CategoriesPage /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/product-types"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><ProductTypesPage /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/products"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><ProductsPage /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/suppliers"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><SuppliersPage /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><TransactionsPage /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <Suspense fallback={<PageLoader />}><Profile /></Suspense>
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ModalProvider>
   );
 }
 

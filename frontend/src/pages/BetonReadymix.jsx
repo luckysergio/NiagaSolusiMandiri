@@ -24,10 +24,10 @@ import {
   HandMetal,
 } from "lucide-react";
 
-import betonReadymix1 from "../assets/images/betonreadymix/1.jpg";
-import betonReadymix2 from "../assets/images/betonreadymix/2.jpg";
-import betonReadymix3 from "../assets/images/betonreadymix/3.jpg";
-import betonReadymix4 from "../assets/images/betonreadymix/4.jpg";
+import betonReadymix1 from "../assets/images/betonreadymix/1.webp";
+import betonReadymix2 from "../assets/images/betonreadymix/2.webp";
+import betonReadymix3 from "../assets/images/betonreadymix/3.webp";
+import betonReadymix4 from "../assets/images/betonreadymix/4.webp";
 
 const heroImages = [
   betonReadymix1,

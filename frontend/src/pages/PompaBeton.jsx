@@ -24,14 +24,14 @@ import {
   HandMetal,
 } from "lucide-react";
 
-import pompaBetons1 from "../assets/images/pompabeton/1.jpg";
-import pompaBetons2 from "../assets/images/pompabeton/2.jpg";
-import pompaBetons3 from "../assets/images/pompabeton/3.jpg";
-import pompaBetons4 from "../assets/images/pompabeton/4.jpg";
-import pompaBetons5 from "../assets/images/pompabeton/5.jpg";
-import pompaBetons6 from "../assets/images/pompabeton/6.jpg";
-import pompaBetons7 from "../assets/images/pompabeton/7.jpg";
-import pompaBetons8 from "../assets/images/pompabeton/8.jpg";
+import pompaBetons1 from "../assets/images/pompabeton/1.webp";
+import pompaBetons2 from "../assets/images/pompabeton/2.webp";
+import pompaBetons3 from "../assets/images/pompabeton/3.webp";
+import pompaBetons4 from "../assets/images/pompabeton/4.webp";
+import pompaBetons5 from "../assets/images/pompabeton/5.webp";
+import pompaBetons6 from "../assets/images/pompabeton/6.webp";
+import pompaBetons7 from "../assets/images/pompabeton/7.webp";
+import pompaBetons8 from "../assets/images/pompabeton/8.webp";
 
 const heroImages = [
   pompaBetons1,
