@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
 import '../config/env_config.dart';
@@ -52,17 +53,28 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkAuth() async {
+    // Tunggu minimal 2 detik untuk tampilan splash
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
 
-    if (authProvider.isAuthenticated) {
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } else {
-      Navigator.pushReplacementNamed(context, '/login');
+    // Skenario 1: Belum login → ke halaman login
+    if (!authProvider.isAuthenticated) {
+      if (mounted) context.go('/login');
+      return;
     }
+
+    // Skenario 2: Sudah login tapi token expired → ke login (tanpa dialog)
+    if (!authProvider.isTokenValid()) {
+      await authProvider.logout();
+      if (mounted) context.go('/login');
+      return;
+    }
+
+    // Skenario 3: Sudah login + token aktif → langsung ke beranda
+    if (mounted) context.go('/home');
   }
 
   @override
@@ -89,7 +101,6 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Asli dengan efek shadow glowing
                     Container(
                       width: 110,
                       height: 110,
@@ -113,8 +124,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 28),
-
-                    // App Name
                     Text(
                       EnvConfig.appName,
                       style: const TextStyle(
@@ -125,8 +134,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Subtitle
                     const Text(
                       'Readymix & Concrete Pump',
                       style: TextStyle(
@@ -136,15 +143,11 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 48),
-
-                    // Loading Indicator
                     const SpinKitFadingCircle(
                       color: Color(0xFF4F46E5),
                       size: 40,
                     ),
                     const SizedBox(height: 16),
-
-                    // Loading Text
                     const Text(
                       'Memuat Aplikasi...',
                       style: TextStyle(
@@ -154,8 +157,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 8),
-
-                    // Version
                     Text(
                       'Version ${EnvConfig.appVersion}',
                       style: const TextStyle(
@@ -164,8 +165,6 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                     const SizedBox(height: 32),
-
-                    // Animated dots
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(

@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/env_config.dart';
+import '../utils/app_navigator.dart';
 
 class DioClient {
   static late Dio _dio;
+  static bool _isShowingExpiredDialog = false;
 
   static Dio get dio => _dio;
 
@@ -20,7 +24,6 @@ class DioClient {
       ),
     );
 
-    // Add interceptors
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: _onRequest,
@@ -29,7 +32,6 @@ class DioClient {
       ),
     );
 
-    // Add logging interceptor for development
     if (EnvConfig.isDevelopment) {
       _dio.interceptors.add(
         LogInterceptor(
@@ -65,9 +67,9 @@ class DioClient {
     DioException error,
     ErrorInterceptorHandler handler,
   ) async {
-    // Handle 401 Unauthorized
     if (error.response?.statusCode == 401) {
       await _clearToken();
+      _showSessionExpiredDialog();
     }
     return handler.next(error);
   }
@@ -81,5 +83,75 @@ class DioClient {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
     await prefs.remove('user');
+  }
+
+  static void _showSessionExpiredDialog() {
+    if (_isShowingExpiredDialog) return;
+    _isShowingExpiredDialog = true;
+
+    final context = AppNavigator.context;
+    if (context == null) {
+      _isShowingExpiredDialog = false;
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Color(0xFFF59E0B)),
+            SizedBox(width: 10),
+            Text(
+              'Sesi Berakhir',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+        content: const Text(
+          'Sesi login Anda telah berakhir karena token JWT sudah expired.\n\n'
+          'Silakan login ulang untuk melanjutkan.',
+          style: TextStyle(
+            color: Color(0xFFCBD5E1),
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              _isShowingExpiredDialog = false;
+              // Redirect ke login
+              context.go('/login');
+            },
+            style: TextButton.styleFrom(
+              backgroundColor: const Color(0xFF4F46E5),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              'Login Ulang',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

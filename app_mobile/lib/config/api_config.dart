@@ -1,4 +1,3 @@
-// lib/config/api_config.dart
 import 'env_config.dart';
 
 class ApiConfig {
@@ -28,8 +27,9 @@ class ApiConfig {
   // ============================================
   // PROFILE ENDPOINTS
   // ============================================
-  static const String profile = '/user/me';
-  static const String changePassword = '/user/change-password';
+  static const String profile = '/user/me'; // GET - ambil data profile
+  static const String updateProfile = '/user/profile'; // PUT - update profile
+  static const String changePassword = '/user/change-password'; // POST
   static const String userRoles = '/user/roles';
   static const String switchRole = '/user/switch-role';
 

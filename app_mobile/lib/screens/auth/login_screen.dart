@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../providers/auth_provider.dart';
 import '../../services/recaptcha_service.dart';
@@ -458,7 +459,6 @@ class __LoginFormState extends State<_LoginForm> {
   bool _obscurePassword = true;
   bool _isLoading = false;
 
-  // Hanya Admin dan Sales yang diizinkan
   final List<String> _allowedRoles = ['admin', 'sales'];
 
   @override
@@ -563,7 +563,8 @@ class __LoginFormState extends State<_LoginForm> {
             onOk: () {
               Navigator.pop(context);
               if (mounted) {
-                Navigator.pushReplacementNamed(context, '/dashboard');
+                // ✅ PERBAIKAN: Gunakan go_router dengan route /home
+                context.go('/home');
               }
             },
           ),
