@@ -1,0 +1,182 @@
+# ============================================
+# ENVIRONMENT VARIABLES
+# ============================================
+.env
+.env.*
+!.env.example
+*.env
+*.env.*
+!.env.example
+.env.production
+.env.staging
+.env.development
+.env.local
+
+# ============================================
+# IDE / EDITOR
+# ============================================
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+*.swp
+*.swo
+*~
+*.orig
+*.rej
+*.tmp
+
+# ============================================
+# FLUTTER / DART
+# ============================================
+.dart_tool/
+.pub-cache/
+.pub/
+build/
+*.log
+*.lock
+*.pid
+*.pid.lock
+app.*.symbols
+app.*.map.json
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# ============================================
+# ANDROID
+# ============================================
+android/.gradle/
+android/.idea/
+android/build/
+android/*.iml
+android/local.properties
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/**/*.iml
+android/**/.gradle
+
+# ============================================
+# IOS
+# ============================================
+ios/Pods/
+ios/Podfile.lock
+ios/*.xcworkspace
+ios/*.xcodeproj/project.xcworkspace/
+ios/*.xcodeproj/xcuserdata/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/**/DerivedData/
+
+# ============================================
+# MACOS
+# ============================================
+macos/Pods/
+macos/Podfile.lock
+macos/*.xcworkspace
+macos/*.xcodeproj/project.xcworkspace/
+macos/*.xcodeproj/xcuserdata/
+macos/Flutter/GeneratedPluginRegistrant.*
+macos/Runner/GeneratedPluginRegistrant.*
+
+# ============================================
+# WINDOWS
+# ============================================
+windows/cmake_install.cmake
+windows/CMakeCache.txt
+windows/CMakeFiles/
+windows/GeneratedFiles/
+windows/*.sln
+windows/*.vcxproj
+windows/*.vcxproj.filters
+windows/*.vcxproj.user
+windows/out/
+windows/Debug/
+windows/Release/
+windows/x64/
+windows/Flutter/GeneratedPluginRegistrant.*
+windows/runner/GeneratedPluginRegistrant.*
+
+# ============================================
+# WEB
+# ============================================
+web/*.dart.js
+web/*.dart.js.map
+web/*.dart.js.deps
+web/*.dart.js.deps.map
+web/*.dart.js.metadata
+web/favicon.png
+web/manifest.json
+web/icons/
+
+# ============================================
+# TEST COVERAGE
+# ============================================
+coverage/
+*.gcda
+*.gcno
+*.gcov
+*.lcov
+
+# ============================================
+# MISC
+# ============================================
+Thumbs.db
+*.user
+*.suo
+*.sdf
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+*.obj
+*.exe
+*.dSYM
+
+# ============================================
+# FIREBASE
+# ============================================
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+macos/Runner/GoogleService-Info.plist
+
+# ============================================
+# SECURITY
+# ============================================
+*.p12
+*.pem
+*.key
+*.crt
+*.csr
+*.jks
+*.keystore
+key.properties
+debug.keystore
+upload-keystore.jks
+
+# ============================================
+# BUILD ARTIFACTS
+# ============================================
+*.apk
+*.aab
+*.ipa
+*.dSYM.zip
+*.xcarchive.zip
+.terraform/
+.aws/
