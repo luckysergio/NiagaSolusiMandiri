@@ -11,8 +11,10 @@ import 'screens/auth/login_screen.dart';
 import 'screens/main_layout.dart';
 import 'screens/home/beranda_screen.dart';
 import 'screens/transactions/transaction_history_screen.dart';
-import 'screens/catalog/product_catalog_screen.dart';
 import 'screens/profile/profile_screen.dart';
+import 'screens/products/products_screen.dart';
+import 'screens/products/product_form_screen.dart';
+import 'models/product.dart';
 import 'utils/app_navigator.dart';
 
 void main() async {
@@ -84,12 +86,13 @@ class MyApp extends StatelessWidget {
           parentNavigatorKey: AppNavigator.navigatorKey,
           builder: (context, state) => const LoginScreen(),
         ),
+
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return MainLayout(navigationShell: navigationShell);
           },
           branches: [
-            // Branch 0: Transaction Active
+            // Branch 0: Transaksi Aktif
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -100,7 +103,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 1: Transaction Done
+            // Branch 1: Transaksi Selesai
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -111,7 +114,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 2: Beranda (default)
+            // Branch 2: Beranda (Default / Center Button)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -121,17 +124,19 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 3: Product Catalog
+            // ==========================================
+            // Branch 3: Manajemen Produk (CRUD)
+            // ==========================================
             StatefulShellBranch(
               routes: [
                 GoRoute(
-                  path: '/catalog',
-                  builder: (context, state) => const ProductCatalogScreen(),
+                  path: '/products',
+                  builder: (context, state) => const ProductsScreen(),
                 ),
               ],
             ),
 
-            // Branch 4: Profile
+            // Branch 4: Profil
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -141,6 +146,23 @@ class MyApp extends StatelessWidget {
               ],
             ),
           ],
+        ),
+
+        // ============================================
+        // PRODUCT FORM ROUTES (Dipush di atas bottom nav)
+        // ============================================
+        GoRoute(
+          path: '/products/create',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const ProductFormScreen(),
+        ),
+        GoRoute(
+          path: '/products/edit/:id',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) {
+            final product = state.extra as Product?;
+            return ProductFormScreen(editingProduct: product);
+          },
         ),
       ],
     );

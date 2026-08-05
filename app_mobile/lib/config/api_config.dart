@@ -1,21 +1,16 @@
 import 'env_config.dart';
 
 class ApiConfig {
-  // Base URL
   static String get baseUrl => EnvConfig.currentApiUrl;
 
-  // ============================================
-  // AUTH ENDPOINTS
-  // ============================================
+  // AUTH
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String me = '/auth/me';
   static const String logout = '/auth/logout';
   static const String refresh = '/auth/refresh';
 
-  // ============================================
-  // ADMIN ENDPOINTS
-  // ============================================
+  // ADMIN
   static const String categories = '/admin/product-categories';
   static const String products = '/admin/products';
   static const String productTypes = '/admin/product-types';
@@ -24,18 +19,15 @@ class ApiConfig {
   static const String users = '/admin/users';
   static const String dashboard = '/admin/dashboard';
 
-  // ============================================
-  // PROFILE ENDPOINTS
-  // ============================================
-  static const String profile = '/user/me'; // GET - ambil data profile
-  static const String updateProfile = '/user/profile'; // PUT - update profile
-  static const String changePassword = '/user/change-password'; // POST
-  static const String userRoles = '/user/roles';
-  static const String switchRole = '/user/switch-role';
+  // DROPDOWN ENDPOINTS
+  static const String categoriesDropdown = '/admin/product-categories/dropdown';
+  static const String productTypesDropdown = '/admin/product-types/dropdown';
 
-  // ============================================
-  // HEADERS
-  // ============================================
+  // PROFILE
+  static const String profile = '/user/me';
+  static const String updateProfile = '/user/profile';
+  static const String changePassword = '/user/change-password';
+
   static Map<String, String> getHeaders({String? token}) {
     return {
       'Content-Type': 'application/json',
