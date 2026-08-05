@@ -1,4 +1,3 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +7,6 @@ import 'services/dio_client.dart';
 import 'providers/auth_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/auth/register_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +18,7 @@ void main() async {
     await dotenv.load(fileName: ".env");
     EnvConfig.printConfig();
   } catch (e) {
-    // Gunakan debugPrint untuk development logging
     debugPrint('⚠️ Error loading .env file: $e');
-    // Fallback: coba load dari assets
     try {
       await dotenv.load();
     } catch (e) {
@@ -49,7 +45,6 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        // Tambahkan provider lain di sini jika diperlukan
       ],
       child: MaterialApp(
         title: EnvConfig.appName,
@@ -60,18 +55,15 @@ class MyApp extends StatelessWidget {
             primary: const Color(0xFF4F46E5),
           ),
           useMaterial3: true,
-          fontFamily: 'Poppins', // Optional: jika pakai custom font
+          fontFamily: 'Poppins',
         ),
         initialRoute: '/splash',
         routes: {
           '/splash': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
-          '/register': (context) => const RegisterScreen(),
         },
         onGenerateRoute: (settings) {
-          // Handle route yang tidak terdaftar
           if (settings.name == '/dashboard') {
-            // Untuk sementara tampilkan placeholder
             return MaterialPageRoute(
               builder: (context) => Scaffold(
                 appBar: AppBar(

@@ -1,4 +1,4 @@
-// lib/services/auth_service.dart
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/api_config.dart';
@@ -6,7 +6,6 @@ import '../models/auth_response.dart';
 import 'dio_client.dart';
 
 class AuthService {
-  // Tambahkan method ini di AuthService class
   static Future<AuthResponse> register({
     required String name,
     required String email,
@@ -65,12 +64,18 @@ class AuthService {
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Save token and user data
-        if (response.data['token'] != null) {
-          await _saveToken(response.data['token']);
+        final Map<String, dynamic> responseData =
+            response.data['data'] ?? response.data;
+
+        final String? token =
+            responseData['access_token'] ?? responseData['token'];
+        if (token != null) {
+          await _saveToken(token);
         }
-        if (response.data['user'] != null) {
-          await _saveUser(response.data['user']);
+
+        final Map<String, dynamic>? userData = responseData['user'];
+        if (userData != null) {
+          await _saveUser(userData);
         }
 
         return AuthResponse.fromJson(response.data);
@@ -114,7 +119,7 @@ class AuthService {
 
   static Future<void> _saveUser(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user', userData.toString());
+    await prefs.setString('user', jsonEncode(userData));
   }
 
   static Future<void> _clearAllData() async {

@@ -1,4 +1,3 @@
-// lib/models/auth_response.dart
 import 'user.dart';
 
 class AuthResponse {
@@ -17,11 +16,13 @@ class AuthResponse {
   });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> data = json['data'] ?? json;
+
     return AuthResponse(
       success: json['success'] ?? false,
       message: json['message'] ?? '',
-      token: json['token'],
-      user: json['user'] != null ? User.fromJson(json['user']) : null,
+      token: data['access_token'] ?? data['token'],
+      user: data['user'] != null ? User.fromJson(data['user']) : null,
       errors: json['errors'] != null ? List<String>.from(json['errors']) : null,
     );
   }

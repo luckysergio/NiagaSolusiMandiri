@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
@@ -30,11 +31,15 @@ class AuthProvider extends ChangeNotifier {
 
       if (_token != null && _token!.isNotEmpty) {
         _isAuthenticated = true;
-        // Load user data
+
         final userData = prefs.getString('user');
         if (userData != null) {
-          // Parse user data
-          // _user = User.fromJson(jsonDecode(userData));
+          try {
+            final Map<String, dynamic> userMap = jsonDecode(userData);
+            _user = User.fromJson(userMap);
+          } catch (e) {
+            // Silent fail - data corrupt, user perlu login ulang
+          }
         }
       }
     } catch (e) {
@@ -45,7 +50,6 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  // Tambahkan method ini di AuthProvider class
   Future<bool> register({
     required String name,
     required String email,

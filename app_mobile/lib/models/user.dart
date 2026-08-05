@@ -1,4 +1,3 @@
-// lib/models/user.dart
 class User {
   final int id;
   final String name;
@@ -11,6 +10,7 @@ class User {
   final DateTime? emailVerifiedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final Map<String, dynamic> rawData;
 
   User({
     required this.id,
@@ -24,28 +24,84 @@ class User {
     this.emailVerifiedAt,
     this.createdAt,
     this.updatedAt,
+    this.rawData = const {},
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final String? extractedRole = _extractRole(json);
+
     return User(
       id: json['id'] ?? 0,
-      name: json['name'] ?? '',
+      name: json['name'] ?? json['full_name'] ?? '',
       email: json['email'] ?? '',
-      phone: json['phone'],
-      avatar: json['avatar'],
-      role: json['role'],
-      isActive: json['is_active'] ?? true,
-      isLocked: json['is_locked'] ?? false,
+      phone: json['phone'] ?? json['phone_number'],
+      avatar: json['avatar'] ?? json['profile_photo_url'],
+      role: extractedRole,
+      isActive: json['is_active'] ?? json['active'] ?? true,
+      isLocked: json['is_locked'] ?? json['locked'] ?? false,
       emailVerifiedAt: json['email_verified_at'] != null
-          ? DateTime.parse(json['email_verified_at'])
+          ? DateTime.tryParse(json['email_verified_at'])
           : null,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'])
+          ? DateTime.tryParse(json['created_at'])
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
+          ? DateTime.tryParse(json['updated_at'])
           : null,
+      rawData: json,
     );
+  }
+
+  static String? _extractRole(Map<String, dynamic> json) {
+    if (json['role'] != null) {
+      if (json['role'] is String) {
+        return json['role'];
+      }
+      if (json['role'] is Map) {
+        return json['role']['name'] ?? json['role']['slug'];
+      }
+      if (json['role'] is List && (json['role'] as List).isNotEmpty) {
+        final first = (json['role'] as List).first;
+        if (first is String) {
+          return first;
+        }
+        if (first is Map) {
+          return first['name'] ?? first['slug'];
+        }
+      }
+    }
+
+    final alternativeFields = [
+      'role_name',
+      'user_type',
+      'user_role',
+      'type',
+      'position',
+      'designation',
+    ];
+
+    for (final field in alternativeFields) {
+      if (json[field] != null) {
+        if (json[field] is String) {
+          return json[field];
+        }
+      }
+    }
+
+    if (json['roles'] != null && json['roles'] is List) {
+      final roles = json['roles'] as List;
+      if (roles.isNotEmpty) {
+        final first = roles.first;
+        if (first is String) {
+          return first;
+        }
+        if (first is Map) {
+          return first['name'] ?? first['slug'];
+        }
+      }
+    }
+
+    return null;
   }
 
   Map<String, dynamic> toJson() {
@@ -61,7 +117,6 @@ class User {
     };
   }
 
-  bool get isAdmin => role == 'admin' || role == 'super_admin';
-  bool get isSuperAdmin => role == 'super_admin';
-  bool get isSales => role == 'sales';
+  bool get isAdmin => role?.toLowerCase() == 'admin';
+  bool get isSales => role?.toLowerCase() == 'sales';
 }

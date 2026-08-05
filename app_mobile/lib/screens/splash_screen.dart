@@ -22,7 +22,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Initialize animations
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -42,10 +41,7 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
 
-    // Start animation
     _animationController.forward();
-
-    // Check auth status after delay
     _checkAuth();
   }
 
@@ -56,19 +52,15 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkAuth() async {
-    // Wait for animation and splash display
     await Future.delayed(const Duration(seconds: 2));
 
     if (!mounted) return;
 
     final authProvider = context.read<AuthProvider>();
 
-    // Check if user is already logged in
     if (authProvider.isAuthenticated) {
-      // Navigate to dashboard
       Navigator.pushReplacementNamed(context, '/dashboard');
     } else {
-      // Navigate to login
       Navigator.pushReplacementNamed(context, '/login');
     }
   }
@@ -77,14 +69,14 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF0F172A),
-              const Color(0xFF1E293B),
-              const Color(0xFF0F172A),
+              Color(0xFF0F172A),
+              Color(0xFF1E293B),
+              Color(0xFF0F172A),
             ],
           ),
         ),
@@ -97,33 +89,30 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo
+                    // Logo Asli dengan efek shadow glowing
                     Container(
-                      width: 100,
-                      height: 100,
+                      width: 110,
+                      height: 110,
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.indigo.withValues(alpha: 0.3),
+                            color:
+                                const Color(0xFF4F46E5).withValues(alpha: 0.4),
                             blurRadius: 30,
-                            offset: const Offset(0, 8),
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
-                      child: const Center(
-                        child: Text(
-                          'NSM',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF4F46E5),
-                          ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Image.asset(
+                          'assets/images/logo-nsm.png',
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     // App Name
                     Text(
@@ -132,6 +121,7 @@ class _SplashScreenState extends State<SplashScreen>
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
+                        letterSpacing: -0.3,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -142,6 +132,7 @@ class _SplashScreenState extends State<SplashScreen>
                       style: TextStyle(
                         fontSize: 16,
                         color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -158,7 +149,8 @@ class _SplashScreenState extends State<SplashScreen>
                       'Memuat Aplikasi...',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF64748B),
+                        color: Color(0xFF94A3B8),
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -168,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                       'Version ${EnvConfig.appVersion}',
                       style: const TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF475569),
+                        color: Color(0xFF64748B),
                       ),
                     ),
                     const SizedBox(height: 32),
