@@ -44,14 +44,36 @@ class BerandaScreen extends StatelessWidget {
         label: 'Pengaturan',
         color: Color(0xFF64748B),
       ),
-      // ✅ Menu khusus Admin
-      if (isAdmin)
+
+      // ✅ MENU KHUSUS ADMIN
+      if (isAdmin) ...[
         _MenuItem(
           icon: Icons.admin_panel_settings_rounded,
           label: 'Manajemen User',
           color: const Color(0xFF8B5CF6),
           onTap: () => context.push('/users'),
         ),
+        _MenuItem(
+          icon: Icons.store_rounded,
+          label: 'Manajemen Supplier',
+          color: const Color(0xFF10B981),
+          onTap: () => context.push('/suppliers'), // Route akan dibuat nanti
+        ),
+        _MenuItem(
+          icon: Icons.category_rounded,
+          label: 'Kategori Produk',
+          color: const Color(0xFFF59E0B),
+          onTap: () =>
+              context.push('/product-categories'), // Route akan dibuat nanti
+        ),
+        _MenuItem(
+          icon: Icons.label_rounded,
+          label: 'Jenis Produk',
+          color: const Color(0xFF06B6D4),
+          onTap: () =>
+              context.push('/product-types'), // Route akan dibuat nanti
+        ),
+      ],
     ];
 
     return Scaffold(
@@ -316,7 +338,7 @@ class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final VoidCallback? onTap; // ✅ Ditambahkan agar bisa diklik
+  final VoidCallback? onTap;
 
   const _MenuItem({
     required this.icon,
@@ -346,7 +368,7 @@ class _MenuItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: onTap, // ✅ Menjalankan aksi saat diklik
+          onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/date_symbol_data_local.dart'; // ✅ TAMBAHKAN IMPORT INI
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'config/env_config.dart';
 import 'services/dio_client.dart';
@@ -16,14 +16,15 @@ import 'screens/profile/profile_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/products/product_form_screen.dart';
 import 'screens/users/user_management_screen.dart';
+import 'screens/suppliers/supplier_screen.dart';
+import 'screens/categories/category_screen.dart';
+import 'screens/product_types/product_type_screen.dart';
 import 'models/product.dart';
 import 'utils/app_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // ✅ INISIALISASI LOCALE UNTUK FORMAT TANGGAL (id_ID)
-  // Ini wajib dilakukan sebelum runApp agar DateFormat tidak error
   await initializeDateFormatting('id_ID', null);
 
   try {
@@ -50,8 +51,6 @@ class MyApp extends StatelessWidget {
     final GoRouter router = GoRouter(
       navigatorKey: AppNavigator.navigatorKey,
       initialLocation: '/splash',
-
-      // GLOBAL REDIRECT: Cek authentication state setiap navigasi
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
         final isLoggedIn =
@@ -61,17 +60,14 @@ class MyApp extends StatelessWidget {
         final isAuthRoute = currentPath == '/login' || currentPath == '/splash';
         final isGoingToLogin = currentPath == '/login';
 
-        // 1. Jika belum login DAN bukan di route auth → paksa ke login
         if (!isLoggedIn && !isAuthRoute) {
           return '/login';
         }
 
-        // 2. Jika sudah login DAN coba akses /login → redirect ke beranda
         if (isLoggedIn && isGoingToLogin) {
           return '/home';
         }
 
-        // 3. Jika token expired saat di protected route → ke login
         if (authProvider.isAuthenticated &&
             !authProvider.isTokenValid() &&
             !isAuthRoute) {
@@ -80,7 +76,6 @@ class MyApp extends StatelessWidget {
 
         return null;
       },
-
       routes: [
         GoRoute(
           path: '/splash',
@@ -92,7 +87,6 @@ class MyApp extends StatelessWidget {
           parentNavigatorKey: AppNavigator.navigatorKey,
           builder: (context, state) => const LoginScreen(),
         ),
-
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return MainLayout(navigationShell: navigationShell);
@@ -109,7 +103,6 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 1: Transaksi Selesai
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -120,7 +113,6 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 2: Beranda (Default / Center Button)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -151,12 +143,6 @@ class MyApp extends StatelessWidget {
             ),
           ],
         ),
-
-        // ============================================
-        // FULL SCREEN ROUTES (Dipush di atas bottom nav)
-        // ============================================
-
-        // Product Form Routes
         GoRoute(
           path: '/products/create',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -170,14 +156,25 @@ class MyApp extends StatelessWidget {
             return ProductFormScreen(editingProduct: product);
           },
         ),
-
-        // ✅ User Management Route (Khusus Admin)
-        // Menggunakan route biasa agar muncul sebagai halaman penuh (full screen)
-        // di atas bottom navbar. User bisa tekan tombol Back untuk kembali.
         GoRoute(
           path: '/users',
           parentNavigatorKey: AppNavigator.navigatorKey,
           builder: (context, state) => const UserManagementScreen(),
+        ),
+        GoRoute(
+          path: '/suppliers',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const SupplierScreen(),
+        ),
+        GoRoute(
+          path: '/product-categories',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const CategoryScreen(),
+        ),
+        GoRoute(
+          path: '/product-types',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const ProductTypeScreen(),
         ),
       ],
     );
