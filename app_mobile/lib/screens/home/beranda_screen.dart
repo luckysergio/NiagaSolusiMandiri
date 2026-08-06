@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/auth_provider.dart';
 
 class BerandaScreen extends StatelessWidget {
@@ -8,6 +10,49 @@ class BerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user;
+    final bool isAdmin = user?.isAdmin ?? false;
+
+    // Daftar menu dinamis
+    final List<Widget> menuItems = [
+      const _MenuItem(
+        icon: Icons.add_shopping_cart_rounded,
+        label: 'Order Baru',
+        color: Color(0xFF4F46E5),
+      ),
+      const _MenuItem(
+        icon: Icons.local_shipping_rounded,
+        label: 'Pengiriman',
+        color: Color(0xFF10B981),
+      ),
+      const _MenuItem(
+        icon: Icons.bar_chart_rounded,
+        label: 'Laporan',
+        color: Color(0xFFF59E0B),
+      ),
+      const _MenuItem(
+        icon: Icons.people_alt_rounded,
+        label: 'Customer',
+        color: Color(0xFFEC4899),
+      ),
+      const _MenuItem(
+        icon: Icons.inventory_rounded,
+        label: 'Stok',
+        color: Color(0xFF06B6D4),
+      ),
+      const _MenuItem(
+        icon: Icons.settings_rounded,
+        label: 'Pengaturan',
+        color: Color(0xFF64748B),
+      ),
+      // ✅ Menu khusus Admin
+      if (isAdmin)
+        _MenuItem(
+          icon: Icons.admin_panel_settings_rounded,
+          label: 'Manajemen User',
+          color: const Color(0xFF8B5CF6),
+          onTap: () => context.push('/users'),
+        ),
+    ];
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -133,38 +178,7 @@ class BerandaScreen extends StatelessWidget {
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
                     childAspectRatio: 0.9,
-                    children: const [
-                      _MenuItem(
-                        icon: Icons.add_shopping_cart_rounded,
-                        label: 'Order Baru',
-                        color: Color(0xFF4F46E5),
-                      ),
-                      _MenuItem(
-                        icon: Icons.local_shipping_rounded,
-                        label: 'Pengiriman',
-                        color: Color(0xFF10B981),
-                      ),
-                      _MenuItem(
-                        icon: Icons.bar_chart_rounded,
-                        label: 'Laporan',
-                        color: Color(0xFFF59E0B),
-                      ),
-                      _MenuItem(
-                        icon: Icons.people_alt_rounded,
-                        label: 'Customer',
-                        color: Color(0xFFEC4899),
-                      ),
-                      _MenuItem(
-                        icon: Icons.inventory_rounded,
-                        label: 'Stok',
-                        color: Color(0xFF06B6D4),
-                      ),
-                      _MenuItem(
-                        icon: Icons.settings_rounded,
-                        label: 'Pengaturan',
-                        color: Color(0xFF64748B),
-                      ),
-                    ],
+                    children: menuItems, // ✅ Menggunakan list dinamis
                   ),
                 ],
               ),
@@ -302,11 +316,13 @@ class _MenuItem extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback? onTap; // ✅ Ditambahkan agar bisa diklik
 
   const _MenuItem({
     required this.icon,
     required this.label,
     required this.color,
+    this.onTap,
   });
 
   @override
@@ -330,7 +346,7 @@ class _MenuItem extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
-          onTap: () {},
+          onTap: onTap, // ✅ Menjalankan aksi saat diklik
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -348,6 +364,7 @@ class _MenuItem extends StatelessWidget {
                 Text(
                   label,
                   textAlign: TextAlign.center,
+                  maxLines: 2,
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,

@@ -17,6 +17,7 @@ class ApiConfig {
   static const String suppliers = '/admin/suppliers';
   static const String transactions = '/admin/transactions';
   static const String users = '/admin/users';
+  static const String rolesDropdown = '/admin/roles/dropdown';
   static const String dashboard = '/admin/dashboard';
 
   // DROPDOWN ENDPOINTS

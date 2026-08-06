@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/date_symbol_data_local.dart'; // ✅ TAMBAHKAN IMPORT INI
 
 import 'config/env_config.dart';
 import 'services/dio_client.dart';
@@ -14,11 +15,16 @@ import 'screens/transactions/transaction_history_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/products/product_form_screen.dart';
+import 'screens/users/user_management_screen.dart';
 import 'models/product.dart';
 import 'utils/app_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ INISIALISASI LOCALE UNTUK FORMAT TANGGAL (id_ID)
+  // Ini wajib dilakukan sebelum runApp agar DateFormat tidak error
+  await initializeDateFormatting('id_ID', null);
 
   try {
     await dotenv.load(fileName: ".env");
@@ -124,9 +130,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // ==========================================
             // Branch 3: Manajemen Produk (CRUD)
-            // ==========================================
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -149,8 +153,10 @@ class MyApp extends StatelessWidget {
         ),
 
         // ============================================
-        // PRODUCT FORM ROUTES (Dipush di atas bottom nav)
+        // FULL SCREEN ROUTES (Dipush di atas bottom nav)
         // ============================================
+
+        // Product Form Routes
         GoRoute(
           path: '/products/create',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -163,6 +169,15 @@ class MyApp extends StatelessWidget {
             final product = state.extra as Product?;
             return ProductFormScreen(editingProduct: product);
           },
+        ),
+
+        // ✅ User Management Route (Khusus Admin)
+        // Menggunakan route biasa agar muncul sebagai halaman penuh (full screen)
+        // di atas bottom navbar. User bisa tekan tombol Back untuk kembali.
+        GoRoute(
+          path: '/users',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const UserManagementScreen(),
         ),
       ],
     );

@@ -4,10 +4,14 @@ class User {
   final String email;
   final String? phone;
   final String? avatar;
-  final String? role;
+  final String? role; // e.g., 'admin', 'sales'
+  final int? roleId; // ID role untuk dropdown saat edit
+  final String?
+      roleName; // Nama role yang human-readable (e.g., 'Administrator')
   final bool isActive;
   final bool isLocked;
   final DateTime? emailVerifiedAt;
+  final DateTime? lastLoginAt; // Waktu login terakhir
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final Map<String, dynamic> rawData;
@@ -19,9 +23,12 @@ class User {
     this.phone,
     this.avatar,
     this.role,
+    this.roleId,
+    this.roleName,
     required this.isActive,
     required this.isLocked,
     this.emailVerifiedAt,
+    this.lastLoginAt,
     this.createdAt,
     this.updatedAt,
     this.rawData = const {},
@@ -30,6 +37,24 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     final String? extractedRole = _extractRole(json);
 
+    // Parsing roleId dan roleName secara aman
+    int? parsedRoleId;
+    String? parsedRoleName;
+
+    if (json['role'] is Map) {
+      parsedRoleId = json['role']['id'] is int
+          ? json['role']['id']
+          : int.tryParse(json['role']['id']?.toString() ?? '');
+      parsedRoleName = json['role']['display_name'] ?? json['role']['name'];
+    } else if (json['role_id'] != null) {
+      parsedRoleId = json['role_id'] is int
+          ? json['role_id']
+          : int.tryParse(json['role_id'].toString());
+      parsedRoleName = json['role_name'] ?? extractedRole;
+    } else {
+      parsedRoleName = extractedRole;
+    }
+
     return User(
       id: json['id'] ?? 0,
       name: json['name'] ?? json['full_name'] ?? '',
@@ -37,10 +62,20 @@ class User {
       phone: json['phone'] ?? json['phone_number'],
       avatar: json['avatar'] ?? json['profile_photo_url'],
       role: extractedRole,
-      isActive: json['is_active'] ?? json['active'] ?? true,
-      isLocked: json['is_locked'] ?? json['locked'] ?? false,
+      roleId: parsedRoleId,
+      roleName: parsedRoleName,
+      // Parsing boolean yang lebih aman (menangani kasus Laravel yang mengembalikan 1, "1", atau true)
+      isActive: json['is_active'] == true ||
+          json['is_active'] == 1 ||
+          json['is_active'] == '1',
+      isLocked: json['is_locked'] == true ||
+          json['is_locked'] == 1 ||
+          json['is_locked'] == '1',
       emailVerifiedAt: json['email_verified_at'] != null
           ? DateTime.tryParse(json['email_verified_at'])
+          : null,
+      lastLoginAt: json['last_login_at'] != null
+          ? DateTime.tryParse(json['last_login_at'])
           : null,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'])
@@ -112,11 +147,32 @@ class User {
       'phone': phone,
       'avatar': avatar,
       'role': role,
+      'role_id': roleId,
       'is_active': isActive,
       'is_locked': isLocked,
     };
   }
 
-  bool get isAdmin => role?.toLowerCase() == 'admin';
+  // Helper getters
+  bool get isAdmin =>
+      role?.toLowerCase() == 'admin' || role?.toLowerCase() == 'super_admin';
   bool get isSales => role?.toLowerCase() == 'sales';
+}
+
+// Model tambahan untuk Dropdown Role
+class RoleDropdown {
+  final int id;
+  final String displayName;
+
+  RoleDropdown({
+    required this.id,
+    required this.displayName,
+  });
+
+  factory RoleDropdown.fromJson(Map<String, dynamic> json) {
+    return RoleDropdown(
+      id: json['id'] ?? 0,
+      displayName: json['display_name'] ?? json['name'] ?? '',
+    );
+  }
 }
