@@ -3,14 +3,12 @@ import 'env_config.dart';
 class ApiConfig {
   static String get baseUrl => EnvConfig.currentApiUrl;
 
-  // AUTH
   static const String login = '/auth/login';
   static const String register = '/auth/register';
   static const String me = '/auth/me';
   static const String logout = '/auth/logout';
   static const String refresh = '/auth/refresh';
 
-  // ADMIN
   static const String categories = '/admin/product-categories';
   static const String products = '/admin/products';
   static const String productTypes = '/admin/product-types';
@@ -18,13 +16,17 @@ class ApiConfig {
   static const String transactions = '/admin/transactions';
   static const String users = '/admin/users';
   static const String rolesDropdown = '/admin/roles/dropdown';
-  static const String dashboard = '/admin/dashboard';
 
-  // DROPDOWN ENDPOINTS
+  static const String stats = '/admin/stats';
+  static const String transactionChart = '/admin/dashboard/transaction-chart';
+  static const String topProducts = '/admin/dashboard/top-products';
+  static const String recentTransactions =
+      '/admin/dashboard/recent-transactions';
+  static const String exportTransactions = '/admin/transactions/export-excel';
+
   static const String categoriesDropdown = '/admin/product-categories/dropdown';
   static const String productTypesDropdown = '/admin/product-types/dropdown';
 
-  // PROFILE
   static const String profile = '/user/me';
   static const String updateProfile = '/user/profile';
   static const String changePassword = '/user/change-password';

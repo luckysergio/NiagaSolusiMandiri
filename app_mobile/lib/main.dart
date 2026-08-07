@@ -13,7 +13,7 @@ import 'screens/main_layout.dart';
 import 'screens/home/beranda_screen.dart';
 import 'screens/transactions/active_transactions_screen.dart';
 import 'screens/transactions/completed_transactions_screen.dart';
-import 'screens/transactions/transaction_form_screen.dart'; // ✅ Ditambahkan
+import 'screens/transactions/transaction_form_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/products/product_form_screen.dart';
@@ -21,8 +21,9 @@ import 'screens/users/user_management_screen.dart';
 import 'screens/suppliers/supplier_screen.dart';
 import 'screens/categories/category_screen.dart';
 import 'screens/product_types/product_type_screen.dart';
+import 'screens/dashboard/dashboard_screen.dart';
 import 'models/product.dart';
-import 'models/transaction.dart'; // ✅ Ditambahkan
+import 'models/transaction.dart';
 import 'utils/app_navigator.dart';
 
 void main() async {
@@ -55,8 +56,6 @@ class MyApp extends StatelessWidget {
     final GoRouter router = GoRouter(
       navigatorKey: AppNavigator.navigatorKey,
       initialLocation: '/splash',
-
-      // GLOBAL REDIRECT: Cek authentication state setiap navigasi
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
         final isLoggedIn =
@@ -82,11 +81,7 @@ class MyApp extends StatelessWidget {
 
         return null;
       },
-
       routes: [
-        // ==========================================
-        // AUTH ROUTES
-        // ==========================================
         GoRoute(
           path: '/splash',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -97,16 +92,11 @@ class MyApp extends StatelessWidget {
           parentNavigatorKey: AppNavigator.navigatorKey,
           builder: (context, state) => const LoginScreen(),
         ),
-
-        // ==========================================
-        // MAIN LAYOUT (BOTTOM NAVIGATION)
-        // ==========================================
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return MainLayout(navigationShell: navigationShell);
           },
           branches: [
-            // Branch 0: Transaksi Aktif
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -115,8 +105,6 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Branch 1: Transaksi Selesai
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -126,8 +114,6 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Branch 2: Beranda (Center Button)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -136,8 +122,6 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Branch 3: Manajemen Produk
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -146,8 +130,6 @@ class MyApp extends StatelessWidget {
                 ),
               ],
             ),
-
-            // Branch 4: Profil
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -158,10 +140,11 @@ class MyApp extends StatelessWidget {
             ),
           ],
         ),
-
-        // ==========================================
-        // PRODUCT FORM ROUTES
-        // ==========================================
+        GoRoute(
+          path: '/reports',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const DashboardScreen(),
+        ),
         GoRoute(
           path: '/products/create',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -175,10 +158,6 @@ class MyApp extends StatelessWidget {
             return ProductFormScreen(editingProduct: product);
           },
         ),
-
-        // ==========================================
-        // TRANSACTION FORM ROUTES (✅ Dilengkapi)
-        // ==========================================
         GoRoute(
           path: '/transactions/create',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -192,10 +171,6 @@ class MyApp extends StatelessWidget {
             return TransactionFormScreen(editingTransaction: transaction);
           },
         ),
-
-        // ==========================================
-        // MASTER DATA ROUTES (Admin Only)
-        // ==========================================
         GoRoute(
           path: '/users',
           parentNavigatorKey: AppNavigator.navigatorKey,
