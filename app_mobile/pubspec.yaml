@@ -21,6 +21,9 @@ dependencies:
   hive_flutter: ^1.1.0
   shared_preferences: ^2.5.2
   path_provider: ^2.1.5
+  pdf: ^3.10.8
+  printing: ^5.11.1
+  open_file: ^3.3.2
   
   pusher_channels_flutter: ^2.0.2
   go_router: ^17.4.0
@@ -52,3 +55,4 @@ flutter:
   assets:
     - .env
     - assets/images/logo-nsm.png
+    - assets/images/ttd.png

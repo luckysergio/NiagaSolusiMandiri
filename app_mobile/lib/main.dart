@@ -11,7 +11,9 @@ import 'screens/splash_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/main_layout.dart';
 import 'screens/home/beranda_screen.dart';
-import 'screens/transactions/transaction_history_screen.dart';
+import 'screens/transactions/active_transactions_screen.dart';
+import 'screens/transactions/completed_transactions_screen.dart';
+import 'screens/transactions/transaction_form_screen.dart'; // ✅ Ditambahkan
 import 'screens/profile/profile_screen.dart';
 import 'screens/products/products_screen.dart';
 import 'screens/products/product_form_screen.dart';
@@ -20,11 +22,13 @@ import 'screens/suppliers/supplier_screen.dart';
 import 'screens/categories/category_screen.dart';
 import 'screens/product_types/product_type_screen.dart';
 import 'models/product.dart';
+import 'models/transaction.dart'; // ✅ Ditambahkan
 import 'utils/app_navigator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inisialisasi format tanggal untuk Bahasa Indonesia
   await initializeDateFormatting('id_ID', null);
 
   try {
@@ -51,6 +55,8 @@ class MyApp extends StatelessWidget {
     final GoRouter router = GoRouter(
       navigatorKey: AppNavigator.navigatorKey,
       initialLocation: '/splash',
+
+      // GLOBAL REDIRECT: Cek authentication state setiap navigasi
       redirect: (context, state) async {
         final authProvider = context.read<AuthProvider>();
         final isLoggedIn =
@@ -76,7 +82,11 @@ class MyApp extends StatelessWidget {
 
         return null;
       },
+
       routes: [
+        // ==========================================
+        // AUTH ROUTES
+        // ==========================================
         GoRoute(
           path: '/splash',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -87,6 +97,10 @@ class MyApp extends StatelessWidget {
           parentNavigatorKey: AppNavigator.navigatorKey,
           builder: (context, state) => const LoginScreen(),
         ),
+
+        // ==========================================
+        // MAIN LAYOUT (BOTTOM NAVIGATION)
+        // ==========================================
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) {
             return MainLayout(navigationShell: navigationShell);
@@ -97,22 +111,23 @@ class MyApp extends StatelessWidget {
               routes: [
                 GoRoute(
                   path: '/transactions/active',
-                  builder: (context, state) =>
-                      const TransactionHistoryScreen(initialTab: 0),
+                  builder: (context, state) => const ActiveTransactionsScreen(),
                 ),
               ],
             ),
 
+            // Branch 1: Transaksi Selesai
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: '/transactions/done',
                   builder: (context, state) =>
-                      const TransactionHistoryScreen(initialTab: 1),
+                      const CompletedTransactionsScreen(),
                 ),
               ],
             ),
 
+            // Branch 2: Beranda (Center Button)
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -122,7 +137,7 @@ class MyApp extends StatelessWidget {
               ],
             ),
 
-            // Branch 3: Manajemen Produk (CRUD)
+            // Branch 3: Manajemen Produk
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -143,6 +158,10 @@ class MyApp extends StatelessWidget {
             ),
           ],
         ),
+
+        // ==========================================
+        // PRODUCT FORM ROUTES
+        // ==========================================
         GoRoute(
           path: '/products/create',
           parentNavigatorKey: AppNavigator.navigatorKey,
@@ -156,6 +175,27 @@ class MyApp extends StatelessWidget {
             return ProductFormScreen(editingProduct: product);
           },
         ),
+
+        // ==========================================
+        // TRANSACTION FORM ROUTES (✅ Dilengkapi)
+        // ==========================================
+        GoRoute(
+          path: '/transactions/create',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) => const TransactionFormScreen(),
+        ),
+        GoRoute(
+          path: '/transactions/edit/:id',
+          parentNavigatorKey: AppNavigator.navigatorKey,
+          builder: (context, state) {
+            final transaction = state.extra as Transaction?;
+            return TransactionFormScreen(editingTransaction: transaction);
+          },
+        ),
+
+        // ==========================================
+        // MASTER DATA ROUTES (Admin Only)
+        // ==========================================
         GoRoute(
           path: '/users',
           parentNavigatorKey: AppNavigator.navigatorKey,
